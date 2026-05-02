@@ -1,0 +1,1951 @@
+{
+  "1792 Bottled in Bond": {
+    "aliases": [
+      "1792 bib",
+      "barton bottled in bond"
+    ],
+    "proof": 100,
+    "style": "Bottled-in-bond bourbon",
+    "msrp": 45,
+    "fair_price_low": 50,
+    "fair_price_high": 70,
+    "secondary_low": 75,
+    "secondary_high": 100,
+    "profile": "Vanilla, rye spice, caramel, apple, oak, and brown sugar.",
+    "similar": [
+      "E.H. Taylor Small Batch",
+      "Old Grand-Dad Bonded",
+      "Early Times Bottled in Bond"
+    ],
+    "description": "A bottled-in-bond expression from Barton.",
+    "verdict_notes": "Nice bottle when found fairly; no need to overpay.",
+    "community_score": 84
+  },
+  "1792 Full Proof": {
+    "aliases": [
+      "1792 fp",
+      "1792 full",
+      "barton full proof"
+    ],
+    "proof": 125,
+    "style": "Full proof bourbon",
+    "msrp": 50,
+    "fair_price_low": 60,
+    "fair_price_high": 85,
+    "secondary_low": 90,
+    "secondary_high": 130,
+    "profile": "Cinnamon, caramel, oak, dark fruit, vanilla, and hot spice.",
+    "similar": [
+      "Stagg",
+      "Benchmark Full Proof",
+      "Old Forester 1920 Prohibition Style"
+    ],
+    "description": "A high-proof Barton bourbon bottled at full proof.",
+    "verdict_notes": "Strong value if you like heat and structure.",
+    "community_score": 87
+  },
+  "1792 Small Batch": {
+    "aliases": [
+      "1792",
+      "barton 1792",
+      "1792 sb"
+    ],
+    "proof": 93.7,
+    "style": "High-rye bourbon",
+    "msrp": 35,
+    "fair_price_low": 35,
+    "fair_price_high": 45,
+    "secondary_low": 50,
+    "secondary_high": 65,
+    "profile": "Caramel, rye spice, vanilla, dried fruit, and oak.",
+    "similar": [
+      "Buffalo Trace",
+      "Four Roses Small Batch",
+      "Old Forester 100 Proof"
+    ],
+    "description": "A balanced high-rye bourbon from Barton.",
+    "verdict_notes": "Good shelf bourbon when priced normally.",
+    "community_score": 80
+  },
+  "Angel's Envy Bourbon": {
+    "aliases": [
+      "angels envy",
+      "angel's envy",
+      "angels envy bourbon"
+    ],
+    "proof": 86.6,
+    "style": "Port-finished bourbon",
+    "msrp": 55,
+    "fair_price_low": 55,
+    "fair_price_high": 70,
+    "secondary_low": 75,
+    "secondary_high": 95,
+    "profile": "Raisin, vanilla, caramel, red fruit, toasted oak, and wine sweetness.",
+    "similar": [
+      "Isaac Bowman Port Barrel Finished",
+      "Woodford Reserve Double Oaked",
+      "Penelope Architect"
+    ],
+    "description": "A port wine barrel-finished bourbon.",
+    "verdict_notes": "Great for people who like a sweeter finished profile.",
+    "community_score": 80
+  },
+  "Angel's Envy Cask Strength": {
+    "aliases": [
+      "angels envy cask strength",
+      "angel's envy cask",
+      "ae cask strength"
+    ],
+    "proof": "Varies, usually 118-122",
+    "style": "Cask strength finished bourbon",
+    "msrp": 230,
+    "fair_price_low": 275,
+    "fair_price_high": 375,
+    "secondary_low": 425,
+    "secondary_high": 650,
+    "profile": "Dark fruit, port wine, chocolate, caramel, oak, vanilla, and heat.",
+    "similar": [
+      "Michter's 10 Year Bourbon",
+      "Blood Oath Pact",
+      "Old Forester Birthday Bourbon"
+    ],
+    "description": "A limited cask strength version of Angel's Envy bourbon.",
+    "verdict_notes": "Luxury bottle. Buy for the experience, not value math.",
+    "community_score": 90
+  },
+  "Baker's 7 Year": {
+    "aliases": [
+      "bakers",
+      "baker's",
+      "bakers 7",
+      "baker's 7"
+    ],
+    "proof": 107,
+    "style": "Single barrel bourbon",
+    "msrp": 70,
+    "fair_price_low": 70,
+    "fair_price_high": 90,
+    "secondary_low": 95,
+    "secondary_high": 125,
+    "profile": "Peanut, caramel, vanilla, oak, cocoa, and spice.",
+    "similar": [
+      "Knob Creek Single Barrel Reserve",
+      "Booker's",
+      "Old Tub"
+    ],
+    "description": "A 7-year single barrel bourbon from Jim Beam.",
+    "verdict_notes": "Good if you like Beam character and want a polished single barrel.",
+    "community_score": 84
+  },
+  "Bardstown Bourbon Company Fusion Series": {
+    "aliases": [
+      "bardstown fusion",
+      "bbc fusion"
+    ],
+    "proof": "Varies by release",
+    "style": "Blended bourbon",
+    "msrp": 65,
+    "fair_price_low": 65,
+    "fair_price_high": 85,
+    "secondary_low": 90,
+    "secondary_high": 120,
+    "profile": "Caramel, orchard fruit, oak, spice, vanilla, and toasted grain.",
+    "similar": [
+      "Bardstown Bourbon Company Origin Series Bourbon",
+      "Smoke Wagon Small Batch",
+      "Penelope Barrel Strength"
+    ],
+    "description": "A blend-focused bourbon series from Bardstown Bourbon Company.",
+    "verdict_notes": "Release quality varies, but the house blending is usually thoughtful.",
+    "community_score": 84
+  },
+  "Bardstown Bourbon Company Origin Series Bourbon": {
+    "aliases": [
+      "bardstown origin",
+      "bardstown origin bourbon",
+      "bbc origin bourbon"
+    ],
+    "proof": 96,
+    "style": "Wheated bourbon",
+    "msrp": 45,
+    "fair_price_low": 45,
+    "fair_price_high": 60,
+    "secondary_low": 65,
+    "secondary_high": 85,
+    "profile": "Honey, apricot, vanilla, caramel, wheat bread, and oak.",
+    "similar": [
+      "Maker's Mark",
+      "Larceny Small Batch",
+      "Casey Jones Wheated Bourbon"
+    ],
+    "description": "A wheated bourbon in Bardstown Bourbon Company's Origin Series.",
+    "verdict_notes": "Strong modern shelf option with good balance.",
+    "community_score": 85
+  },
+  "Basil Hayden": {
+    "aliases": [
+      "basil hayden's",
+      "basil haydens",
+      "basil"
+    ],
+    "proof": 80,
+    "style": "High-rye bourbon",
+    "msrp": 45,
+    "fair_price_low": 35,
+    "fair_price_high": 45,
+    "secondary_low": 50,
+    "secondary_high": 65,
+    "profile": "Light honey, tea, mint, citrus, vanilla, and gentle spice.",
+    "similar": [
+      "Four Roses Small Batch",
+      "Woodford Reserve",
+      "Buffalo Trace"
+    ],
+    "description": "A lighter high-rye bourbon from Jim Beam.",
+    "verdict_notes": "Friendly and easy, but proof-sensitive drinkers may want more horsepower.",
+    "community_score": 74
+  },
+  "Benchmark Full Proof": {
+    "aliases": [
+      "benchmark fp",
+      "benchmark full",
+      "mccafee full proof"
+    ],
+    "proof": 125,
+    "style": "Full proof bourbon",
+    "msrp": 25,
+    "fair_price_low": 25,
+    "fair_price_high": 35,
+    "secondary_low": 40,
+    "secondary_high": 60,
+    "profile": "Caramel, cinnamon, cherry, vanilla, oak, and assertive heat.",
+    "similar": [
+      "Buffalo Trace",
+      "1792 Full Proof",
+      "Old Forester 100 Proof"
+    ],
+    "description": "A budget full-proof bourbon from Buffalo Trace's Benchmark line.",
+    "verdict_notes": "Very useful value bottle when expectations match the price.",
+    "community_score": 82
+  },
+  "Benchmark Single Barrel": {
+    "aliases": [
+      "benchmark sib",
+      "mccafee single barrel"
+    ],
+    "proof": 95,
+    "style": "Single barrel bourbon",
+    "msrp": 25,
+    "fair_price_low": 25,
+    "fair_price_high": 35,
+    "secondary_low": 40,
+    "secondary_high": 55,
+    "profile": "Caramel, vanilla, light cherry, oak, and soft spice.",
+    "similar": [
+      "Buffalo Trace",
+      "Eagle Rare 10 Year",
+      "1792 Small Batch"
+    ],
+    "description": "A budget single barrel bourbon from the Benchmark lineup.",
+    "verdict_notes": "Good low-cost experiment bottle, especially when priced correctly.",
+    "community_score": 78
+  },
+  "Blanton's Single Barrel": {
+    "aliases": [
+      "blantons",
+      "blanton",
+      "blanton's",
+      "blantons single barrel"
+    ],
+    "proof": 93,
+    "style": "Single barrel bourbon",
+    "msrp": 75,
+    "fair_price_low": 90,
+    "fair_price_high": 125,
+    "secondary_low": 130,
+    "secondary_high": 180,
+    "profile": "Honey, orange peel, vanilla, light oak, baking spice, and soft caramel.",
+    "similar": [
+      "Eagle Rare 10 Year",
+      "Four Roses Single Barrel",
+      "Russell's Reserve Single Barrel"
+    ],
+    "description": "A classic single barrel bourbon with a polished, approachable profile.",
+    "verdict_notes": "Great gift bottle and pretty reliable pour, but it gets overpriced quickly.",
+    "community_score": 84
+  },
+  "Blue Note Juke Joint": {
+    "aliases": [
+      "blue note",
+      "blue note juke joint",
+      "juke joint bourbon"
+    ],
+    "proof": 93,
+    "style": "Small batch bourbon",
+    "msrp": 35,
+    "fair_price_low": 35,
+    "fair_price_high": 50,
+    "secondary_low": 55,
+    "secondary_high": 75,
+    "profile": "Caramel, vanilla, fruit, oak, spice, and brown sugar.",
+    "similar": [
+      "Buffalo Trace",
+      "1792 Small Batch",
+      "Elijah Craig Small Batch"
+    ],
+    "description": "A Memphis-linked bourbon brand known for value releases.",
+    "verdict_notes": "Good buy when priced like the hidden-value bottle it wants to be.",
+    "community_score": 80
+  },
+  "Blue Note Juke Joint Uncut": {
+    "aliases": [
+      "blue note uncut",
+      "juke joint uncut",
+      "blue note cask"
+    ],
+    "proof": "Varies, usually 115-125",
+    "style": "Cask strength bourbon",
+    "msrp": 50,
+    "fair_price_low": 55,
+    "fair_price_high": 75,
+    "secondary_low": 80,
+    "secondary_high": 110,
+    "profile": "Dark caramel, cinnamon, oak, cherry, vanilla, and heat.",
+    "similar": [
+      "1792 Full Proof",
+      "Benchmark Full Proof",
+      "Wild Turkey Rare Breed"
+    ],
+    "description": "A cask strength release from Blue Note.",
+    "verdict_notes": "Can punch way above price if you like bold younger bourbon.",
+    "community_score": 85
+  },
+  "Booker's": {
+    "aliases": [
+      "bookers",
+      "booker's bourbon"
+    ],
+    "proof": "Varies by batch, usually 120-130",
+    "style": "Small batch barrel proof bourbon",
+    "msrp": 100,
+    "fair_price_low": 105,
+    "fair_price_high": 130,
+    "secondary_low": 135,
+    "secondary_high": 175,
+    "profile": "Peanut, vanilla, brown sugar, oak, baking spice, and big Beam funk.",
+    "similar": [
+      "Elijah Craig Barrel Proof",
+      "Knob Creek Single Barrel",
+      "Stagg"
+    ],
+    "description": "A barrel-proof small batch bourbon from Jim Beam.",
+    "verdict_notes": "Batch quality matters. Great when you want a big, nutty barrel-proof pour.",
+    "community_score": 87
+  },
+  "Buffalo Trace": {
+    "aliases": [
+      "bt",
+      "buffalo trace bourbon"
+    ],
+    "proof": 90,
+    "style": "Kentucky straight bourbon",
+    "msrp": 30,
+    "fair_price_low": 35,
+    "fair_price_high": 45,
+    "secondary_low": 50,
+    "secondary_high": 70,
+    "profile": "Caramel, vanilla, light cherry, brown sugar, and soft oak.",
+    "similar": [
+      "Eagle Rare 10 Year",
+      "Benchmark Full Proof",
+      "Wild Turkey 101"
+    ],
+    "description": "A balanced everyday bourbon from Buffalo Trace.",
+    "verdict_notes": "Great daily pour at retail. Do not chase it too hard when shelves have good alternatives.",
+    "community_score": 82
+  },
+  "Chattanooga Whiskey 111": {
+    "aliases": [
+      "chattanooga 111",
+      "chatt 111",
+      "chattanooga cask 111"
+    ],
+    "proof": 111,
+    "style": "High-malt bourbon",
+    "msrp": 45,
+    "fair_price_low": 45,
+    "fair_price_high": 60,
+    "secondary_low": 65,
+    "secondary_high": 85,
+    "profile": "Honey malt, caramel, cocoa, baking spice, oak, and dried fruit.",
+    "similar": [
+      "Old Elk Bourbon",
+      "New Riff Bottled in Bond Bourbon",
+      "Woodford Reserve"
+    ],
+    "description": "A high-malt bourbon from Chattanooga Whiskey.",
+    "verdict_notes": "Distinctive profile and a good craft value.",
+    "community_score": 84
+  },
+  "David Nicholson 1843": {
+    "aliases": [
+      "david nicholson",
+      "david nicholson 1843 bourbon"
+    ],
+    "proof": 100,
+    "style": "Wheated bourbon",
+    "msrp": 35,
+    "fair_price_low": 35,
+    "fair_price_high": 45,
+    "secondary_low": 50,
+    "secondary_high": 65,
+    "profile": "Honey, vanilla, oak, caramel, wheat bread, and spice.",
+    "similar": [
+      "Rebel 100",
+      "Larceny Small Batch",
+      "Maker's Mark"
+    ],
+    "description": "A 100-proof wheated bourbon from Lux Row.",
+    "verdict_notes": "Quietly useful bottle for wheated bourbon fans.",
+    "community_score": 79
+  },
+  "E.H. Taylor Barrel Proof": {
+    "aliases": [
+      "eh taylor barrel proof",
+      "eht barrel proof",
+      "colonel taylor bp"
+    ],
+    "proof": "Varies, usually 125-135",
+    "style": "Barrel proof bourbon",
+    "msrp": 80,
+    "fair_price_low": 250,
+    "fair_price_high": 400,
+    "secondary_low": 450,
+    "secondary_high": 750,
+    "profile": "Brown sugar, dark cherry, oak, cinnamon, vanilla, and powerful heat.",
+    "similar": [
+      "Stagg",
+      "Elijah Craig Barrel Proof",
+      "George T. Stagg"
+    ],
+    "description": "A barrel-proof release in the E.H. Taylor lineup.",
+    "verdict_notes": "Great bottle, but often priced like a trophy instead of a drinker.",
+    "community_score": 94
+  },
+  "E.H. Taylor Single Barrel": {
+    "aliases": [
+      "eh taylor single barrel",
+      "eht single barrel",
+      "colonel taylor sib"
+    ],
+    "proof": 100,
+    "style": "Bottled-in-bond single barrel bourbon",
+    "msrp": 75,
+    "fair_price_low": 110,
+    "fair_price_high": 160,
+    "secondary_low": 175,
+    "secondary_high": 260,
+    "profile": "Caramel, orange, oak, vanilla, baking spice, and barrel variation.",
+    "similar": [
+      "Blanton's Single Barrel",
+      "Four Roses Single Barrel",
+      "Russell's Reserve Single Barrel"
+    ],
+    "description": "A bottled-in-bond single barrel bourbon from Buffalo Trace.",
+    "verdict_notes": "Can be excellent, but single barrel variance and markup matter.",
+    "community_score": 88
+  },
+  "E.H. Taylor Small Batch": {
+    "aliases": [
+      "eh taylor small batch",
+      "eht small batch",
+      "colonel taylor small batch"
+    ],
+    "proof": 100,
+    "style": "Bottled-in-bond bourbon",
+    "msrp": 45,
+    "fair_price_low": 60,
+    "fair_price_high": 85,
+    "secondary_low": 90,
+    "secondary_high": 130,
+    "profile": "Caramel corn, vanilla, cinnamon, light oak, cherry, and mint.",
+    "similar": [
+      "Buffalo Trace",
+      "Eagle Rare 10 Year",
+      "1792 Bottled in Bond"
+    ],
+    "description": "A bottled-in-bond bourbon from Buffalo Trace.",
+    "verdict_notes": "Solid buy near retail; above fair pricing, do not ignore easier bottles.",
+    "community_score": 85
+  },
+  "Eagle Rare 10 Year": {
+    "aliases": [
+      "eagle rare",
+      "er10",
+      "eagle rare 10"
+    ],
+    "proof": 90,
+    "style": "10 year bourbon",
+    "msrp": 45,
+    "fair_price_low": 55,
+    "fair_price_high": 75,
+    "secondary_low": 80,
+    "secondary_high": 120,
+    "profile": "Toffee, orange, vanilla, oak, cherry, and gentle spice.",
+    "similar": [
+      "Buffalo Trace",
+      "Russell's Reserve 10 Year",
+      "Blanton's Single Barrel"
+    ],
+    "description": "A 10-year bourbon from Buffalo Trace with an easygoing oak-and-caramel profile.",
+    "verdict_notes": "Wonderful near MSRP. Above fair pricing, better shelf options start competing hard.",
+    "community_score": 86
+  },
+  "Eagle Rare 17 Year": {
+    "aliases": [
+      "eagle rare 17",
+      "er17",
+      "eagle rare seventeen"
+    ],
+    "proof": 101,
+    "style": "17 year bourbon",
+    "msrp": 125,
+    "fair_price_low": 800,
+    "fair_price_high": 1400,
+    "secondary_low": 1600,
+    "secondary_high": 2800,
+    "profile": "Old oak, leather, cherry, tobacco, vanilla, dark caramel, and baking spice.",
+    "similar": [
+      "Michter's 10 Year Bourbon",
+      "Pappy Van Winkle 15 Year",
+      "George T. Stagg"
+    ],
+    "description": "A 17-year bourbon in Buffalo Trace Antique Collection.",
+    "verdict_notes": "A beautiful bottle for mature oak fans, with market prices to match the legend.",
+    "community_score": 96
+  },
+  "Elijah Craig Barrel Proof": {
+    "aliases": [
+      "ecbp",
+      "elijah craig bp",
+      "elijah barrel proof"
+    ],
+    "proof": "Varies by batch, usually 118-136",
+    "style": "Barrel proof bourbon",
+    "msrp": 75,
+    "fair_price_low": 85,
+    "fair_price_high": 110,
+    "secondary_low": 115,
+    "secondary_high": 150,
+    "profile": "Caramel, peanut brittle, oak, dark fruit, leather, spice, and long warmth.",
+    "similar": [
+      "Stagg",
+      "Booker's",
+      "Larceny Barrel Proof"
+    ],
+    "description": "A widely respected barrel-proof bourbon from Heaven Hill.",
+    "verdict_notes": "One of the best regular barrel-proof buys when stores keep it close to retail.",
+    "community_score": 92
+  },
+  "Elijah Craig Small Batch": {
+    "aliases": [
+      "elijah craig",
+      "ec small batch",
+      "ecsb"
+    ],
+    "proof": 94,
+    "style": "Small batch bourbon",
+    "msrp": 35,
+    "fair_price_low": 35,
+    "fair_price_high": 45,
+    "secondary_low": 50,
+    "secondary_high": 65,
+    "profile": "Caramel, oak, vanilla, baking spice, brown sugar, and orange peel.",
+    "similar": [
+      "Knob Creek 9 Year",
+      "Evan Williams Single Barrel",
+      "Buffalo Trace"
+    ],
+    "description": "A dependable small batch bourbon from Heaven Hill.",
+    "verdict_notes": "A sturdy shelf bourbon that rarely needs hunting.",
+    "community_score": 82
+  },
+  "Evan Williams Bottled in Bond": {
+    "aliases": [
+      "evan williams bib",
+      "ew bib",
+      "evan bonded"
+    ],
+    "proof": 100,
+    "style": "Bottled-in-bond bourbon",
+    "msrp": 20,
+    "fair_price_low": 20,
+    "fair_price_high": 30,
+    "secondary_low": 35,
+    "secondary_high": 45,
+    "profile": "Caramel, vanilla, oak, peanut, pepper, and brown sugar.",
+    "similar": [
+      "Old Grand-Dad Bonded",
+      "Early Times Bottled in Bond",
+      "Wild Turkey 101"
+    ],
+    "description": "A budget bottled-in-bond bourbon from Heaven Hill.",
+    "verdict_notes": "One of the best inexpensive workhorse bourbons.",
+    "community_score": 81
+  },
+  "Evan Williams Single Barrel": {
+    "aliases": [
+      "evan single barrel",
+      "ew single barrel",
+      "evan williams sib"
+    ],
+    "proof": 86.6,
+    "style": "Single barrel bourbon",
+    "msrp": 40,
+    "fair_price_low": 40,
+    "fair_price_high": 55,
+    "secondary_low": 60,
+    "secondary_high": 80,
+    "profile": "Honey, caramel, oak, apple, vanilla, and gentle spice.",
+    "similar": [
+      "Elijah Craig Small Batch",
+      "Henry McKenna 10 Year Bottled in Bond",
+      "Eagle Rare 10 Year"
+    ],
+    "description": "A vintage-dated single barrel bourbon from Heaven Hill.",
+    "verdict_notes": "Nice easy sipper when available at sane pricing.",
+    "community_score": 80
+  },
+  "Ezra Brooks Cask Strength": {
+    "aliases": [
+      "ezra cask",
+      "ezra brooks cask",
+      "ezra brooks barrel proof"
+    ],
+    "proof": 120,
+    "style": "Cask strength bourbon",
+    "msrp": 55,
+    "fair_price_low": 55,
+    "fair_price_high": 75,
+    "secondary_low": 80,
+    "secondary_high": 105,
+    "profile": "Caramel, oak, vanilla, spice, char, and dark sugar.",
+    "similar": [
+      "Rebel Cask Strength",
+      "Old Ezra 7 Year",
+      "Knob Creek Single Barrel Reserve"
+    ],
+    "description": "A cask strength bourbon from Ezra Brooks.",
+    "verdict_notes": "Good value when you want proof without allocation drama.",
+    "community_score": 84
+  },
+  "Four Roses Limited Edition Small Batch": {
+    "aliases": [
+      "four roses limited",
+      "four roses lesb",
+      "fr limited edition"
+    ],
+    "proof": "Varies by release",
+    "style": "Limited small batch bourbon",
+    "msrp": 220,
+    "fair_price_low": 350,
+    "fair_price_high": 600,
+    "secondary_low": 700,
+    "secondary_high": 1200,
+    "profile": "Red fruit, floral spice, oak, vanilla, cocoa, rye, and long sweetness.",
+    "similar": [
+      "Remus Repeal Reserve",
+      "Old Forester Birthday Bourbon",
+      "Russell's Reserve 13 Year"
+    ],
+    "description": "An annual limited blend from Four Roses.",
+    "verdict_notes": "Frequently excellent; the release year matters a lot.",
+    "community_score": 95
+  },
+  "Four Roses Single Barrel": {
+    "aliases": [
+      "four roses sib",
+      "4 roses single barrel",
+      "fr single barrel"
+    ],
+    "proof": 100,
+    "style": "High-rye single barrel bourbon",
+    "msrp": 50,
+    "fair_price_low": 55,
+    "fair_price_high": 70,
+    "secondary_low": 75,
+    "secondary_high": 95,
+    "profile": "Ripe fruit, floral spice, vanilla, rye spice, cocoa, and oak.",
+    "similar": [
+      "Russell's Reserve Single Barrel",
+      "Wild Turkey Rare Breed",
+      "Blanton's Single Barrel"
+    ],
+    "description": "A high-rye single barrel bourbon with great shelf availability in many markets.",
+    "verdict_notes": "A reliable buy and one of the best non-hype bottles in the aisle.",
+    "community_score": 87
+  },
+  "Four Roses Small Batch": {
+    "aliases": [
+      "four roses small batch",
+      "4 roses small batch",
+      "fr small batch"
+    ],
+    "proof": 90,
+    "style": "Small batch bourbon",
+    "msrp": 40,
+    "fair_price_low": 40,
+    "fair_price_high": 50,
+    "secondary_low": 55,
+    "secondary_high": 70,
+    "profile": "Red fruit, honey, baking spice, light oak, and floral rye.",
+    "similar": [
+      "Woodford Reserve",
+      "Buffalo Trace",
+      "1792 Small Batch"
+    ],
+    "description": "A blend of Four Roses bourbon recipes with a balanced profile.",
+    "verdict_notes": "Dependable shelf pick for fruit and spice.",
+    "community_score": 82
+  },
+  "Four Roses Small Batch Select": {
+    "aliases": [
+      "four roses select",
+      "small batch select",
+      "fr small batch select"
+    ],
+    "proof": 104,
+    "style": "Small batch high-rye bourbon",
+    "msrp": 65,
+    "fair_price_low": 65,
+    "fair_price_high": 80,
+    "secondary_low": 85,
+    "secondary_high": 110,
+    "profile": "Raspberry, oak, vanilla, baking spice, cocoa, and rye pepper.",
+    "similar": [
+      "Four Roses Single Barrel",
+      "Russell's Reserve Single Barrel",
+      "Wild Turkey Rare Breed"
+    ],
+    "description": "A higher-proof Four Roses small batch expression.",
+    "verdict_notes": "Very good bottle when you want fruit, spice, and proof without the chase.",
+    "community_score": 88
+  },
+  "George Remus Bourbon": {
+    "aliases": [
+      "remus bourbon",
+      "george remus"
+    ],
+    "proof": 94,
+    "style": "High-rye bourbon",
+    "msrp": 45,
+    "fair_price_low": 45,
+    "fair_price_high": 60,
+    "secondary_low": 65,
+    "secondary_high": 85,
+    "profile": "Caramel, rye spice, vanilla, fruit, oak, and pepper.",
+    "similar": [
+      "Four Roses Small Batch",
+      "1792 Small Batch",
+      "New Riff Bottled in Bond Bourbon"
+    ],
+    "description": "A high-rye bourbon from the George Remus lineup.",
+    "verdict_notes": "Solid shelf bourbon with rye-forward character.",
+    "community_score": 81
+  },
+  "George T. Stagg": {
+    "aliases": [
+      "gts",
+      "george t stagg",
+      "george stagg"
+    ],
+    "proof": "Varies, usually 125-145",
+    "style": "Barrel proof bourbon",
+    "msrp": 125,
+    "fair_price_low": 850,
+    "fair_price_high": 1400,
+    "secondary_low": 1600,
+    "secondary_high": 2800,
+    "profile": "Dark fruit, fudge, molasses, oak, tobacco, clove, and long heat.",
+    "similar": [
+      "Stagg",
+      "Elijah Craig Barrel Proof",
+      "Jack Daniel's Single Barrel Barrel Proof"
+    ],
+    "description": "A barrel-proof Buffalo Trace Antique Collection bourbon.",
+    "verdict_notes": "A benchmark high-proof bourbon, but never confuse MSRP value with market value.",
+    "community_score": 98
+  },
+  "Henry McKenna 10 Year Bottled in Bond": {
+    "aliases": [
+      "henry mckenna",
+      "mckenna 10",
+      "henry mckenna 10",
+      "hm10"
+    ],
+    "proof": 100,
+    "style": "10 year bottled-in-bond bourbon",
+    "msrp": 65,
+    "fair_price_low": 70,
+    "fair_price_high": 95,
+    "secondary_low": 100,
+    "secondary_high": 140,
+    "profile": "Caramel, oak, nutty vanilla, spice, leather, and dried fruit.",
+    "similar": [
+      "Evan Williams Single Barrel",
+      "E.H. Taylor Small Batch",
+      "Knob Creek 9 Year"
+    ],
+    "description": "A 10-year single barrel bottled-in-bond bourbon from Heaven Hill.",
+    "verdict_notes": "Can be excellent, but single barrel variation is real.",
+    "community_score": 86
+  },
+  "Jack Daniel's Bonded": {
+    "aliases": [
+      "jack bonded",
+      "jd bonded",
+      "jack daniels bonded"
+    ],
+    "proof": 100,
+    "style": "Bottled-in-bond Tennessee whiskey",
+    "msrp": 35,
+    "fair_price_low": 35,
+    "fair_price_high": 45,
+    "secondary_low": 50,
+    "secondary_high": 65,
+    "profile": "Banana, caramel, oak, vanilla wafer, spice, and maple.",
+    "similar": [
+      "Old Forester 100 Proof",
+      "Evan Williams Bottled in Bond",
+      "Old Grand-Dad Bonded"
+    ],
+    "description": "A 100-proof bonded Tennessee whiskey from Jack Daniel's.",
+    "verdict_notes": "Strong value and much better than some expect.",
+    "community_score": 83
+  },
+  "Jack Daniel's Single Barrel Barrel Proof": {
+    "aliases": [
+      "jd sbbp",
+      "jack barrel proof",
+      "jack daniels barrel proof",
+      "jdsbbp"
+    ],
+    "proof": "Varies, usually 125-135",
+    "style": "Tennessee whiskey",
+    "msrp": 70,
+    "fair_price_low": 70,
+    "fair_price_high": 95,
+    "secondary_low": 100,
+    "secondary_high": 135,
+    "profile": "Banana, caramel, toasted oak, brown sugar, spice, and heat.",
+    "similar": [
+      "Stagg",
+      "Old Forester 1920 Prohibition Style",
+      "Wild Turkey Rare Breed"
+    ],
+    "description": "A barrel-proof single barrel Tennessee whiskey from Jack Daniel's.",
+    "verdict_notes": "Often one of the best high-proof buys on the shelf.",
+    "community_score": 91
+  },
+  "Knob Creek 12 Year": {
+    "aliases": [
+      "kc12",
+      "knob creek 12",
+      "knob creek twelve"
+    ],
+    "proof": 100,
+    "style": "12 year bourbon",
+    "msrp": 75,
+    "fair_price_low": 80,
+    "fair_price_high": 110,
+    "secondary_low": 120,
+    "secondary_high": 170,
+    "profile": "Oak, peanut brittle, caramel, vanilla, leather, spice, and dark sugar.",
+    "similar": [
+      "Knob Creek 9 Year",
+      "Russell's Reserve 10 Year",
+      "Henry McKenna 10 Year Bottled in Bond"
+    ],
+    "description": "A 12-year bourbon from Knob Creek.",
+    "verdict_notes": "Great mature Beam bottle when priced fairly.",
+    "community_score": 89
+  },
+  "Knob Creek 18 Year": {
+    "aliases": [
+      "kc18",
+      "knob creek 18",
+      "knob creek eighteen"
+    ],
+    "proof": 100,
+    "style": "18 year bourbon",
+    "msrp": 170,
+    "fair_price_low": 220,
+    "fair_price_high": 325,
+    "secondary_low": 350,
+    "secondary_high": 550,
+    "profile": "Heavy oak, leather, peanut brittle, caramel, vanilla, tobacco, and spice.",
+    "similar": [
+      "Eagle Rare 17 Year",
+      "Knob Creek 12 Year",
+      "Russell's Reserve 13 Year"
+    ],
+    "description": "An 18-year bourbon from Knob Creek.",
+    "verdict_notes": "For oak lovers. Make sure mature oak is what you actually want.",
+    "community_score": 90
+  },
+  "Knob Creek 9 Year": {
+    "aliases": [
+      "knob creek",
+      "kc 9",
+      "knob creek small batch"
+    ],
+    "proof": 100,
+    "style": "Small batch bourbon",
+    "msrp": 40,
+    "fair_price_low": 40,
+    "fair_price_high": 50,
+    "secondary_low": 55,
+    "secondary_high": 70,
+    "profile": "Peanut, oak, caramel, vanilla, char, and baking spice.",
+    "similar": [
+      "Booker's",
+      "Old Grand-Dad 114",
+      "Elijah Craig Small Batch"
+    ],
+    "description": "A 9-year small batch bourbon from Jim Beam.",
+    "verdict_notes": "Reliable shelf bottle and a strong house pour.",
+    "community_score": 84
+  },
+  "Knob Creek Single Barrel Reserve": {
+    "aliases": [
+      "knob creek single barrel",
+      "kc single barrel",
+      "kc sib",
+      "knob creek 120"
+    ],
+    "proof": 120,
+    "style": "Single barrel bourbon",
+    "msrp": 60,
+    "fair_price_low": 60,
+    "fair_price_high": 75,
+    "secondary_low": 80,
+    "secondary_high": 105,
+    "profile": "Roasted peanut, caramel, oak, vanilla, cinnamon, and char.",
+    "similar": [
+      "Booker's",
+      "Wild Turkey Rare Breed",
+      "Russell's Reserve Single Barrel"
+    ],
+    "description": "A 120-proof single barrel bourbon from Knob Creek.",
+    "verdict_notes": "Often a great value for proof and age, especially store picks.",
+    "community_score": 89
+  },
+  "Larceny Barrel Proof": {
+    "aliases": [
+      "larceny bp",
+      "lbp",
+      "larceny barrel"
+    ],
+    "proof": "Varies by batch, usually 120-126",
+    "style": "Barrel proof wheated bourbon",
+    "msrp": 65,
+    "fair_price_low": 75,
+    "fair_price_high": 100,
+    "secondary_low": 105,
+    "secondary_high": 140,
+    "profile": "Caramel, bread pudding, cinnamon, toasted oak, vanilla, and dark sugar.",
+    "similar": [
+      "Weller Antique 107",
+      "Maker's Mark Cask Strength",
+      "Elijah Craig Barrel Proof"
+    ],
+    "description": "Heaven Hill's barrel-proof wheated bourbon release.",
+    "verdict_notes": "Strong buy when the batch is good and the price stays near retail.",
+    "community_score": 89
+  },
+  "Larceny Small Batch": {
+    "aliases": [
+      "larceny",
+      "larceny bourbon"
+    ],
+    "proof": 92,
+    "style": "Wheated bourbon",
+    "msrp": 30,
+    "fair_price_low": 30,
+    "fair_price_high": 40,
+    "secondary_low": 45,
+    "secondary_high": 55,
+    "profile": "Honey, bread, vanilla, caramel, light spice, and toasted oak.",
+    "similar": [
+      "Maker's Mark",
+      "Rebel 100",
+      "Weller Special Reserve"
+    ],
+    "description": "A wheated bourbon from Heaven Hill.",
+    "verdict_notes": "Good budget wheater, especially for cocktails and casual pours.",
+    "community_score": 78
+  },
+  "Maker's Mark": {
+    "aliases": [
+      "makers mark",
+      "maker's",
+      "makers"
+    ],
+    "proof": 90,
+    "style": "Wheated bourbon",
+    "msrp": 30,
+    "fair_price_low": 30,
+    "fair_price_high": 40,
+    "secondary_low": 45,
+    "secondary_high": 55,
+    "profile": "Vanilla, caramel, wheat bread, red fruit, and soft oak.",
+    "similar": [
+      "Larceny Small Batch",
+      "Weller Special Reserve",
+      "Rebel 100"
+    ],
+    "description": "A classic wheated bourbon with a soft, sweet profile.",
+    "verdict_notes": "Reliable and easy to recommend at normal shelf pricing.",
+    "community_score": 80
+  },
+  "Maker's Mark 46": {
+    "aliases": [
+      "makers 46",
+      "maker's 46",
+      "mm46"
+    ],
+    "proof": 94,
+    "style": "Wheated bourbon with stave finishing",
+    "msrp": 40,
+    "fair_price_low": 40,
+    "fair_price_high": 50,
+    "secondary_low": 55,
+    "secondary_high": 70,
+    "profile": "Vanilla, toasted oak, caramel, baking spice, and red fruit.",
+    "similar": [
+      "Maker's Mark",
+      "Maker's Mark Cask Strength",
+      "Woodford Reserve Double Oaked"
+    ],
+    "description": "A stave-finished Maker's Mark expression with extra oak and spice.",
+    "verdict_notes": "Usually a smart step up from standard Maker's.",
+    "community_score": 84
+  },
+  "Maker's Mark 46 Cask Strength": {
+    "aliases": [
+      "makers 46 cask",
+      "maker's 46 cask strength",
+      "mm46 cs"
+    ],
+    "proof": "Varies, usually 108-114",
+    "style": "Cask strength wheated bourbon",
+    "msrp": 65,
+    "fair_price_low": 70,
+    "fair_price_high": 90,
+    "secondary_low": 95,
+    "secondary_high": 125,
+    "profile": "Vanilla cream, toasted oak, cinnamon, caramel, and red fruit.",
+    "similar": [
+      "Maker's Mark Cask Strength",
+      "Weller Antique 107",
+      "Larceny Barrel Proof"
+    ],
+    "description": "A cask strength version of Maker's 46.",
+    "verdict_notes": "Great wheated option that often beats hyped bottles on price.",
+    "community_score": 90
+  },
+  "Maker's Mark Cask Strength": {
+    "aliases": [
+      "makers cask",
+      "maker's cask",
+      "makers mark cask strength",
+      "mmcs"
+    ],
+    "proof": "Varies by batch, usually 108-114",
+    "style": "Cask strength wheated bourbon",
+    "msrp": 45,
+    "fair_price_low": 50,
+    "fair_price_high": 65,
+    "secondary_low": 70,
+    "secondary_high": 90,
+    "profile": "Vanilla, caramel, red fruit, baking spice, wheat sweetness, and oak.",
+    "similar": [
+      "Weller Antique 107",
+      "Larceny Barrel Proof",
+      "Maker's Mark 46 Cask Strength"
+    ],
+    "description": "A cask strength version of Maker's Mark with more body and spice.",
+    "verdict_notes": "Often the smarter wheated bourbon buy when allocated bottles are marked up.",
+    "community_score": 88
+  },
+  "Michter's 10 Year Bourbon": {
+    "aliases": [
+      "michters 10 bourbon",
+      "michter's 10 bourbon",
+      "m10 bourbon"
+    ],
+    "proof": 94.4,
+    "style": "10 year single barrel bourbon",
+    "msrp": 185,
+    "fair_price_low": 350,
+    "fair_price_high": 600,
+    "secondary_low": 700,
+    "secondary_high": 1200,
+    "profile": "Toffee, oak, cherry, vanilla, leather, tobacco, and baking spice.",
+    "similar": [
+      "Pappy Van Winkle 15 Year",
+      "Eagle Rare 17 Year",
+      "Russell's Reserve 13 Year"
+    ],
+    "description": "A limited 10-year single barrel bourbon from Michter's.",
+    "verdict_notes": "Excellent bottle, but pricing is usually collector territory.",
+    "community_score": 94
+  },
+  "Michter's US*1 Bourbon": {
+    "aliases": [
+      "michters bourbon",
+      "michter's bourbon",
+      "michters us1 bourbon"
+    ],
+    "proof": 91.4,
+    "style": "Small batch bourbon",
+    "msrp": 50,
+    "fair_price_low": 50,
+    "fair_price_high": 65,
+    "secondary_low": 70,
+    "secondary_high": 90,
+    "profile": "Caramel, vanilla, dried fruit, toasted oak, and baking spice.",
+    "similar": [
+      "Woodford Reserve",
+      "Four Roses Small Batch",
+      "Buffalo Trace"
+    ],
+    "description": "A small batch bourbon from Michter's.",
+    "verdict_notes": "Polished and accessible, though not always a value play.",
+    "community_score": 82
+  },
+  "New Riff Bottled in Bond Bourbon": {
+    "aliases": [
+      "new riff bourbon",
+      "new riff bib",
+      "new riff"
+    ],
+    "proof": 100,
+    "style": "Bottled-in-bond bourbon",
+    "msrp": 45,
+    "fair_price_low": 45,
+    "fair_price_high": 60,
+    "secondary_low": 65,
+    "secondary_high": 85,
+    "profile": "Rye spice, vanilla, orange, oak, mint, and caramel.",
+    "similar": [
+      "Old Grand-Dad Bonded",
+      "Four Roses Single Barrel",
+      "1792 Bottled in Bond"
+    ],
+    "description": "A bottled-in-bond high-rye bourbon from New Riff.",
+    "verdict_notes": "Solid modern craft bourbon with honest proof and structure.",
+    "community_score": 84
+  },
+  "New Riff Single Barrel Bourbon": {
+    "aliases": [
+      "new riff single barrel",
+      "new riff sib"
+    ],
+    "proof": "Varies, usually 105-115",
+    "style": "Single barrel bourbon",
+    "msrp": 60,
+    "fair_price_low": 60,
+    "fair_price_high": 80,
+    "secondary_low": 85,
+    "secondary_high": 110,
+    "profile": "Rye spice, caramel, mint, orange peel, vanilla, and oak.",
+    "similar": [
+      "Four Roses Single Barrel",
+      "Russell's Reserve Single Barrel",
+      "Knob Creek Single Barrel Reserve"
+    ],
+    "description": "A single barrel bourbon from New Riff.",
+    "verdict_notes": "Can be excellent if you like high-rye spice and barrel variation.",
+    "community_score": 87
+  },
+  "Old Elk Bourbon": {
+    "aliases": [
+      "old elk",
+      "old elk bourbon"
+    ],
+    "proof": 88,
+    "style": "High-malt bourbon",
+    "msrp": 50,
+    "fair_price_low": 50,
+    "fair_price_high": 65,
+    "secondary_low": 70,
+    "secondary_high": 90,
+    "profile": "Honey, malt, vanilla, caramel, orange, and light oak.",
+    "similar": [
+      "Woodford Reserve",
+      "Four Roses Small Batch",
+      "Michter's US*1 Bourbon"
+    ],
+    "description": "A high-malt bourbon from Old Elk.",
+    "verdict_notes": "Smooth and approachable, with a softer profile than proof hunters may want.",
+    "community_score": 80
+  },
+  "Old Elk Wheated Bourbon": {
+    "aliases": [
+      "old elk wheated",
+      "old elk wheated bourbon"
+    ],
+    "proof": 92,
+    "style": "Wheated bourbon",
+    "msrp": 70,
+    "fair_price_low": 70,
+    "fair_price_high": 90,
+    "secondary_low": 95,
+    "secondary_high": 125,
+    "profile": "Honey, vanilla, wheat bread, caramel, fruit, and oak.",
+    "similar": [
+      "Maker's Mark 46",
+      "Larceny Barrel Proof",
+      "Weller 12 Year"
+    ],
+    "description": "A wheated bourbon from Old Elk.",
+    "verdict_notes": "Good if you like gentle sweetness and do not mind the premium.",
+    "community_score": 83
+  },
+  "Old Ezra 7 Year": {
+    "aliases": [
+      "old ezra",
+      "old ezra 7",
+      "old ezra seven"
+    ],
+    "proof": 117,
+    "style": "Barrel strength bourbon",
+    "msrp": 80,
+    "fair_price_low": 80,
+    "fair_price_high": 105,
+    "secondary_low": 110,
+    "secondary_high": 150,
+    "profile": "Caramel, oak, spice, vanilla, dark fruit, and heat.",
+    "similar": [
+      "Ezra Brooks Cask Strength",
+      "Knob Creek Single Barrel Reserve",
+      "Booker's"
+    ],
+    "description": "A 7-year barrel strength bourbon from Lux Row.",
+    "verdict_notes": "Solid barrel-strength pour, especially below triple digits.",
+    "community_score": 86
+  },
+  "Old Forester 100 Proof": {
+    "aliases": [
+      "old forester 100",
+      "of100",
+      "old forester signature"
+    ],
+    "proof": 100,
+    "style": "Kentucky straight bourbon",
+    "msrp": 30,
+    "fair_price_low": 30,
+    "fair_price_high": 40,
+    "secondary_low": 45,
+    "secondary_high": 60,
+    "profile": "Banana bread, caramel, spice, oak, vanilla, and pepper.",
+    "similar": [
+      "Wild Turkey 101",
+      "Evan Williams Bottled in Bond",
+      "Old Grand-Dad Bonded"
+    ],
+    "description": "A 100-proof Old Forester bourbon with classic Brown-Forman fruit and spice.",
+    "verdict_notes": "Excellent value bottle with cocktail backbone.",
+    "community_score": 83
+  },
+  "Old Forester 1897 Bottled in Bond": {
+    "aliases": [
+      "of 1897",
+      "old forester 1897",
+      "1897 bib"
+    ],
+    "proof": 100,
+    "style": "Bottled-in-bond bourbon",
+    "msrp": 55,
+    "fair_price_low": 55,
+    "fair_price_high": 70,
+    "secondary_low": 75,
+    "secondary_high": 95,
+    "profile": "Caramel, banana, oak, clove, vanilla, and dark sugar.",
+    "similar": [
+      "Old Forester 100 Proof",
+      "E.H. Taylor Small Batch",
+      "1792 Bottled in Bond"
+    ],
+    "description": "The bottled-in-bond release from Old Forester's Whiskey Row lineup.",
+    "verdict_notes": "Good bottle, though competition at the price is strong.",
+    "community_score": 83
+  },
+  "Old Forester 1910 Old Fine Whisky": {
+    "aliases": [
+      "old forester 1910",
+      "of 1910",
+      "1910"
+    ],
+    "proof": 93,
+    "style": "Double-barreled bourbon",
+    "msrp": 60,
+    "fair_price_low": 60,
+    "fair_price_high": 75,
+    "secondary_low": 80,
+    "secondary_high": 105,
+    "profile": "Chocolate, marshmallow, caramel, toasted oak, vanilla, and baking spice.",
+    "similar": [
+      "Woodford Reserve Double Oaked",
+      "Sagamore Double Oak Rye",
+      "Maker's Mark 46"
+    ],
+    "description": "A heavily finished Old Forester bourbon with dessert-like oak sweetness.",
+    "verdict_notes": "Great if you want sweet toasted oak; maybe too rich for some palates.",
+    "community_score": 87
+  },
+  "Old Forester 1920 Prohibition Style": {
+    "aliases": [
+      "old forester 1920",
+      "of 1920",
+      "1920"
+    ],
+    "proof": 115,
+    "style": "High-proof bourbon",
+    "msrp": 65,
+    "fair_price_low": 65,
+    "fair_price_high": 85,
+    "secondary_low": 90,
+    "secondary_high": 120,
+    "profile": "Dark cherry, banana, caramel, oak, chocolate, and spice.",
+    "similar": [
+      "Wild Turkey Rare Breed",
+      "Knob Creek Single Barrel Reserve",
+      "1792 Full Proof"
+    ],
+    "description": "A high-proof Old Forester release inspired by Prohibition-era proofing.",
+    "verdict_notes": "A beloved shelf bottle for proof and flavor density.",
+    "community_score": 90
+  },
+  "Old Forester 86 Proof": {
+    "aliases": [
+      "old forester",
+      "of 86",
+      "old forester 86"
+    ],
+    "proof": 86,
+    "style": "Kentucky straight bourbon",
+    "msrp": 25,
+    "fair_price_low": 25,
+    "fair_price_high": 35,
+    "secondary_low": 40,
+    "secondary_high": 50,
+    "profile": "Banana, caramel, oak, vanilla, baking spice, and brown sugar.",
+    "similar": [
+      "Old Forester 100 Proof",
+      "Buffalo Trace",
+      "Evan Williams Bottled in Bond"
+    ],
+    "description": "The standard Old Forester bourbon.",
+    "verdict_notes": "Good mixer and casual pour; the 100 proof version is usually the better buy.",
+    "community_score": 77
+  },
+  "Old Forester Birthday Bourbon": {
+    "aliases": [
+      "birthday bourbon",
+      "ofbb",
+      "old forester birthday"
+    ],
+    "proof": "Varies by year",
+    "style": "Limited bourbon",
+    "msrp": 180,
+    "fair_price_low": 500,
+    "fair_price_high": 900,
+    "secondary_low": 1000,
+    "secondary_high": 1800,
+    "profile": "Caramel, oak, dark fruit, banana, spice, vanilla, and cocoa.",
+    "similar": [
+      "Michter's 10 Year Bourbon",
+      "Remus Repeal Reserve",
+      "Four Roses Limited Edition Small Batch"
+    ],
+    "description": "An annual limited Old Forester release.",
+    "verdict_notes": "Year matters. Retail is a celebration; secondary is a negotiation with your wallet.",
+    "community_score": 93
+  },
+  "Old Grand-Dad 114": {
+    "aliases": [
+      "ogd 114",
+      "old grand dad 114",
+      "old grand-dad 114"
+    ],
+    "proof": 114,
+    "style": "High-rye bourbon",
+    "msrp": 35,
+    "fair_price_low": 35,
+    "fair_price_high": 45,
+    "secondary_low": 50,
+    "secondary_high": 70,
+    "profile": "Peanut brittle, rye spice, caramel, orange, oak, and heat.",
+    "similar": [
+      "Knob Creek Single Barrel Reserve",
+      "Wild Turkey 101",
+      "Old Grand-Dad Bonded"
+    ],
+    "description": "A bold 114-proof high-rye Beam bourbon.",
+    "verdict_notes": "One of the classic budget proof plays.",
+    "community_score": 85
+  },
+  "Old Grand-Dad Bonded": {
+    "aliases": [
+      "ogd bonded",
+      "old grand dad bib",
+      "old grand-dad bib"
+    ],
+    "proof": 100,
+    "style": "Bottled-in-bond high-rye bourbon",
+    "msrp": 25,
+    "fair_price_low": 25,
+    "fair_price_high": 35,
+    "secondary_low": 40,
+    "secondary_high": 50,
+    "profile": "Peanut, orange peel, rye spice, caramel, oak, and pepper.",
+    "similar": [
+      "Old Grand-Dad 114",
+      "Jim Beam Black",
+      "1792 Bottled in Bond"
+    ],
+    "description": "A budget bottled-in-bond bourbon using Beam's high-rye recipe.",
+    "verdict_notes": "Great value. Not fancy, but it knows its job.",
+    "community_score": 82
+  },
+  "Old Rip Van Winkle 10 Year": {
+    "aliases": [
+      "old rip",
+      "orvw",
+      "old rip 10",
+      "van winkle 10"
+    ],
+    "proof": 107,
+    "style": "Wheated bourbon",
+    "msrp": 110,
+    "fair_price_low": 450,
+    "fair_price_high": 750,
+    "secondary_low": 800,
+    "secondary_high": 1400,
+    "profile": "Caramel, cherry, vanilla, oak, cinnamon, and soft wheat sweetness.",
+    "similar": [
+      "Weller Antique 107",
+      "Weller 12 Year",
+      "Pappy Van Winkle 15 Year"
+    ],
+    "description": "A 10-year wheated bourbon bottled at 107 proof.",
+    "verdict_notes": "A dream at retail, but the market usually treats it like a trophy.",
+    "community_score": 94
+  },
+  "Pappy Van Winkle 15 Year": {
+    "aliases": [
+      "pappy 15",
+      "pvw 15",
+      "van winkle 15"
+    ],
+    "proof": 107,
+    "style": "Wheated bourbon",
+    "msrp": 170,
+    "fair_price_low": 700,
+    "fair_price_high": 1200,
+    "secondary_low": 1400,
+    "secondary_high": 2500,
+    "profile": "Deep caramel, old oak, cherry, leather, vanilla, baking spice, and mature tobacco.",
+    "similar": [
+      "William Larue Weller",
+      "Old Rip Van Winkle 10 Year",
+      "Weller 12 Year"
+    ],
+    "description": "A legendary 15-year wheated bourbon from the Van Winkle lineup.",
+    "verdict_notes": "Fantastic bourbon, but almost never rational at collector pricing.",
+    "community_score": 98
+  },
+  "Peerless Double Oak Bourbon": {
+    "aliases": [
+      "peerless double oak",
+      "peerless double oaked"
+    ],
+    "proof": 108,
+    "style": "Double-oaked bourbon",
+    "msrp": 95,
+    "fair_price_low": 95,
+    "fair_price_high": 125,
+    "secondary_low": 130,
+    "secondary_high": 175,
+    "profile": "Chocolate, toasted oak, maple, caramel, vanilla, and spice.",
+    "similar": [
+      "Woodford Reserve Double Oaked",
+      "Old Forester 1910 Old Fine Whisky",
+      "Penelope Architect"
+    ],
+    "description": "A double-oaked bourbon from Kentucky Peerless.",
+    "verdict_notes": "Rich and expressive if you love toasted oak.",
+    "community_score": 88
+  },
+  "Peerless Small Batch Bourbon": {
+    "aliases": [
+      "peerless bourbon",
+      "kentucky peerless bourbon"
+    ],
+    "proof": 108,
+    "style": "Small batch bourbon",
+    "msrp": 80,
+    "fair_price_low": 80,
+    "fair_price_high": 105,
+    "secondary_low": 110,
+    "secondary_high": 150,
+    "profile": "Caramel, oak, citrus, spice, cocoa, and sweet grain.",
+    "similar": [
+      "New Riff Single Barrel Bourbon",
+      "Bardstown Bourbon Company Origin Series Bourbon",
+      "Knob Creek Single Barrel Reserve"
+    ],
+    "description": "A sweet mash bourbon from Kentucky Peerless.",
+    "verdict_notes": "Quality is there, but the price asks you to care.",
+    "community_score": 85
+  },
+  "Penelope Architect": {
+    "aliases": [
+      "penelope architect",
+      "architect bourbon"
+    ],
+    "proof": 104,
+    "style": "Stave-finished bourbon",
+    "msrp": 65,
+    "fair_price_low": 65,
+    "fair_price_high": 85,
+    "secondary_low": 90,
+    "secondary_high": 115,
+    "profile": "Toasted oak, vanilla, caramel, baking spice, fruit, and cocoa.",
+    "similar": [
+      "Maker's Mark 46",
+      "Woodford Reserve Double Oaked",
+      "Old Forester 1910 Old Fine Whisky"
+    ],
+    "description": "A French oak stave-finished bourbon from Penelope.",
+    "verdict_notes": "Worth trying if you like oak-finished sweetness.",
+    "community_score": 85
+  },
+  "Penelope Barrel Strength": {
+    "aliases": [
+      "penelope barrel strength",
+      "penelope bs",
+      "penelope cask strength"
+    ],
+    "proof": "Varies, usually 112-116",
+    "style": "Barrel strength bourbon",
+    "msrp": 65,
+    "fair_price_low": 70,
+    "fair_price_high": 90,
+    "secondary_low": 95,
+    "secondary_high": 125,
+    "profile": "Caramel, vanilla, fruit, spice, oak, and honeyed grain.",
+    "similar": [
+      "Smoke Wagon Uncut Unfiltered",
+      "Casey Jones Wheated Bourbon",
+      "New Riff Single Barrel Bourbon"
+    ],
+    "description": "A barrel strength bourbon from Penelope.",
+    "verdict_notes": "Good modern bottle when priced like a drinker, not a trophy.",
+    "community_score": 86
+  },
+  "Rebel 100": {
+    "aliases": [
+      "rebel bourbon",
+      "rebel 100 bourbon",
+      "rebel yell 100"
+    ],
+    "proof": 100,
+    "style": "Wheated bourbon",
+    "msrp": 25,
+    "fair_price_low": 25,
+    "fair_price_high": 35,
+    "secondary_low": 40,
+    "secondary_high": 55,
+    "profile": "Honey, vanilla, wheat bread, caramel, light oak, and pepper.",
+    "similar": [
+      "Maker's Mark",
+      "Larceny Small Batch",
+      "Weller Special Reserve"
+    ],
+    "description": "A budget wheated bourbon from Lux Row.",
+    "verdict_notes": "Good inexpensive wheater and cocktail bottle.",
+    "community_score": 78
+  },
+  "Rebel Cask Strength": {
+    "aliases": [
+      "rebel cask",
+      "rebel barrel proof",
+      "rebel cask strength bourbon"
+    ],
+    "proof": "Varies, usually 120",
+    "style": "Cask strength wheated bourbon",
+    "msrp": 60,
+    "fair_price_low": 60,
+    "fair_price_high": 85,
+    "secondary_low": 90,
+    "secondary_high": 120,
+    "profile": "Caramel, cinnamon, wheat sweetness, oak, vanilla, and heat.",
+    "similar": [
+      "Weller Antique 107",
+      "Larceny Barrel Proof",
+      "Maker's Mark Cask Strength"
+    ],
+    "description": "A cask strength wheated bourbon from Rebel.",
+    "verdict_notes": "Good proofy wheater if the store keeps it honest.",
+    "community_score": 85
+  },
+  "Remus Repeal Reserve": {
+    "aliases": [
+      "remus repeal",
+      "remus reserve",
+      "george remus repeal reserve"
+    ],
+    "proof": "Varies by batch",
+    "style": "Blended high-rye bourbon",
+    "msrp": 100,
+    "fair_price_low": 110,
+    "fair_price_high": 150,
+    "secondary_low": 160,
+    "secondary_high": 225,
+    "profile": "Cherry, oak, rye spice, caramel, vanilla, leather, and dark fruit.",
+    "similar": [
+      "Four Roses Small Batch Select",
+      "Bardstown Bourbon Company Fusion Series",
+      "Old Forester 1920 Prohibition Style"
+    ],
+    "description": "A limited annual bourbon blend from Ross & Squibb.",
+    "verdict_notes": "Often a serious blend; batch reputation matters.",
+    "community_score": 89
+  },
+  "Russell's Reserve 10 Year": {
+    "aliases": [
+      "russells 10",
+      "russell's 10",
+      "rr10"
+    ],
+    "proof": 90,
+    "style": "10 year bourbon",
+    "msrp": 45,
+    "fair_price_low": 45,
+    "fair_price_high": 60,
+    "secondary_low": 65,
+    "secondary_high": 85,
+    "profile": "Caramel, oak, vanilla, cherry, leather, and gentle Turkey spice.",
+    "similar": [
+      "Eagle Rare 10 Year",
+      "Knob Creek 9 Year",
+      "Elijah Craig Small Batch"
+    ],
+    "description": "A 10-year bourbon from Wild Turkey's Russell's Reserve line.",
+    "verdict_notes": "Good age-stated shelf bottle with calm proof.",
+    "community_score": 84
+  },
+  "Russell's Reserve 13 Year": {
+    "aliases": [
+      "russells 13",
+      "russell's 13",
+      "rr13"
+    ],
+    "proof": 114.8,
+    "style": "13 year bourbon",
+    "msrp": 150,
+    "fair_price_low": 250,
+    "fair_price_high": 400,
+    "secondary_low": 450,
+    "secondary_high": 750,
+    "profile": "Caramel, dark cherry, old oak, leather, vanilla, spice, and tobacco.",
+    "similar": [
+      "Michter's 10 Year Bourbon",
+      "Knob Creek 12 Year",
+      "Eagle Rare 17 Year"
+    ],
+    "description": "A limited 13-year Russell's Reserve bourbon.",
+    "verdict_notes": "Outstanding mature Turkey profile, but the market knows it.",
+    "community_score": 94
+  },
+  "Russell's Reserve Single Barrel": {
+    "aliases": [
+      "russells single barrel",
+      "rr sib",
+      "russell's single barrel"
+    ],
+    "proof": 110,
+    "style": "Single barrel bourbon",
+    "msrp": 70,
+    "fair_price_low": 75,
+    "fair_price_high": 95,
+    "secondary_low": 100,
+    "secondary_high": 130,
+    "profile": "Caramel, charred oak, vanilla, cherry, leather, and Turkey spice.",
+    "similar": [
+      "Four Roses Single Barrel",
+      "Wild Turkey Rare Breed",
+      "Knob Creek Single Barrel"
+    ],
+    "description": "A robust Wild Turkey single barrel bourbon with proof and depth.",
+    "verdict_notes": "Usually a great drinker's bottle, especially store picks.",
+    "community_score": 90
+  },
+  "Smoke Wagon Small Batch": {
+    "aliases": [
+      "smoke wagon",
+      "smoke wagon small batch",
+      "sw small batch"
+    ],
+    "proof": 100,
+    "style": "Small batch bourbon",
+    "msrp": 55,
+    "fair_price_low": 55,
+    "fair_price_high": 75,
+    "secondary_low": 80,
+    "secondary_high": 105,
+    "profile": "Caramel, dried fruit, vanilla, spice, oak, and toasted sugar.",
+    "similar": [
+      "Penelope Architect",
+      "Casey Jones Wheated Bourbon",
+      "Bardstown Bourbon Company Origin Series Bourbon"
+    ],
+    "description": "A Nevada-bottled small batch bourbon brand built around sourced whiskey.",
+    "verdict_notes": "Good modern profile; price check against local competition.",
+    "community_score": 84
+  },
+  "Smoke Wagon Uncut Unfiltered": {
+    "aliases": [
+      "smoke wagon ucuf",
+      "smoke wagon uncut",
+      "sw uncut"
+    ],
+    "proof": "Varies, usually 110-120",
+    "style": "Cask strength bourbon",
+    "msrp": 80,
+    "fair_price_low": 85,
+    "fair_price_high": 115,
+    "secondary_low": 120,
+    "secondary_high": 160,
+    "profile": "Dark fruit, caramel, cinnamon, oak, vanilla, and heat.",
+    "similar": [
+      "Old Forester 1920 Prohibition Style",
+      "Stagg",
+      "Elijah Craig Barrel Proof"
+    ],
+    "description": "A cask strength Smoke Wagon bourbon release.",
+    "verdict_notes": "Popular for a reason, but batches and prices vary.",
+    "community_score": 88
+  },
+  "Stagg": {
+    "aliases": [
+      "stagg jr",
+      "stagg junior",
+      "george t stagg jr"
+    ],
+    "proof": "Varies by batch, usually 125-135",
+    "style": "Barrel proof bourbon",
+    "msrp": 70,
+    "fair_price_low": 120,
+    "fair_price_high": 180,
+    "secondary_low": 200,
+    "secondary_high": 300,
+    "profile": "Dark cherry, brown sugar, chocolate, oak, tobacco, heat, and dense spice.",
+    "similar": [
+      "Elijah Craig Barrel Proof",
+      "Jack Daniel's Single Barrel Barrel Proof",
+      "Booker's"
+    ],
+    "description": "A bold barrel-proof Buffalo Trace bourbon with heavy flavor and serious heat.",
+    "verdict_notes": "A monster pour when priced fairly. Secondary numbers can get silly fast.",
+    "community_score": 94
+  },
+  "Weller 12 Year": {
+    "aliases": [
+      "weller 12",
+      "wl weller 12",
+      "weller twelve"
+    ],
+    "proof": 90,
+    "style": "Wheated bourbon",
+    "msrp": 50,
+    "fair_price_low": 150,
+    "fair_price_high": 230,
+    "secondary_low": 250,
+    "secondary_high": 400,
+    "profile": "Soft caramel, vanilla, oak, red fruit, honey, and gentle spice.",
+    "similar": [
+      "Old Rip Van Winkle 10 Year",
+      "Maker's Mark 46",
+      "Larceny Small Batch"
+    ],
+    "description": "A 12-year wheated bourbon from Buffalo Trace.",
+    "verdict_notes": "Lovely pour, but proof and hype often make the shelf price hard to justify.",
+    "community_score": 88
+  },
+  "Weller Antique 107": {
+    "aliases": [
+      "weller antique",
+      "old weller antique",
+      "owa",
+      "weller 107",
+      "antique 107"
+    ],
+    "proof": 107,
+    "style": "Wheated bourbon",
+    "msrp": 55,
+    "fair_price_low": 75,
+    "fair_price_high": 110,
+    "secondary_low": 120,
+    "secondary_high": 180,
+    "profile": "Cherry, cinnamon, caramel, vanilla, oak, and a punchy wheated sweetness.",
+    "similar": [
+      "Maker's Mark Cask Strength",
+      "Larceny Barrel Proof",
+      "Rebel Cask Strength"
+    ],
+    "description": "A high-proof wheated bourbon from Buffalo Trace with a big sweet-spice profile.",
+    "verdict_notes": "Excellent pour near MSRP. Past fair drinker pricing, the hype starts doing a lot of the work.",
+    "community_score": 91
+  },
+  "Weller Full Proof": {
+    "aliases": [
+      "weller fp",
+      "wfp",
+      "weller full"
+    ],
+    "proof": 114,
+    "style": "Wheated bourbon",
+    "msrp": 60,
+    "fair_price_low": 140,
+    "fair_price_high": 220,
+    "secondary_low": 250,
+    "secondary_high": 400,
+    "profile": "Cherry syrup, vanilla, cinnamon, caramel, oak, and dense wheat sweetness.",
+    "similar": [
+      "Weller Antique 107",
+      "Maker's Mark Cask Strength",
+      "Larceny Barrel Proof"
+    ],
+    "description": "A non-chill-filtered wheated bourbon bottled at entry proof.",
+    "verdict_notes": "Excellent if you land it fairly; quickly becomes collector-priced.",
+    "community_score": 92
+  },
+  "Wild Turkey 101": {
+    "aliases": [
+      "wt101",
+      "wild turkey",
+      "wild turkey 101 bourbon"
+    ],
+    "proof": 101,
+    "style": "High-rye bourbon",
+    "msrp": 28,
+    "fair_price_low": 28,
+    "fair_price_high": 38,
+    "secondary_low": 40,
+    "secondary_high": 55,
+    "profile": "Caramel, vanilla, orange peel, cinnamon, oak, and rye spice.",
+    "similar": [
+      "Old Forester 100 Proof",
+      "Evan Williams Bottled in Bond",
+      "Old Grand-Dad Bonded"
+    ],
+    "description": "A classic 101-proof bourbon with punch and value.",
+    "verdict_notes": "A forever recommendation for a house bottle.",
+    "community_score": 85
+  },
+  "Wild Turkey Rare Breed": {
+    "aliases": [
+      "rare breed",
+      "wt rare breed",
+      "wild turkey rb"
+    ],
+    "proof": 116.8,
+    "style": "Barrel proof bourbon",
+    "msrp": 60,
+    "fair_price_low": 65,
+    "fair_price_high": 80,
+    "secondary_low": 85,
+    "secondary_high": 110,
+    "profile": "Caramel, orange peel, oak, cinnamon, vanilla, and bold rye spice.",
+    "similar": [
+      "Russell's Reserve Single Barrel",
+      "Knob Creek Single Barrel",
+      "Four Roses Single Barrel"
+    ],
+    "description": "A non-chill-filtered barrel proof bourbon that is widely loved for value.",
+    "verdict_notes": "One of the easiest recommendations in bourbon if you like proof.",
+    "community_score": 91
+  },
+  "William Larue Weller": {
+    "aliases": [
+      "wlw",
+      "william larue",
+      "william larue weller btac"
+    ],
+    "proof": "Varies, usually 120-135",
+    "style": "Barrel proof wheated bourbon",
+    "msrp": 125,
+    "fair_price_low": 900,
+    "fair_price_high": 1600,
+    "secondary_low": 1800,
+    "secondary_high": 3000,
+    "profile": "Dark cherry, molasses, oak, tobacco, vanilla, leather, and huge wheated richness.",
+    "similar": [
+      "Pappy Van Winkle 15 Year",
+      "Weller Full Proof",
+      "Old Rip Van Winkle 10 Year"
+    ],
+    "description": "The barrel-proof wheated bourbon in Buffalo Trace Antique Collection.",
+    "verdict_notes": "World-class bottle; judge the price with your heart safely locked away.",
+    "community_score": 99
+  },
+  "Woodford Reserve": {
+    "aliases": [
+      "woodford",
+      "woodford bourbon"
+    ],
+    "proof": 90.4,
+    "style": "Kentucky straight bourbon",
+    "msrp": 38,
+    "fair_price_low": 38,
+    "fair_price_high": 48,
+    "secondary_low": 50,
+    "secondary_high": 65,
+    "profile": "Dried fruit, vanilla, orange, cocoa, oak, and spice.",
+    "similar": [
+      "Basil Hayden",
+      "Four Roses Small Batch",
+      "Buffalo Trace"
+    ],
+    "description": "A polished Kentucky bourbon from Brown-Forman.",
+    "verdict_notes": "Reliable and approachable, especially for mixed company.",
+    "community_score": 80
+  },
+  "Woodford Reserve Double Oaked": {
+    "aliases": [
+      "woodford double oaked",
+      "woodford double oak",
+      "double oaked"
+    ],
+    "proof": 90.4,
+    "style": "Double-barreled bourbon",
+    "msrp": 60,
+    "fair_price_low": 60,
+    "fair_price_high": 75,
+    "secondary_low": 80,
+    "secondary_high": 105,
+    "profile": "Chocolate, toasted marshmallow, caramel, oak, vanilla, and maple.",
+    "similar": [
+      "Old Forester 1910 Old Fine Whisky",
+      "Maker's Mark 46",
+      "Peerless Double Oak Bourbon"
+    ],
+    "description": "A twice-barreled Woodford Reserve with a sweet toasted profile.",
+    "verdict_notes": "Great dessert pour if the price stays grounded.",
+    "community_score": 87
+  }
+}
