@@ -81,10 +81,16 @@ def find_bottle(query: str):
 
 
 def price_verdict(price: float, data: dict):
-    msrp = data["msrp"]
-    fair_low = data["fair_price_low"]
-    fair_high = data["fair_price_high"]
-    secondary_high = data["secondary_high"]
+    msrp = data.get("msrp")
+    fair_low = data.get("fair_price_low")
+    fair_high = data.get("fair_price_high")
+    secondary_high = data.get("secondary_high")
+
+    if any(value is None for value in [msrp, fair_low, fair_high, secondary_high]):
+        return (
+            "🟡 Fair but not exciting",
+            "NeatBot does not have enough pricing data for this bottle yet. Use recent local comps before buying."
+        )
 
     if price <= msrp:
         return "🦄 Unicorn buy", "At or below MSRP. Buy it if you actually want the bottle."
@@ -97,6 +103,13 @@ def price_verdict(price: float, data: dict):
     return "🔴 Pass", "That price is deep into emotional damage territory."
 
 
+def dollars(value):
+    if value is None:
+        return "Unknown"
+
+    return f"${value}"
+
+
 def bottle_embed(name: str, data: dict):
     embed = discord.Embed(
         title=f"🥃 {name}",
@@ -106,7 +119,7 @@ def bottle_embed(name: str, data: dict):
 
     embed.add_field(name="Proof", value=str(data.get("proof", "Unknown")), inline=True)
     embed.add_field(name="Style", value=data.get("style", "Unknown"), inline=True)
-    embed.add_field(name="MSRP", value=f"${data.get('msrp', 'Unknown')}", inline=True)
+    embed.add_field(name="MSRP", value=dollars(data.get("msrp")), inline=True)
     embed.add_field(name="Profile", value=data.get("profile", "Unknown"), inline=False)
     embed.add_field(
         name="Similar Bottles",
@@ -312,15 +325,15 @@ async def worth(interaction: discord.Interaction, name: str, price: float):
         color=discord.Color.orange()
     )
 
-    embed.add_field(name="MSRP", value=f"${data['msrp']}", inline=True)
+    embed.add_field(name="MSRP", value=dollars(data.get("msrp")), inline=True)
     embed.add_field(
         name="Fair Drinker Price",
-        value=f"${data['fair_price_low']}–${data['fair_price_high']}",
+        value=f"{dollars(data.get('fair_price_low'))}–{dollars(data.get('fair_price_high'))}",
         inline=True
     )
     embed.add_field(
         name="Secondary-ish Range",
-        value=f"${data['secondary_low']}–${data['secondary_high']}",
+        value=f"{dollars(data.get('secondary_low'))}–{dollars(data.get('secondary_high'))}",
         inline=True
     )
     embed.add_field(
@@ -501,4 +514,5 @@ async def battle(interaction: discord.Interaction, bottle_one: str, bottle_two: 
 if not TOKEN:
     raise RuntimeError("Missing DISCORD_TOKEN. Put it in your .env file.")
 
-bot.run(TOKEN)
+if __name__ == "__main__":
+    bot.run(TOKEN)

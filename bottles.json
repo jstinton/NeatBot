@@ -847,6 +847,93 @@
     "verdict_notes": "Often one of the best high-proof buys on the shelf.",
     "community_score": 91
   },
+  "Kentucky Peerless 10-Year-Old Bourbon": {
+    "aliases": [
+      "peerless 10",
+      "kentucky peerless 10",
+      "kentucky peerless 10 year",
+      "peerless 10 year bourbon",
+      "henry kravers old reserve",
+      "henry kraver old reserve",
+      "henry kraver’s old reserve",
+      "peerless old reserve"
+    ],
+    "proof": 117.6,
+    "style": "10 year barrel proof Kentucky straight bourbon",
+    "msrp": null,
+    "fair_price_low": null,
+    "fair_price_high": null,
+    "secondary_low": null,
+    "secondary_high": null,
+    "profile": "Pipe tobacco, candied peanuts, French vanilla, port wine, bread pudding, burnt brownie edges, mocha, deep toffee, candied orange peel, orchard fruit, clove, graham cracker, charred applewood, and vintage funk.",
+    "similar": [
+      "Peerless Small Batch Bourbon",
+      "Peerless Double Oak Bourbon",
+      "Knob Creek 12 Year",
+      "Russell's Reserve 13 Year"
+    ],
+    "description": "A limited 10-year age-stated Kentucky straight bourbon under the Henry Kraver’s Old Reserve name, bottled at 117.6 proof.",
+    "verdict_notes": "Pricing data is not set yet. Treat this like a limited barrel-proof age-stated Peerless release and compare against current local comps.",
+    "community_score": 91,
+    "name": "Kentucky Peerless 10-Year-Old Bourbon",
+    "brand": "Kentucky Peerless",
+    "distillery": "Kentucky Peerless Distilling Co.",
+    "expression": "Henry Kraver’s Old Reserve",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": 10,
+    "batch": "Batch 1",
+    "abv": 58.8,
+    "mash_bill": "Undisclosed",
+    "mash_process": "Sweet mash",
+    "filtration": "Non-chill filtered",
+    "barrel_proof": true,
+    "limited_release": true,
+    "release_year": 2026,
+    "source_url": "https://www.breakingbourbon.com/bourbon-whiskey-press-releases/kentucky-peerless-distilling-co-releases-10-year-old-bourbon",
+    "tasting_notes": {
+      "nose": [
+        "pipe tobacco",
+        "candied peanuts",
+        "almond extract",
+        "French vanilla ice cream",
+        "roasted vanilla",
+        "port wine",
+        "ripe grapes",
+        "bread pudding",
+        "French toast",
+        "applewood"
+      ],
+      "palate": [
+        "burnt brownie edges",
+        "mocha coffee",
+        "deep toffee",
+        "candied orange peel",
+        "pear",
+        "apple",
+        "cranberry",
+        "clove spice",
+        "graham cracker",
+        "peanut butter",
+        "marshmallow texture"
+      ],
+      "finish": [
+        "tobacco barn",
+        "sweet pipe tobacco",
+        "charred applewood",
+        "vintage funk"
+      ]
+    },
+    "summary": "Kentucky Peerless 10-Year-Old Bourbon is a limited 10-year age-stated release under the Henry Kraver’s Old Reserve name. Bottled at 117.6 proof, it features rich tobacco, vanilla, fruit, chocolate, coffee, and oak-driven notes.",
+    "tags": [
+      "peerless",
+      "kentucky bourbon",
+      "10 year",
+      "barrel proof",
+      "limited release",
+      "sweet mash"
+    ]
+  },
   "Knob Creek 12 Year": {
     "aliases": [
       "kc12",
