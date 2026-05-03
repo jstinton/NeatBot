@@ -2017,6 +2017,81 @@
     "verdict_notes": "Usually a great drinker's bottle, especially store picks.",
     "community_score": 90
   },
+  "Rye Fidelity Bottled in Bond": {
+    "aliases": [
+      "rye fidelity bib",
+      "rye fidelity bottled in bond",
+      "rye fidelity",
+      "broad branch rye fidelity",
+      "rye fidelity a26",
+      "batch a26"
+    ],
+    "proof": 100,
+    "style": "Bottled-in-bond straight rye whiskey",
+    "msrp": null,
+    "fair_price_low": null,
+    "fair_price_high": null,
+    "secondary_low": null,
+    "secondary_high": null,
+    "profile": "Aged sweetness, light spice, balanced sweet and spicy aromas, aged oak, straightforward rye flavor, spice-forward finish, and charred oak.",
+    "similar": [
+      "New Riff Bottled in Bond Rye",
+      "Pikesville Rye",
+      "Rare Breed Rye",
+      "Michter's US*1 Rye"
+    ],
+    "description": "A limited 100 proof, 6+ year bottled-in-bond straight rye from Broad Branch Distillery in Winston-Salem, North Carolina.",
+    "verdict_notes": "Pricing data is not set yet. Treat it as a limited craft bottled-in-bond rye and compare against New Riff, Pikesville, and other 100-proof rye options.",
+    "community_score": 80,
+    "name": "Rye Fidelity Bottled in Bond",
+    "alias": "Rye Fidelity BiB",
+    "brand": "Rye Fidelity",
+    "distillery": "Broad Branch Distillery",
+    "location": "Winston-Salem, North Carolina",
+    "expression": "Bottled in Bond",
+    "category": "Rye",
+    "type": "Straight Rye Whiskey",
+    "age_statement_years": 6,
+    "age_detail": "6+ years",
+    "batch": "A26",
+    "abv": 50,
+    "mash_bill": "100% rye",
+    "mash_process": null,
+    "filtration": null,
+    "barrel_proof": false,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2026,
+    "availability": "Limited",
+    "source_url": "https://www.breakingbourbon.com/review/rye-fidelity-bottled-in-bond",
+    "tasting_notes": {
+      "nose": [
+        "aged sweetness",
+        "light spice",
+        "balanced sweet and spicy aromas"
+      ],
+      "palate": [
+        "sweet notes",
+        "spice",
+        "aged oak",
+        "straightforward flavor profile"
+      ],
+      "finish": [
+        "spice-forward",
+        "charred oak",
+        "quick finish"
+      ]
+    },
+    "summary": "Rye Fidelity Bottled in Bond is a 100 proof, 6+ year straight rye from Broad Branch Distillery. It delivers a balanced 'Goldilocks' profile of sweet, spice, and oak, leaning approachable rather than bold, with a quick, spice-forward finish.",
+    "tags": [
+      "rye fidelity",
+      "bottled in bond",
+      "100 proof",
+      "north carolina",
+      "craft rye",
+      "batch a26"
+    ]
+  },
   "Smoke Wagon Small Batch": {
     "aliases": [
       "smoke wagon",
