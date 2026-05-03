@@ -731,6 +731,79 @@
     "verdict_notes": "Solid buy near retail; above fair pricing, do not ignore easier bottles.",
     "community_score": 85
   },
+  "E.H. Taylor Bottled-in-Bond 2025": {
+    "aliases": [
+      "eht bib 2025",
+      "e.h. taylor bib 2025",
+      "eh taylor bib 2025",
+      "eht bottled in bond 2025",
+      "eht bottled-in-bond 2025",
+      "e.h. taylor bottled in bond 2025",
+      "e.h. taylor bottled-in-bond 2025",
+      "eh taylor bottled in bond 2025",
+      "eh taylor bottled-in-bond 2025",
+      "btac 2025 eht",
+      "eht btac 2025"
+    ],
+    "proof": 100,
+    "style": "BTAC bottled-in-bond bourbon",
+    "msrp": 150,
+    "fair_price_low": 500,
+    "fair_price_high": 850,
+    "secondary_low": 900,
+    "secondary_high": 1500,
+    "profile": "Brown sugar, vanilla, apple, maple, caramel, fruit, sweet oak, and spice.",
+    "similar": [
+      "E.H. Taylor Single Barrel",
+      "E.H. Taylor Small Batch",
+      "Eagle Rare 17-Year Bourbon 2025",
+      "Sazerac 18-Year Rye 2025"
+    ],
+    "description": "An extremely limited 2025 E.H. Taylor bottled-in-bond bourbon release from Buffalo Trace.",
+    "verdict_notes": "A scarce Taylor release with BTAC-level attention. Compare current comps closely before chasing.",
+    "community_score": 93,
+    "name": "E.H. Taylor Bottled-in-Bond 2025",
+    "alias": "EHT BiB 2025",
+    "brand": "E.H. Taylor Jr.",
+    "distillery": "Buffalo Trace Distillery",
+    "location": "Frankfort, Kentucky",
+    "expression": "BTAC 2025",
+    "category": "Bourbon",
+    "type": "Bottled-in-Bond Bourbon",
+    "age_statement_years": 15,
+    "batch": "BTAC 2025",
+    "abv": 50,
+    "mash_bill": "Mash Bill #1 (low rye)",
+    "filtration": "Non-chill filtered",
+    "barrel_proof": false,
+    "limited_release": true,
+    "release_year": 2025,
+    "availability": "Extremely limited",
+    "tasting_notes": {
+      "nose": [
+        "brown sugar",
+        "vanilla",
+        "apple"
+      ],
+      "palate": [
+        "maple",
+        "caramel",
+        "fruit"
+      ],
+      "finish": [
+        "medium-long",
+        "sweet oak",
+        "spice"
+      ]
+    },
+    "summary": "E.H. Taylor Bottled-in-Bond 2025 (EHT BiB 2025) is an extremely limited 15-year bottled-in-bond bourbon from Buffalo Trace. It delivers brown sugar, vanilla, apple, maple, caramel, fruit, sweet oak, and spice.",
+    "tags": [
+      "btac",
+      "eht",
+      "bottled in bond",
+      "new release"
+    ]
+  },
   "Eagle Rare 10 Year": {
     "aliases": [
       "eagle rare",
