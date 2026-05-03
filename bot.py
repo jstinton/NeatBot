@@ -150,6 +150,20 @@ def sanitize_iso_text(value: Optional[str]):
     return value
 
 
+def split_bottle_list(value: str):
+    items = re.split(r"\s*(?:\+|,|\n)\s*", value)
+    return [item.strip() for item in items if item.strip()]
+
+
+def format_bottle_list(value: str):
+    items = split_bottle_list(value)
+
+    if len(items) <= 1:
+        return value.strip()
+
+    return "\n".join(f"• {item}" for item in items)
+
+
 def missing_flip_permissions(channel: discord.abc.GuildChannel, member: discord.Member):
     permissions = channel.permissions_for(member)
     checks = {
@@ -203,9 +217,9 @@ def extract_user_id_from_mention(value: Optional[str]):
 
 def flip_embed(
     *,
-    bottle_ft: str,
-    sale_value: int,
-    looking_for: Optional[str],
+    ft: str,
+    ft_value: int,
+    iso: Optional[str],
     iso_value: Optional[int],
     location: str,
     seller,
@@ -214,19 +228,18 @@ def flip_embed(
     binned_at=None
 ):
     embed = discord.Embed(
-        title=f"🥃 Bottle Flip — {bottle_ft}",
+        title=f"🥃 Bottle Flip — {ft}",
         color=discord.Color.from_str("#C9973A")
     )
-    embed.add_field(name="📦 FT:", value=bottle_ft, inline=False)
-    embed.add_field(name="💰 Est. Value:", value=flip_taco_value(sale_value), inline=True)
+    embed.add_field(name="📦 FT:", value=format_bottle_list(ft), inline=False)
+    embed.add_field(name="💰 Est. Value:", value=flip_taco_value(ft_value), inline=True)
 
-    if looking_for:
-        iso_text = looking_for
+    if iso:
+        iso_text = format_bottle_list(iso)
+        embed.add_field(name="🔍 ISO:", value=iso_text, inline=False)
 
         if iso_value is not None:
-            iso_text = f"{iso_text} — {flip_taco_value(iso_value)}"
-
-        embed.add_field(name="🔍 ISO:", value=iso_text, inline=False)
+            embed.add_field(name="🌮 ISO Value:", value=flip_taco_value(iso_value), inline=True)
     else:
         embed.add_field(name="🌮 Looking For:", value="Tacos only", inline=False)
 
@@ -775,18 +788,18 @@ async def whadd(interaction: discord.Interaction):
 
 @bot.tree.command(name="flip", description="Post a bottle flip with a BIN button and discussion thread.")
 @app_commands.describe(
-    bottle_ft="Name of the bottle being offered",
-    sale_value="Estimated bottle value",
+    ft="Bottle or bottles being offered, e.g. RR15 + Weller 12",
+    ft_value="Estimated FT value",
     zip_code="Your 5-digit US ZIP for City, State display",
-    looking_for="Optional ISO bottle. Leave blank for tacos only.",
-    iso_value="Optional ISO bottle value"
+    iso="Optional ISO bottle or bottles. Leave blank for tacos only.",
+    iso_value="Optional ISO value"
 )
 async def flip(
     interaction: discord.Interaction,
-    bottle_ft: str,
-    sale_value: int,
+    ft: str,
+    ft_value: int,
     zip_code: str,
-    looking_for: Optional[str] = None,
+    iso: Optional[str] = None,
     iso_value: Optional[int] = None
 ):
     if not interaction.guild or not isinstance(interaction.channel, discord.abc.GuildChannel):
@@ -809,9 +822,9 @@ async def flip(
             )
             return
 
-    if sale_value <= 0:
+    if ft_value <= 0:
         await interaction.response.send_message(
-            "Use a positive value for the bottle.",
+            "Use a positive FT value.",
             ephemeral=True
         )
         return
@@ -823,11 +836,11 @@ async def flip(
         )
         return
 
-    looking_for = sanitize_iso_text(looking_for)
+    iso = sanitize_iso_text(iso)
 
-    if iso_value is not None and not looking_for:
+    if iso_value is not None and not iso:
         await interaction.response.send_message(
-            "Add an ISO bottle before adding an ISO value.",
+            "Add an ISO before adding an ISO value.",
             ephemeral=True
         )
         return
@@ -841,11 +854,11 @@ async def flip(
         )
         return
 
-    target = looking_for or "🌮 Tacos"
-    thread_name = thread_safe_name(f"🥃 FT: {bottle_ft} ↔ {target}")
+    target = iso or "🌮 Tacos"
+    thread_name = thread_safe_name(f"🥃 FT: {ft} ↔ {target}")
 
     announcement = discord.Embed(
-        title=f"🥃 FT: {bottle_ft}",
+        title=f"🥃 FT: {ft}",
         description="Check the thread below 👇",
         color=discord.Color.from_str("#C9973A")
     )
@@ -860,9 +873,9 @@ async def flip(
         return
 
     detail_embed = flip_embed(
-        bottle_ft=bottle_ft,
-        sale_value=sale_value,
-        looking_for=looking_for,
+        ft=ft,
+        ft_value=ft_value,
+        iso=iso,
         iso_value=iso_value,
         location=location,
         seller=interaction.user,
