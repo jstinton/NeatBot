@@ -524,6 +524,80 @@
     "verdict_notes": "A beautiful bottle for mature oak fans, with market prices to match the legend.",
     "community_score": 96
   },
+  "Elijah Craig 15-Year-Old Single Barrel Bourbon": {
+    "aliases": [
+      "ec15",
+      "elijah craig 15",
+      "elijah craig 15 year",
+      "elijah craig 15-year-old",
+      "elijah craig single barrel 15",
+      "elijah craig 15 single barrel"
+    ],
+    "proof": 108,
+    "style": "15 year single barrel Kentucky straight bourbon",
+    "msrp": 149.99,
+    "fair_price_low": 150,
+    "fair_price_high": 180,
+    "secondary_low": 190,
+    "secondary_high": 260,
+    "profile": "Dark fruit, figs, roses, roasted nuts, toasted oak, caramelized sugar, creme brulee, ginger, cloves, and warm spice.",
+    "similar": [
+      "Elijah Craig Barrel Proof",
+      "Elijah Craig Small Batch",
+      "Henry McKenna 10 Year Bottled in Bond",
+      "Knob Creek 12 Year"
+    ],
+    "description": "A 15-year annual Elijah Craig single barrel bourbon from Heaven Hill, bottled at 108 proof.",
+    "verdict_notes": "At MSRP this is a strong mature Heaven Hill single barrel buy. Above fair range, compare against ECBP, Knob Creek age-stated releases, and other mature shelf options.",
+    "community_score": 90,
+    "name": "Elijah Craig 15-Year-Old Single Barrel Bourbon",
+    "alias": "EC15",
+    "brand": "Elijah Craig",
+    "distillery": "Heaven Hill Distillery",
+    "expression": "Single Barrel",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": 15,
+    "batch": null,
+    "abv": 54,
+    "mash_bill": "78% corn, 10% rye, 12% malted barley",
+    "mash_process": "Sour mash",
+    "filtration": null,
+    "barrel_proof": false,
+    "single_barrel": true,
+    "limited_release": false,
+    "release_year": 2026,
+    "availability": "Nationwide",
+    "source_url": "https://www.breakingbourbon.com/bourbon-whiskey-press-releases/elijah-craig-introduces-15-year-old-bourbon-a-new-addition-to-its-renowned-single-barrel-lineup",
+    "tasting_notes": {
+      "nose": [
+        "dark fruit",
+        "figs",
+        "roses"
+      ],
+      "palate": [
+        "roasted nuts",
+        "toasted oak",
+        "caramelized sugar"
+      ],
+      "finish": [
+        "creme brulee",
+        "ginger",
+        "cloves",
+        "warm spice"
+      ]
+    },
+    "summary": "Elijah Craig 15-Year-Old Single Barrel Bourbon (EC15) is a new annual release aged 15 years and bottled at 108 proof. It delivers a rich, mature profile with layered dark fruit, toasted oak, and caramelized sweetness, offering a higher-proof alternative within the Elijah Craig single barrel lineup.",
+    "tags": [
+      "elijah craig",
+      "heaven hill",
+      "single barrel",
+      "15 year",
+      "108 proof",
+      "annual release",
+      "ec15"
+    ]
+  },
   "Elijah Craig Barrel Proof": {
     "aliases": [
       "ecbp",
