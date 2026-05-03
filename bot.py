@@ -433,8 +433,57 @@ def average_score(votes: dict) -> float:
     return sum(votes.values()) / len(votes)
 
 
-def boty_embed(message_id: str):
-    state = BOTY_VOTES[message_id]
+def encode_vote_ledger(votes: dict):
+    if not votes:
+        return "No votes yet"
+
+    return "\n".join(f"{user_id}:{vote}" for user_id, vote in sorted(votes.items()))
+
+
+def decode_vote_ledger(value: Optional[str]):
+    if not value or value == "No votes yet":
+        return {}
+
+    votes = {}
+
+    for line in value.splitlines():
+        if ":" not in line:
+            continue
+
+        user_id, vote = line.split(":", 1)
+        user_id = user_id.strip()
+        vote = vote.strip()
+
+        if user_id.isdigit() and vote.isdigit():
+            votes[user_id] = int(vote)
+
+    return votes
+
+
+def embed_field_value(embed: discord.Embed, field_name: str):
+    for field in embed.fields:
+        if field.name == field_name:
+            return field.value
+
+    return None
+
+
+def attach_vote_message_context(state: dict, message: discord.Message):
+    if isinstance(message.channel, discord.Thread):
+        state.setdefault("thread_id", message.channel.id)
+        state.setdefault("thread_message_id", message.id)
+    else:
+        state.setdefault("channel_id", message.channel.id)
+        state.setdefault("message_id", message.id)
+
+        thread = getattr(message, "thread", None)
+
+        if thread:
+            state.setdefault("thread_id", thread.id)
+
+
+def boty_embed(vote_id: str):
+    state = BOTY_VOTES[vote_id]
     bottle_name = state["bottle"]
     votes = state.get("votes", {})
     average = average_score(votes)
@@ -447,13 +496,14 @@ def boty_embed(message_id: str):
 
     embed.add_field(name="Average Score", value=f"{average:.2f}/10" if votes else "No votes yet", inline=True)
     embed.add_field(name="Votes", value=str(len(votes)), inline=True)
+    embed.add_field(name="Vote Ledger", value=encode_vote_ledger(votes), inline=False)
     embed.set_footer(text="BOTY = Bottle of the Year. Discuss this bottle in the thread.")
 
     return embed
 
 
-def battle_embed(message_id: str):
-    state = BATTLE_VOTES[message_id]
+def battle_embed(vote_id: str):
+    state = BATTLE_VOTES[vote_id]
     bottle_one = state["bottle_one"]
     bottle_two = state["bottle_two"]
     votes = state.get("votes", {})
@@ -478,6 +528,7 @@ def battle_embed(message_id: str):
     embed.add_field(name=one_label, value=f"{one_votes} vote(s)", inline=True)
     embed.add_field(name=two_label, value=f"{two_votes} vote(s)", inline=True)
     embed.add_field(name="Total Votes", value=str(len(votes)), inline=False)
+    embed.add_field(name="Vote Ledger", value=encode_vote_ledger(votes), inline=False)
     embed.set_footer(text="Winner gets the trophy. Loser gets humbled.")
 
     return embed
@@ -492,10 +543,12 @@ def recover_boty_state(message: discord.Message):
             bottle_name = title[len(prefix):].strip()
 
             if bottle_name and bottle_name != "Unknown bottle":
-                return {
+                state = {
                     "bottle": bottle_name,
-                    "votes": {}
+                    "votes": decode_vote_ledger(embed_field_value(embed, "Vote Ledger"))
                 }
+                attach_vote_message_context(state, message)
+                return state
 
     thread = getattr(message, "thread", None)
 
@@ -503,11 +556,13 @@ def recover_boty_state(message: discord.Message):
         bottle_name = thread.name[len("BOTY: "):].strip()
 
         if bottle_name:
-            return {
+            state = {
                 "bottle": bottle_name,
                 "thread_id": thread.id,
                 "votes": {}
             }
+            attach_vote_message_context(state, message)
+            return state
 
     return None
 
@@ -532,7 +587,7 @@ def recover_battle_state(message: discord.Message):
             state = {
                 "bottle_one": bottle_one,
                 "bottle_two": bottle_two,
-                "votes": {}
+                "votes": decode_vote_ledger(embed_field_value(embed, "Vote Ledger"))
             }
 
             thread = getattr(message, "thread", None)
@@ -540,33 +595,75 @@ def recover_battle_state(message: discord.Message):
             if thread:
                 state["thread_id"] = thread.id
 
+            attach_vote_message_context(state, message)
             return state
 
     return None
 
 
+async def fetch_vote_message(channel_id: Optional[int], message_id: Optional[int]):
+    if not channel_id or not message_id:
+        return None
+
+    try:
+        channel = bot.get_channel(int(channel_id)) or await bot.fetch_channel(int(channel_id))
+        return await channel.fetch_message(int(message_id))
+    except (discord.HTTPException, discord.NotFound, discord.Forbidden, AttributeError, ValueError):
+        return None
+
+
+async def sync_vote_messages(state: dict, source_message: discord.Message, embed: discord.Embed, view: discord.ui.View):
+    edited = {(source_message.channel.id, source_message.id)}
+    await source_message.edit(embed=embed, view=view)
+
+    targets = [
+        (state.get("channel_id"), state.get("message_id")),
+        (state.get("thread_id"), state.get("thread_message_id")),
+    ]
+
+    for channel_id, message_id in targets:
+        if not channel_id or not message_id or (int(channel_id), int(message_id)) in edited:
+            continue
+
+        message = await fetch_vote_message(channel_id, message_id)
+
+        if message:
+            try:
+                await message.edit(embed=embed, view=view)
+                edited.add((int(channel_id), int(message_id)))
+            except discord.HTTPException:
+                pass
+
+
 class BOTYView(discord.ui.View):
-    def __init__(self):
+    def __init__(self, vote_id: str):
         super().__init__(timeout=None)
 
         for score in range(1, 11):
-            self.add_item(BOTYScoreButton(score))
+            self.add_item(BOTYScoreButton(vote_id, score))
 
 
-class BOTYScoreButton(discord.ui.Button):
-    def __init__(self, score: int):
+class BOTYScoreButton(discord.ui.DynamicItem[discord.ui.Button], template=r"boty_score:(?P<vote_id>[0-9]+):(?P<score>[0-9]+)"):
+    def __init__(self, vote_id: str, score: int):
         super().__init__(
-            label=str(score),
-            style=discord.ButtonStyle.secondary,
-            custom_id=f"boty_score:{score}",
-            row=0 if score <= 5 else 1
+            discord.ui.Button(
+                label=str(score),
+                style=discord.ButtonStyle.secondary,
+                custom_id=f"boty_score:{vote_id}:{score}",
+                row=0 if score <= 5 else 1
+            )
         )
+        self.vote_id = vote_id
         self.score = score
 
-    async def callback(self, interaction: discord.Interaction):
-        message_id = str(interaction.message.id)
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(match.group("vote_id"), int(match.group("score")))
 
-        if message_id not in BOTY_VOTES:
+    async def callback(self, interaction: discord.Interaction):
+        vote_id = self.vote_id
+
+        if vote_id not in BOTY_VOTES:
             recovered_state = recover_boty_state(interaction.message)
 
             if not recovered_state:
@@ -576,38 +673,51 @@ class BOTYScoreButton(discord.ui.Button):
                 )
                 return
 
-            BOTY_VOTES[message_id] = recovered_state
+            BOTY_VOTES[vote_id] = recovered_state
 
-        BOTY_VOTES[message_id].setdefault("votes", {})[str(interaction.user.id)] = self.score
+        attach_vote_message_context(BOTY_VOTES[vote_id], interaction.message)
+        BOTY_VOTES[vote_id].setdefault("votes", {})[str(interaction.user.id)] = self.score
         save_json(BOTY_VOTES_PATH, BOTY_VOTES)
 
         await interaction.response.send_message(
             f"Your BOTY score is locked in: {self.score}/10.",
             ephemeral=True
         )
-        await interaction.message.edit(embed=boty_embed(message_id), view=BOTYView())
+        await sync_vote_messages(
+            BOTY_VOTES[vote_id],
+            interaction.message,
+            boty_embed(vote_id),
+            BOTYView(vote_id)
+        )
 
 
 class BattleView(discord.ui.View):
-    def __init__(self):
+    def __init__(self, vote_id: str):
         super().__init__(timeout=None)
-        self.add_item(BattleVoteButton(1))
-        self.add_item(BattleVoteButton(2))
+        self.add_item(BattleVoteButton(vote_id, 1))
+        self.add_item(BattleVoteButton(vote_id, 2))
 
 
-class BattleVoteButton(discord.ui.Button):
-    def __init__(self, pick: int):
+class BattleVoteButton(discord.ui.DynamicItem[discord.ui.Button], template=r"battle_vote:(?P<vote_id>[0-9]+):(?P<pick>[12])"):
+    def __init__(self, vote_id: str, pick: int):
         super().__init__(
-            label=f"Vote Bottle {pick}",
-            style=discord.ButtonStyle.primary if pick == 1 else discord.ButtonStyle.danger,
-            custom_id=f"battle_vote:{pick}"
+            discord.ui.Button(
+                label=f"Vote Bottle {pick}",
+                style=discord.ButtonStyle.primary if pick == 1 else discord.ButtonStyle.danger,
+                custom_id=f"battle_vote:{vote_id}:{pick}"
+            )
         )
+        self.vote_id = vote_id
         self.pick = pick
 
-    async def callback(self, interaction: discord.Interaction):
-        message_id = str(interaction.message.id)
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(match.group("vote_id"), int(match.group("pick")))
 
-        if message_id not in BATTLE_VOTES:
+    async def callback(self, interaction: discord.Interaction):
+        vote_id = self.vote_id
+
+        if vote_id not in BATTLE_VOTES:
             recovered_state = recover_battle_state(interaction.message)
 
             if not recovered_state:
@@ -617,14 +727,20 @@ class BattleVoteButton(discord.ui.Button):
                 )
                 return
 
-            BATTLE_VOTES[message_id] = recovered_state
+            BATTLE_VOTES[vote_id] = recovered_state
 
-        BATTLE_VOTES[message_id].setdefault("votes", {})[str(interaction.user.id)] = self.pick
+        attach_vote_message_context(BATTLE_VOTES[vote_id], interaction.message)
+        BATTLE_VOTES[vote_id].setdefault("votes", {})[str(interaction.user.id)] = self.pick
         save_json(BATTLE_VOTES_PATH, BATTLE_VOTES)
 
-        chosen = BATTLE_VOTES[message_id]["bottle_one"] if self.pick == 1 else BATTLE_VOTES[message_id]["bottle_two"]
+        chosen = BATTLE_VOTES[vote_id]["bottle_one"] if self.pick == 1 else BATTLE_VOTES[vote_id]["bottle_two"]
         await interaction.response.send_message(f"Vote counted for {chosen}.", ephemeral=True)
-        await interaction.message.edit(embed=battle_embed(message_id), view=BattleView())
+        await sync_vote_messages(
+            BATTLE_VOTES[vote_id],
+            interaction.message,
+            battle_embed(vote_id),
+            BattleView(vote_id)
+        )
 
 
 class FlipBinButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bin_(?P<message_id>[0-9]+)"):
@@ -736,8 +852,8 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def setup_hook():
-    bot.add_view(BOTYView())
-    bot.add_view(BattleView())
+    bot.add_dynamic_items(BOTYScoreButton)
+    bot.add_dynamic_items(BattleVoteButton)
     bot.add_dynamic_items(FlipBinButton)
     configure_guild_commands()
 
@@ -1043,12 +1159,14 @@ async def boty(interaction: discord.Interaction, name: str):
     starter_embed.add_field(name="Average Score", value="No votes yet", inline=True)
     starter_embed.set_footer(text="BOTY = Bottle of the Year. A discussion thread will be created.")
 
-    await interaction.response.send_message(embed=starter_embed, view=BOTYView())
+    await interaction.response.send_message(embed=starter_embed)
     message = await interaction.original_response()
     message_id = str(message.id)
 
     BOTY_VOTES[message_id] = {
         "bottle": bottle_name,
+        "channel_id": message.channel.id,
+        "message_id": message.id,
         "votes": {}
     }
     save_json(BOTY_VOTES_PATH, BOTY_VOTES)
@@ -1056,12 +1174,14 @@ async def boty(interaction: discord.Interaction, name: str):
     try:
         thread = await message.create_thread(name=f"BOTY: {bottle_name}"[:100])
         BOTY_VOTES[message_id]["thread_id"] = thread.id
+        thread_message = await thread.send(embed=boty_embed(message_id), view=BOTYView(message_id))
+        BOTY_VOTES[message_id]["thread_message_id"] = thread_message.id
         save_json(BOTY_VOTES_PATH, BOTY_VOTES)
         await thread.send(f"Discuss **{bottle_name}** here. What score did it earn and why?")
     except discord.HTTPException:
         pass
 
-    await message.edit(embed=boty_embed(message_id), view=BOTYView())
+    await message.edit(embed=boty_embed(message_id), view=BOTYView(message_id))
 
 
 @bot.tree.command(name="battle", description="Start a head-to-head bottle battle vote.")
@@ -1105,13 +1225,15 @@ async def battle(interaction: discord.Interaction, bottle_one: str, bottle_two: 
     )
     starter_embed.set_footer(text="Winner gets the trophy. Loser gets humbled.")
 
-    await interaction.response.send_message(embed=starter_embed, view=BattleView())
+    await interaction.response.send_message(embed=starter_embed)
     message = await interaction.original_response()
     message_id = str(message.id)
 
     BATTLE_VOTES[message_id] = {
         "bottle_one": name1,
         "bottle_two": name2,
+        "channel_id": message.channel.id,
+        "message_id": message.id,
         "votes": {}
     }
     save_json(BATTLE_VOTES_PATH, BATTLE_VOTES)
@@ -1119,6 +1241,8 @@ async def battle(interaction: discord.Interaction, bottle_one: str, bottle_two: 
     try:
         thread = await message.create_thread(name=f"Battle: {name1} vs {name2}"[:100])
         BATTLE_VOTES[message_id]["thread_id"] = thread.id
+        thread_message = await thread.send(embed=battle_embed(message_id), view=BattleView(message_id))
+        BATTLE_VOTES[message_id]["thread_message_id"] = thread_message.id
         save_json(BATTLE_VOTES_PATH, BATTLE_VOTES)
         await thread.send(
             f"Battle thread: **{name1}** vs **{name2}**.\n"
@@ -1127,7 +1251,7 @@ async def battle(interaction: discord.Interaction, bottle_one: str, bottle_two: 
     except discord.HTTPException:
         pass
 
-    await message.edit(embed=battle_embed(message_id), view=BattleView())
+    await message.edit(embed=battle_embed(message_id), view=BattleView(message_id))
 
 
 if not TOKEN:
