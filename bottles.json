@@ -777,6 +777,76 @@
     "verdict_notes": "A beautiful bottle for mature oak fans, with market prices to match the legend.",
     "community_score": 96
   },
+  "Eagle Rare 17-Year Bourbon 2025": {
+    "aliases": [
+      "er17 2025",
+      "eagle rare 17 2025",
+      "eagle rare 17 year 2025",
+      "eagle rare 17-year 2025",
+      "eagle rare 17-year bourbon 2025",
+      "btac 2025 er17",
+      "er17 btac 2025"
+    ],
+    "proof": 101,
+    "style": "BTAC 17 year bourbon",
+    "msrp": 150,
+    "fair_price_low": 800,
+    "fair_price_high": 1400,
+    "secondary_low": 1600,
+    "secondary_high": 2800,
+    "profile": "Oak, caramel, dark fruit, toffee, leather, spice, long oak-forward finish, and balanced spice.",
+    "similar": [
+      "Eagle Rare 17 Year",
+      "Michter's 10 Year Bourbon",
+      "Pappy Van Winkle 15 Year",
+      "George T. Stagg"
+    ],
+    "description": "The 2025 Eagle Rare 17-Year release from the Buffalo Trace Antique Collection, bottled at 101 proof.",
+    "verdict_notes": "Classic mature BTAC oak at lower proof. Strong if you love aged oak; value depends heavily on trade comps.",
+    "community_score": 96,
+    "name": "Eagle Rare 17-Year Bourbon 2025",
+    "alias": "ER17 2025",
+    "brand": "Eagle Rare",
+    "distillery": "Buffalo Trace Distillery",
+    "location": "Frankfort, Kentucky",
+    "expression": "BTAC 2025",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": 17,
+    "age_detail": "Actual age ~18 years",
+    "batch": "BTAC 2025",
+    "abv": 50.5,
+    "mash_bill": "Undisclosed",
+    "filtration": "Non-chill filtered",
+    "barrel_proof": false,
+    "limited_release": true,
+    "release_year": 2025,
+    "availability": "Extremely limited",
+    "tasting_notes": {
+      "nose": [
+        "oak",
+        "caramel",
+        "dark fruit"
+      ],
+      "palate": [
+        "toffee",
+        "leather",
+        "spice"
+      ],
+      "finish": [
+        "long",
+        "oak-forward",
+        "balanced spice"
+      ]
+    },
+    "summary": "Eagle Rare 17-Year Bourbon 2025 (ER17 2025) is an extremely limited Buffalo Trace Antique Collection release bottled at 101 proof. It delivers a mature oak-forward profile with caramel, dark fruit, toffee, leather, and balanced spice.",
+    "tags": [
+      "btac",
+      "eagle rare",
+      "17 year",
+      "low proof"
+    ]
+  },
   "Elijah Craig 15-Year-Old Single Barrel Bourbon": {
     "aliases": [
       "ec15",
