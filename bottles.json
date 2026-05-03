@@ -2672,5 +2672,82 @@
     "description": "A twice-barreled Woodford Reserve with a sweet toasted profile.",
     "verdict_notes": "Great dessert pour if the price stays grounded.",
     "community_score": 87
+  },
+  "Yellowstone Recollection Bourbon": {
+    "aliases": [
+      "yellowstone recollection",
+      "yellowstone recollection series",
+      "recollection bourbon",
+      "yellowstone 8 year",
+      "yellowstone 110"
+    ],
+    "proof": 110,
+    "style": "8 year barrel proof Kentucky straight bourbon",
+    "msrp": 69.99,
+    "fair_price_low": 70,
+    "fair_price_high": 95,
+    "secondary_low": 105,
+    "secondary_high": 150,
+    "profile": "Dark caramel, oak, ripe cherry, confectioners sugar, cinnamon, butterscotch, dark fruit, charred oak, mocha, grain, warm spice, and cinnamon candy.",
+    "similar": [
+      "Yellowstone Limited Edition",
+      "Lux Row 12 Year Double Barrel",
+      "Rebel Cask Strength",
+      "Ezra Brooks Cask Strength"
+    ],
+    "description": "An 8-year, 110 proof limited Yellowstone bourbon from Limestone Branch Distillery, inspired by historic back-bar decanters.",
+    "verdict_notes": "At MSRP this is a strong limited-release Yellowstone buy. Above fair range, compare against other 110-proof limited Kentucky bourbons.",
+    "community_score": 86,
+    "name": "Yellowstone Recollection Bourbon",
+    "alias": "Yellowstone Recollection",
+    "brand": "Yellowstone",
+    "distillery": "Limestone Branch Distillery",
+    "location": "Lebanon, Kentucky",
+    "expression": "Recollection Series",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": 8,
+    "batch": null,
+    "abv": 55,
+    "mash_bill": "Undisclosed",
+    "mash_process": null,
+    "filtration": "Non-chill filtered",
+    "barrel_proof": true,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2026,
+    "availability": "Limited nationwide release",
+    "source_url": "https://www.breakingbourbon.com/review/yellowstone-recollection-bourbon",
+    "tasting_notes": {
+      "nose": [
+        "dark caramel",
+        "oak",
+        "ripe cherry",
+        "confectioners sugar",
+        "cinnamon"
+      ],
+      "palate": [
+        "caramel",
+        "butterscotch",
+        "dark fruit",
+        "charred oak"
+      ],
+      "finish": [
+        "mocha",
+        "grain",
+        "cherry",
+        "warm spice",
+        "cinnamon candy"
+      ]
+    },
+    "summary": "Yellowstone Recollection Bourbon is an 8-year, 110 proof limited release from Limestone Branch Distillery. Inspired by historic back-bar decanters, it delivers a balanced profile of caramel, dark fruit, oak, and spice with a warm, cherry-accented finish.",
+    "tags": [
+      "yellowstone",
+      "recollection series",
+      "8 year",
+      "110 proof",
+      "limited release",
+      "kentucky bourbon"
+    ]
   }
 }
