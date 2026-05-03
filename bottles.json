@@ -1659,6 +1659,89 @@
       "high age blend"
     ]
   },
+  "Knob Creek Blender’s Edition 01 Bourbon": {
+    "aliases": [
+      "kc blender’s 01",
+      "kc blenders 01",
+      "knob creek blenders edition",
+      "knob creek blender's edition",
+      "knob creek blender’s edition 01",
+      "knob creek blenders edition 01",
+      "knob creek edition 01"
+    ],
+    "proof": 106,
+    "style": "Limited 10 year Kentucky straight bourbon",
+    "msrp": 44.99,
+    "fair_price_low": 45,
+    "fair_price_high": 65,
+    "secondary_low": 70,
+    "secondary_high": 95,
+    "profile": "Caramel, peanut, hickory syrup, vanilla, brown sugar, cherry jam, orange rind, oak, and soft spice.",
+    "similar": [
+      "Knob Creek 9 Year",
+      "Knob Creek 12 Year",
+      "Knob Creek Single Barrel Reserve",
+      "Baker's 7 Year"
+    ],
+    "description": "The first release in Knob Creek's limited Blender's Edition series, aged at least 10 years and bottled at 106 proof.",
+    "verdict_notes": "At MSRP this is an easy Knob Creek buy, especially if you like sweeter Beam profiles. Above fair range, compare it against Knob Creek 12 Year or strong store picks.",
+    "community_score": 86,
+    "name": "Knob Creek Blender’s Edition 01 Bourbon",
+    "alias": "KC Blender’s 01",
+    "brand": "Knob Creek",
+    "distillery": "Jim Beam Distillery",
+    "company": "Suntory Global Spirits",
+    "location": "Clermont, Kentucky",
+    "expression": "Blender’s Edition 01",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": 10,
+    "age_detail": "Aged a minimum of 10 years",
+    "batch": "Edition 01",
+    "abv": 53,
+    "mash_bill": "75% corn, 13% rye, 12% malted barley",
+    "mash_process": null,
+    "filtration": null,
+    "barrel_proof": false,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2026,
+    "availability": "Nationwide release",
+    "source_url": "https://www.breakingbourbon.com/review/knob-creek-blenders-edition-01-bourbon",
+    "tasting_notes": {
+      "nose": [
+        "caramel",
+        "peanut",
+        "sweet hickory syrup",
+        "fresh cut firewood",
+        "leather",
+        "powdered sugar"
+      ],
+      "palate": [
+        "vanilla",
+        "caramel",
+        "brown sugar",
+        "cherry jam",
+        "orange rind"
+      ],
+      "finish": [
+        "sweet vanilla",
+        "oak",
+        "soft spice",
+        "lingering sweetness"
+      ]
+    },
+    "summary": "Knob Creek Blender’s Edition 01 Bourbon is the first release in a new limited series focused on the art of blending. Aged at least 10 years and bottled at 106 proof, it emphasizes a sweeter profile with layers of vanilla, caramel, and confectionery notes balanced by classic Knob Creek oak and spice.",
+    "tags": [
+      "knob creek",
+      "blenders edition",
+      "edition 01",
+      "10 year",
+      "106 proof",
+      "limited release",
+      "sweet profile"
+    ]
+  },
   "Knob Creek 12 Year": {
     "aliases": [
       "kc12",
