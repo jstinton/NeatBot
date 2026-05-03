@@ -2740,16 +2740,23 @@
     "verdict_notes": "Outstanding mature Turkey profile, but the market knows it.",
     "community_score": 94
   },
-  "Russell's Reserve 15 Year": {
+  "Russell’s Reserve 15 Year Bourbon (2024)": {
     "aliases": [
       "rr15",
+      "RR15",
       "russells 15",
       "russell's 15",
+      "russell’s 15",
       "russells reserve 15",
       "russell's reserve 15",
+      "russell’s reserve 15",
       "russell reserve 15",
       "russell's reserve 15 year",
-      "russells reserve 15 year"
+      "russell’s reserve 15 year",
+      "russells reserve 15 year",
+      "russells reserve 15 year bourbon",
+      "russell's reserve 15 year bourbon",
+      "russell’s reserve 15 year bourbon"
     ],
     "proof": 117.2,
     "style": "15 year barrel proof bourbon",
@@ -2758,68 +2765,69 @@
     "fair_price_high": 550,
     "secondary_low": 600,
     "secondary_high": 1000,
-    "profile": "Dried fruit, caramel, nutmeg, clove, oak, spiced cherry, plum, molasses, coffee, tobacco, dark cocoa, and mature oak.",
+    "profile": "Cherry, caramel, oak, baking spice, dark fruit, molasses, coffee, tobacco, aged oak, dark cocoa, and long lingering spice.",
     "similar": [
       "Russell's Reserve 13 Year",
       "Wild Turkey Master’s Keep Beacon",
       "Michter's 10 Year Bourbon",
       "Eagle Rare 17 Year"
     ],
-    "description": "A limited 15-year Russell's Reserve bourbon bottled non-chill filtered at 117.2 proof.",
+    "description": "A limited 2024 15-year Russell’s Reserve bourbon bottled non-chill filtered at 117.2 proof.",
     "verdict_notes": "A premium mature Turkey bottle. Strong at MSRP, but secondary pricing gets serious fast.",
     "community_score": 95,
-    "name": "Russell's Reserve 15 Year",
+    "name": "Russell’s Reserve 15 Year Bourbon (2024)",
     "alias": "RR15",
-    "brand": "Russell's Reserve",
+    "brand": "Russell’s Reserve",
     "distillery": "Wild Turkey Distilling Co.",
     "location": "Lawrenceburg, Kentucky",
-    "expression": "15 Year Bourbon",
+    "expression": "15 Year",
     "category": "Bourbon",
     "type": "Kentucky Straight Bourbon",
     "age_statement_years": 15,
-    "batch": "2024 Release",
+    "batch": null,
     "abv": 58.6,
     "mash_bill": "75% corn, 13% rye, 12% malted barley",
+    "mash_process": null,
     "filtration": "Non-chill filtered",
     "barrel_proof": true,
     "single_barrel": false,
     "limited_release": true,
     "release_year": 2024,
-    "availability": "Limited release",
+    "release_date": "July 2024",
+    "availability": "Limited nationwide and international release",
     "source_url": "https://www.breakingbourbon.com/review/russells-reserve-15-year-bourbon-2024",
     "tasting_notes": {
       "nose": [
-        "dried fruits",
+        "cherry",
         "caramel",
-        "nutmeg",
-        "clove",
-        "oak"
+        "oak",
+        "baking spice",
+        "dark fruit"
       ],
       "palate": [
-        "spiced fruits",
         "cherry",
-        "plum",
         "molasses",
         "coffee",
         "tobacco",
-        "mature oak"
+        "aged oak",
+        "spiced fruit"
       ],
       "finish": [
         "dark cocoa",
         "caramel",
-        "smooth oak",
-        "long finish"
+        "oak",
+        "long lingering spice"
       ]
     },
-    "summary": "Russell's Reserve 15 Year is a limited, extra-aged Kentucky straight bourbon selected by Eddie Russell and bottled non-chill filtered at 117.2 proof. It delivers a mature Wild Turkey profile with dried fruit, caramel, spice, tobacco, dark cocoa, and oak.",
+    "summary": "Russell’s Reserve 15 Year Bourbon (RR15) is a limited 2024 release bottled at 117.2 proof, showcasing the Russell family’s signature Wild Turkey profile elevated by extended aging. It delivers bold cherry-forward sweetness, rich oak integration, and deep spice, making it a landmark release for the brand.",
     "tags": [
       "russells reserve",
       "rr15",
-      "15 year",
       "wild turkey",
-      "barrel proof",
+      "15 year",
+      "117.2 proof",
       "limited release",
-      "premium bourbon"
+      "high age bourbon"
     ]
   },
   "Russell's Reserve Single Barrel": {
