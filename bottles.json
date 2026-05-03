@@ -450,6 +450,82 @@
     "verdict_notes": "Great daily pour at retail. Do not chase it too hard when shelves have good alternatives.",
     "community_score": 82
   },
+  "Bulleit Bourbon Mesquite Smoked Malt": {
+    "aliases": [
+      "bulleit mesquite",
+      "bulleit mesquite smoked malt",
+      "mesquite smoked malt",
+      "bulleit smoked malt",
+      "bulleit smoked bourbon"
+    ],
+    "proof": 93,
+    "style": "Mesquite smoked malt Kentucky straight bourbon",
+    "msrp": 49.99,
+    "fair_price_low": 50,
+    "fair_price_high": 65,
+    "secondary_low": 70,
+    "secondary_high": 95,
+    "profile": "Caramelized sugar, mesquite smoke, sweet malt, light oak, vanilla, subtle smokiness, barbecue warmth, and gentle smoke.",
+    "similar": [
+      "Bulleit Bourbon",
+      "Casey Jones Small Batch Bourbon",
+      "Chattanooga Whiskey 111",
+      "Woodford Reserve"
+    ],
+    "description": "A limited Bulleit bourbon made with mesquite-smoked malted barley, aged over 6 years and bottled at 93 proof.",
+    "verdict_notes": "At MSRP this is a worthwhile experimental pour if you like smoky malt character. Above fair range, make sure the mesquite profile is what you want.",
+    "community_score": 79,
+    "name": "Bulleit Bourbon Mesquite Smoked Malt",
+    "alias": "Bulleit Mesquite",
+    "brand": "Bulleit",
+    "distillery": "Bulleit Distilling Co.",
+    "location": "Shelbyville, Kentucky",
+    "expression": "Mesquite Smoked Malt",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": 6,
+    "age_detail": "Aged over 6 years",
+    "batch": null,
+    "abv": 46.5,
+    "mash_bill": "65% corn, 30% mesquite smoked malted barley, 5% malted barley",
+    "mash_process": null,
+    "filtration": null,
+    "barrel_proof": false,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2026,
+    "availability": "Limited nationwide release",
+    "source_url": "https://www.breakingbourbon.com/review/bulleit-bourbon-mesquite-smoked-malt-straight-bourbon",
+    "tasting_notes": {
+      "nose": [
+        "caramelized sugar",
+        "mesquite smoke",
+        "sweet malt",
+        "light oak"
+      ],
+      "palate": [
+        "vanilla",
+        "oak",
+        "subtle smokiness",
+        "sweet malt"
+      ],
+      "finish": [
+        "light",
+        "lingering",
+        "barbecue warmth",
+        "gentle smoke"
+      ]
+    },
+    "summary": "Bulleit Bourbon Mesquite Smoked Malt is a limited release that replaces rye with mesquite-smoked malted barley, creating a unique smoky twist on traditional bourbon. Bottled at 93 proof and aged over six years, it delivers caramel sweetness, vanilla, oak, and a subtle barbecue-inspired smokiness.",
+    "tags": [
+      "bulleit",
+      "mesquite smoked malt",
+      "experimental bourbon",
+      "93 proof",
+      "limited release",
+      "smoked bourbon"
+    ]
+  },
   "Chattanooga Whiskey 111": {
     "aliases": [
       "chattanooga 111",
