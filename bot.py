@@ -14,6 +14,8 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD_ID = os.getenv("GUILD_ID")
 
 DATA_PATH = Path(__file__).parent / "bottles.json"
+BOTY_VOTES_PATH = Path(__file__).parent / "boty_votes.json"
+BATTLE_VOTES_PATH = Path(__file__).parent / "battle_votes.json"
 
 
 def load_bottles():
@@ -23,6 +25,24 @@ def load_bottles():
 
 BOTTLES = load_bottles()
 BOTTLE_NAMES = list(BOTTLES.keys())
+
+
+def load_json(path: Path, default):
+    if not path.exists():
+        return default
+
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_json(path: Path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+
+
+BOTY_VOTES = load_json(BOTY_VOTES_PATH, {})
+BATTLE_VOTES = load_json(BATTLE_VOTES_PATH, {})
 
 
 def normalize(text: str) -> str:
@@ -99,8 +119,142 @@ def bottle_embed(name: str, data: dict):
     return embed
 
 
+def average_score(votes: dict) -> float:
+    if not votes:
+        return 0
+
+    return sum(votes.values()) / len(votes)
+
+
+def boty_embed(message_id: str):
+    state = BOTY_VOTES[message_id]
+    bottle_name = state["bottle"]
+    votes = state.get("votes", {})
+    average = average_score(votes)
+
+    embed = discord.Embed(
+        title=f"🏆 BOTY Score: {bottle_name}",
+        description="Click a button from 1-10 to rate this bottle. Your latest vote replaces your previous vote.",
+        color=discord.Color.gold()
+    )
+
+    embed.add_field(name="Average Score", value=f"{average:.2f}/10" if votes else "No votes yet", inline=True)
+    embed.add_field(name="Votes", value=str(len(votes)), inline=True)
+    embed.set_footer(text="BOTY = Bottle of the Year. Discuss this bottle in the thread.")
+
+    return embed
+
+
+def battle_embed(message_id: str):
+    state = BATTLE_VOTES[message_id]
+    bottle_one = state["bottle_one"]
+    bottle_two = state["bottle_two"]
+    votes = state.get("votes", {})
+    one_votes = sum(1 for pick in votes.values() if pick == 1)
+    two_votes = sum(1 for pick in votes.values() if pick == 2)
+
+    if one_votes > two_votes:
+        one_label = f"🏆 {bottle_one}"
+        two_label = f"💩 {bottle_two}"
+    elif two_votes > one_votes:
+        one_label = f"💩 {bottle_one}"
+        two_label = f"🏆 {bottle_two}"
+    else:
+        one_label = f"⚔️ {bottle_one}"
+        two_label = f"⚔️ {bottle_two}"
+
+    embed = discord.Embed(
+        title="🥃 Bottle Battle",
+        description="Vote for the bottle you would rather pour. Your latest vote replaces your previous vote.",
+        color=discord.Color.blurple()
+    )
+    embed.add_field(name=one_label, value=f"{one_votes} vote(s)", inline=True)
+    embed.add_field(name=two_label, value=f"{two_votes} vote(s)", inline=True)
+    embed.add_field(name="Total Votes", value=str(len(votes)), inline=False)
+    embed.set_footer(text="Winner gets the trophy. Loser gets humbled.")
+
+    return embed
+
+
+class BOTYView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+        for score in range(1, 11):
+            self.add_item(BOTYScoreButton(score))
+
+
+class BOTYScoreButton(discord.ui.Button):
+    def __init__(self, score: int):
+        super().__init__(
+            label=str(score),
+            style=discord.ButtonStyle.secondary,
+            custom_id=f"boty_score:{score}",
+            row=0 if score <= 5 else 1
+        )
+        self.score = score
+
+    async def callback(self, interaction: discord.Interaction):
+        message_id = str(interaction.message.id)
+
+        if message_id not in BOTY_VOTES:
+            BOTY_VOTES[message_id] = {
+                "bottle": "Unknown bottle",
+                "votes": {}
+            }
+
+        BOTY_VOTES[message_id].setdefault("votes", {})[str(interaction.user.id)] = self.score
+        save_json(BOTY_VOTES_PATH, BOTY_VOTES)
+
+        await interaction.response.send_message(
+            f"Your BOTY score is locked in: {self.score}/10.",
+            ephemeral=True
+        )
+        await interaction.message.edit(embed=boty_embed(message_id), view=BOTYView())
+
+
+class BattleView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.add_item(BattleVoteButton(1))
+        self.add_item(BattleVoteButton(2))
+
+
+class BattleVoteButton(discord.ui.Button):
+    def __init__(self, pick: int):
+        super().__init__(
+            label=f"Vote Bottle {pick}",
+            style=discord.ButtonStyle.primary if pick == 1 else discord.ButtonStyle.danger,
+            custom_id=f"battle_vote:{pick}"
+        )
+        self.pick = pick
+
+    async def callback(self, interaction: discord.Interaction):
+        message_id = str(interaction.message.id)
+
+        if message_id not in BATTLE_VOTES:
+            await interaction.response.send_message(
+                "I can’t find this battle in the vote database anymore.",
+                ephemeral=True
+            )
+            return
+
+        BATTLE_VOTES[message_id].setdefault("votes", {})[str(interaction.user.id)] = self.pick
+        save_json(BATTLE_VOTES_PATH, BATTLE_VOTES)
+
+        chosen = BATTLE_VOTES[message_id]["bottle_one"] if self.pick == 1 else BATTLE_VOTES[message_id]["bottle_two"]
+        await interaction.response.send_message(f"Vote counted for {chosen}.", ephemeral=True)
+        await interaction.message.edit(embed=battle_embed(message_id), view=BattleView())
+
+
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+
+@bot.event
+async def setup_hook():
+    bot.add_view(BOTYView())
+    bot.add_view(BattleView())
 
 
 @bot.event
@@ -245,6 +399,103 @@ async def compare(interaction: discord.Interaction, bottle_one: str, bottle_two:
     embed.add_field(name="NeatBot Pick", value=pick, inline=False)
 
     await interaction.response.send_message(embed=embed)
+
+
+@bot.tree.command(name="boty", description="Start a Bottle of the Year rating with 1-10 buttons.")
+@app_commands.describe(name="Example: Weller Antique 107")
+async def boty(interaction: discord.Interaction, name: str):
+    bottle_name, data = find_bottle(name)
+
+    if not bottle_name:
+        await interaction.response.send_message(
+            f"Couldn’t find `{name}` yet. Ask a mod to add it to NeatBot’s bottle database.",
+            ephemeral=True
+        )
+        return
+
+    starter_embed = discord.Embed(
+        title=f"🏆 BOTY Score: {bottle_name}",
+        description="Click a button from 1-10 to rate this bottle. Your latest vote replaces your previous vote.",
+        color=discord.Color.gold()
+    )
+    starter_embed.add_field(name="Proof", value=str(data.get("proof", "Unknown")), inline=True)
+    starter_embed.add_field(name="Style", value=data.get("style", "Unknown"), inline=True)
+    starter_embed.add_field(name="Average Score", value="No votes yet", inline=True)
+    starter_embed.set_footer(text="BOTY = Bottle of the Year. A discussion thread will be created.")
+
+    await interaction.response.send_message(embed=starter_embed, view=BOTYView())
+    message = await interaction.original_response()
+    message_id = str(message.id)
+
+    BOTY_VOTES[message_id] = {
+        "bottle": bottle_name,
+        "votes": {}
+    }
+    save_json(BOTY_VOTES_PATH, BOTY_VOTES)
+
+    try:
+        thread = await message.create_thread(name=f"BOTY: {bottle_name}"[:100])
+        BOTY_VOTES[message_id]["thread_id"] = thread.id
+        save_json(BOTY_VOTES_PATH, BOTY_VOTES)
+        await thread.send(f"Discuss **{bottle_name}** here. What score did it earn and why?")
+    except discord.HTTPException:
+        pass
+
+    await message.edit(embed=boty_embed(message_id), view=BOTYView())
+
+
+@bot.tree.command(name="battle", description="Start a head-to-head bottle battle vote.")
+@app_commands.describe(
+    bottle_one="Example: Stagg",
+    bottle_two="Example: Elijah Craig Barrel Proof"
+)
+async def battle(interaction: discord.Interaction, bottle_one: str, bottle_two: str):
+    name1, data1 = find_bottle(bottle_one)
+    name2, data2 = find_bottle(bottle_two)
+
+    missing = []
+
+    if not name1:
+        missing.append(bottle_one)
+
+    if not name2:
+        missing.append(bottle_two)
+
+    if missing:
+        await interaction.response.send_message(
+            f"Couldn’t find: {', '.join(missing)}. Ask a mod to add it to the database.",
+            ephemeral=True
+        )
+        return
+
+    starter_embed = discord.Embed(
+        title="🥃 Bottle Battle",
+        description="Vote for the bottle you would rather pour. Your latest vote replaces your previous vote.",
+        color=discord.Color.blurple()
+    )
+    starter_embed.add_field(
+        name=f"⚔️ {name1}",
+        value=f"**Proof:** {data1.get('proof', 'Unknown')}\n**Profile:** {data1.get('profile', 'Unknown')}",
+        inline=True
+    )
+    starter_embed.add_field(
+        name=f"⚔️ {name2}",
+        value=f"**Proof:** {data2.get('proof', 'Unknown')}\n**Profile:** {data2.get('profile', 'Unknown')}",
+        inline=True
+    )
+    starter_embed.set_footer(text="Winner gets the trophy. Loser gets humbled.")
+
+    await interaction.response.send_message(embed=starter_embed, view=BattleView())
+    message = await interaction.original_response()
+    message_id = str(message.id)
+
+    BATTLE_VOTES[message_id] = {
+        "bottle_one": name1,
+        "bottle_two": name2,
+        "votes": {}
+    }
+    save_json(BATTLE_VOTES_PATH, BATTLE_VOTES)
+    await message.edit(embed=battle_embed(message_id), view=BattleView())
 
 
 if not TOKEN:

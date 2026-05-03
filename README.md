@@ -7,6 +7,10 @@ NeatBot is a Discord bourbon bot built with Python, `discord.py`, and guild-scop
 - `/bottle name:` looks up proof, style, MSRP, profile, and similar bottles.
 - `/worth name: price:` compares a shelf price to MSRP, fair price, and secondary-ish pricing.
 - `/compare bottle_one: bottle_two:` compares two bottles and recommends a pick.
+- `/boty name:` starts a Bottle of the Year scorecard with 1-10 rating buttons and creates a discussion thread.
+- `/battle bottle_one: bottle_two:` starts a head-to-head vote and marks the winner with a trophy and the loser with a poop emoji.
+
+BOTY and Battle votes are stored in local JSON files on the running service. For permanent cross-deploy history, move vote storage to a database later.
 
 ## Local Setup
 
