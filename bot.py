@@ -160,6 +160,31 @@ def has_value_mismatch(ft_value: int, iso_value: Optional[int]):
     return iso_value is not None and iso_value * 100 > ft_value * 115
 
 
+def seller_kicker_amount(ft_value: int, iso_value: Optional[int]):
+    if iso_value is None or iso_value <= ft_value:
+        return None
+
+    return iso_value - ft_value
+
+
+def seller_kicker_label(ft_value: int, iso_value: Optional[int]):
+    amount = seller_kicker_amount(ft_value, iso_value)
+
+    if amount is None:
+        return "🥾"
+
+    return f"🥾 {flip_taco_value(amount)}"
+
+
+def seller_kicker_field_value(ft_value: int, iso_value: Optional[int]):
+    amount = seller_kicker_amount(ft_value, iso_value)
+
+    if amount is None:
+        return "Yes"
+
+    return f"Yes — {flip_taco_value(amount)}"
+
+
 def yes_no(value: Optional[bool]):
     return "Yes" if value else "No"
 
@@ -348,19 +373,19 @@ def flip_embed(
     embed.add_field(name="💰 Est. Value (per seller):", value=flip_taco_value(ft_value), inline=True)
 
     if ft_kicker or iso_kicker:
-        embed.add_field(name="🥾 Seller Kicker:", value="Yes", inline=True)
+        embed.add_field(name="🥾 Seller Kicker:", value=seller_kicker_field_value(ft_value, iso_value), inline=True)
 
     if iso:
         iso_text = format_bottle_list(iso)
         embed.add_field(name="🔍 ISO:", value=iso_text, inline=False)
 
         if iso_value is not None:
-            embed.add_field(name="💵 ISO Value:", value=flip_taco_value(iso_value), inline=True)
+            embed.add_field(name="💵 ISO Value:", value=flip_taco_value(iso_value), inline=False)
     else:
         embed.add_field(name="🌮 Looking For:", value="Tacos only", inline=False)
 
         if iso_value is not None:
-            embed.add_field(name="💵 ISO Value:", value=flip_taco_value(iso_value), inline=True)
+            embed.add_field(name="💵 ISO Value:", value=flip_taco_value(iso_value), inline=False)
 
     embed.add_field(name="📍 Location:", value=location, inline=True)
 
@@ -1105,19 +1130,21 @@ async def flip(
         return
 
     seller_kicker = bool(ft_kicker or iso_kicker)
-    ft_target = f"{ft} + 🥾" if seller_kicker else ft
+    kicker_label = seller_kicker_label(ft_value, iso_value) if seller_kicker else None
+    ft_target = f"{ft} + {kicker_label}" if kicker_label else ft
     target = iso_thread_target(iso, iso_value)
     thread_name = thread_safe_name(f"🥃 FT: {ft_target} ↔ {target}")
     seller_name = interaction.user.display_name
+    announcement_ft = ft_target
 
     if iso:
         announcement_description = (
-            f"{seller_name} is offering **{ft}** — ISO **{iso}**. "
+            f"{seller_name} is offering **{announcement_ft}** — ISO **{iso}**. "
             "Drop a ✅ or hit BIN below 👇"
         )
     else:
         announcement_description = (
-            f"{seller_name} is offering **{ft}** — looking for tacos only. "
+            f"{seller_name} is offering **{announcement_ft}** — looking for tacos only. "
             "Drop a ✅ or hit BIN below 👇"
         )
 
