@@ -1333,6 +1333,77 @@
       "high proof"
     ]
   },
+  "Thomas H. Handy Sazerac Rye 2025": {
+    "aliases": [
+      "handy 2025",
+      "thh 2025",
+      "thomas handy 2025",
+      "thomas h handy 2025",
+      "thomas h. handy 2025",
+      "thomas h handy sazerac rye 2025",
+      "thomas h. handy sazerac rye 2025",
+      "btac 2025 handy",
+      "handy btac 2025"
+    ],
+    "proof": 129.8,
+    "style": "BTAC barrel proof straight rye",
+    "msrp": 150,
+    "fair_price_low": 500,
+    "fair_price_high": 850,
+    "secondary_low": 900,
+    "secondary_high": 1500,
+    "profile": "Mint, spice, caramel, pepper, cinnamon, oak, long spicy finish, and warming heat.",
+    "similar": [
+      "Sazerac 18 Year Rye",
+      "George T. Stagg 2025",
+      "Michter's 10 Year Rye",
+      "Wild Turkey Rare Breed Rye"
+    ],
+    "description": "The 2025 Thomas H. Handy Sazerac Rye release from the Buffalo Trace Antique Collection, a barrel proof straight rye whiskey.",
+    "verdict_notes": "BTAC rye with serious proof and spice. Great for rye fans, but compare carefully against current Handy comps.",
+    "community_score": 94,
+    "name": "Thomas H. Handy Sazerac Rye 2025",
+    "alias": "Handy 2025",
+    "brand": "Thomas H. Handy",
+    "distillery": "Buffalo Trace Distillery",
+    "location": "Frankfort, Kentucky",
+    "expression": "BTAC 2025",
+    "category": "Rye",
+    "type": "Straight Rye Whiskey",
+    "age_statement_years": 6,
+    "batch": "BTAC 2025",
+    "abv": 64.9,
+    "mash_bill": "Undisclosed rye mash bill",
+    "filtration": "Non-chill filtered",
+    "barrel_proof": true,
+    "limited_release": true,
+    "release_year": 2025,
+    "availability": "Extremely limited",
+    "tasting_notes": {
+      "nose": [
+        "mint",
+        "spice",
+        "caramel"
+      ],
+      "palate": [
+        "pepper",
+        "cinnamon",
+        "oak"
+      ],
+      "finish": [
+        "long",
+        "spicy",
+        "warming"
+      ]
+    },
+    "summary": "Thomas H. Handy Sazerac Rye 2025 (Handy 2025) is a 6-year, 129.8 proof barrel-proof straight rye from the Buffalo Trace Antique Collection. It delivers a bold rye profile of mint, spice, caramel, pepper, cinnamon, oak, and warming heat.",
+    "tags": [
+      "btac",
+      "handy",
+      "rye",
+      "barrel proof"
+    ]
+  },
   "Heaven Hill Heritage Collection 22-Year-Old Bourbon": {
     "aliases": [
       "hh22",
