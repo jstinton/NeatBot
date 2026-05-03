@@ -1573,6 +1573,92 @@
       "sweet mash"
     ]
   },
+  "King of Kentucky Small Batch Bourbon": {
+    "aliases": [
+      "kok small batch",
+      "king of kentucky small batch",
+      "king of kentucky sb",
+      "kok 2026",
+      "king of kentucky 2026",
+      "kok small batch bourbon"
+    ],
+    "proof": "Varies by batch: 105, 107.5, or 110 proof",
+    "style": "Limited small batch Kentucky straight bourbon",
+    "msrp": 299.99,
+    "fair_price_low": 300,
+    "fair_price_high": 450,
+    "secondary_low": 500,
+    "secondary_high": 900,
+    "profile": "Rich brown sugar, baking spices, cinnamon stick, apple pie filling, aged oak, buttered pie crust, spiced caramel, charred oak, rye spice, spiced raisin, leather, and dry mature oak.",
+    "similar": [
+      "King of Kentucky",
+      "Old Forester Birthday Bourbon",
+      "Michter's 10 Year Bourbon",
+      "Four Roses Limited Edition Small Batch"
+    ],
+    "description": "A 2026 limited King of Kentucky small batch bourbon from Brown-Forman, blended from barrels aged 12-18 years and released at multiple proof points.",
+    "verdict_notes": "At MSRP this is a premium limited Brown-Forman buy for mature oak and spice fans. Above fair range, compare hard against other high-end limited releases.",
+    "community_score": 91,
+    "name": "King of Kentucky Small Batch Bourbon",
+    "alias": "KoK Small Batch",
+    "brand": "King of Kentucky",
+    "distillery": "Brown-Forman Distillery",
+    "company": "Brown-Forman",
+    "expression": "Small Batch",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": null,
+    "age_detail": "Blend of barrels aged 12-18 years",
+    "batch": "Multiple (105, 107.5, 110 proof variants)",
+    "abv": null,
+    "mash_bill": "75% corn, 15% rye, 10% malted barley",
+    "mash_process": null,
+    "filtration": null,
+    "barrel_proof": false,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2026,
+    "release_date": "February 2026",
+    "availability": "Limited release across 36 states",
+    "source_url": "https://www.breakingbourbon.com/review/king-of-kentucky-small-batch-bourbon",
+    "tasting_notes": {
+      "nose": [
+        "rich brown sugar",
+        "baking spices",
+        "cinnamon stick",
+        "apple pie filling",
+        "aged oak",
+        "buttered pie crust",
+        "spiced caramel"
+      ],
+      "palate": [
+        "cinnamon spice",
+        "spiced caramel",
+        "brown sugar",
+        "charred oak",
+        "rye spice",
+        "spiced raisin"
+      ],
+      "finish": [
+        "rye spice",
+        "cinnamon stick",
+        "aged charred oak",
+        "leather",
+        "spiced raisin",
+        "dry aged oak"
+      ]
+    },
+    "summary": "King of Kentucky Small Batch Bourbon is a 2026 limited release from Brown-Forman that marks the brand’s first departure from its traditional single barrel format. Blended from barrels aged 12-18 years and released at multiple proof points, it delivers a classic, spice-forward profile with brown sugar sweetness and mature oak, though at a premium price point.",
+    "tags": [
+      "king of kentucky",
+      "kok",
+      "small batch",
+      "2026 release",
+      "limited release",
+      "brown-forman",
+      "high age blend"
+    ]
+  },
   "Knob Creek 12 Year": {
     "aliases": [
       "kc12",
