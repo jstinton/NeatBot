@@ -3388,6 +3388,76 @@
     "verdict_notes": "World-class bottle; judge the price with your heart safely locked away.",
     "community_score": 99
   },
+  "William Larue Weller 2025": {
+    "aliases": [
+      "wlw 2025",
+      "william larue 2025",
+      "william larue weller 2025",
+      "btac 2025 wlw",
+      "wlw btac 2025"
+    ],
+    "proof": 129,
+    "style": "BTAC barrel proof wheated bourbon",
+    "msrp": 150,
+    "fair_price_low": 900,
+    "fair_price_high": 1600,
+    "secondary_low": 1800,
+    "secondary_high": 3000,
+    "profile": "Caramel, vanilla, oak, wheat sweetness, brown sugar, toffee, spice, creamy sweet oak, and long finish.",
+    "similar": [
+      "William Larue Weller",
+      "Pappy Van Winkle 15 Year",
+      "Weller Full Proof",
+      "Old Rip Van Winkle 10 Year"
+    ],
+    "description": "The 2025 William Larue Weller release from the Buffalo Trace Antique Collection, a 14-year barrel proof wheated bourbon.",
+    "verdict_notes": "BTAC wheated royalty. MSRP is a unicorn; secondary is almost always emotional terrain.",
+    "community_score": 98,
+    "name": "William Larue Weller 2025",
+    "alias": "WLW 2025",
+    "brand": "William Larue Weller",
+    "distillery": "Buffalo Trace Distillery",
+    "location": "Frankfort, Kentucky",
+    "expression": "BTAC 2025",
+    "category": "Bourbon",
+    "type": "Wheated Bourbon",
+    "age_statement_years": 14,
+    "batch": "BTAC 2025",
+    "abv": 64.5,
+    "mash_bill": "Wheated (undisclosed)",
+    "filtration": "Non-chill filtered",
+    "barrel_proof": true,
+    "limited_release": true,
+    "release_year": 2025,
+    "availability": "Extremely limited",
+    "tasting_notes": {
+      "nose": [
+        "caramel",
+        "vanilla",
+        "oak",
+        "wheat sweetness"
+      ],
+      "palate": [
+        "brown sugar",
+        "toffee",
+        "oak",
+        "spice"
+      ],
+      "finish": [
+        "long",
+        "creamy",
+        "sweet oak",
+        "spice"
+      ]
+    },
+    "summary": "William Larue Weller 2025 (WLW 2025) is a 14-year, 129 proof barrel-proof wheated bourbon from the Buffalo Trace Antique Collection. It delivers caramel, vanilla, oak, brown sugar, toffee, wheat sweetness, and a long creamy finish.",
+    "tags": [
+      "btac",
+      "wlw",
+      "wheated",
+      "barrel proof"
+    ]
+  },
   "Woodford Reserve": {
     "aliases": [
       "woodford",
