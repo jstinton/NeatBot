@@ -1036,6 +1036,82 @@
     "verdict_notes": "Can be excellent, but single barrel variation is real.",
     "community_score": 86
   },
+  "Jack Daniel’s 10-Year-Old Tennessee Whiskey Batch 5": {
+    "aliases": [
+      "jd10 batch 5",
+      "jd10 b5",
+      "jd10",
+      "jack daniels 10 batch 5",
+      "jack daniel 10 batch 5",
+      "jack daniels 10 year batch 5",
+      "jack daniels aged series 10"
+    ],
+    "proof": 97,
+    "style": "10 year Tennessee whiskey",
+    "msrp": 89.99,
+    "fair_price_low": 90,
+    "fair_price_high": 130,
+    "secondary_low": 150,
+    "secondary_high": 240,
+    "profile": "Cooked apple, caramel, soft oak, molasses, chocolate, barrel spices, long warmth, and lingering spice.",
+    "similar": [
+      "Jack Daniel’s 12-Year-Old Tennessee Whiskey Batch 4",
+      "Jack Daniel’s 14-Year-Old Tennessee Whiskey Batch 1",
+      "Jack Daniel's Bonded",
+      "Jack Daniel's Single Barrel Barrel Proof"
+    ],
+    "description": "A limited Jack Daniel’s Aged Series Batch 5 Tennessee whiskey, aged 10 years and bottled at 97 proof.",
+    "verdict_notes": "At MSRP this is a strong buy for age-stated Jack Daniel’s fans. Above fair range, compare against JD12 and other limited Tennessee whiskey releases.",
+    "community_score": 87,
+    "name": "Jack Daniel’s 10-Year-Old Tennessee Whiskey Batch 5",
+    "alias": "JD10 Batch 5",
+    "brand": "Jack Daniel’s",
+    "distillery": "Jack Daniel Distillery",
+    "location": "Lynchburg, Tennessee",
+    "expression": "Aged Series Batch 5",
+    "category": "Tennessee Whiskey",
+    "type": "Straight Tennessee Whiskey",
+    "age_statement_years": 10,
+    "batch": "Batch 5",
+    "abv": 48.5,
+    "mash_bill": "80% corn, 12% malted barley, 8% rye",
+    "mash_process": "Lincoln County Process (charcoal mellowed)",
+    "filtration": "Charcoal filtered",
+    "barrel_proof": false,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2026,
+    "availability": "Limited nationwide release",
+    "source_url": "https://www.breakingbourbon.com/bourbon-whiskey-press-releases/jack-daniels-introduces-new-batches-of-award-winning-aged-series-tennessee-whiskeys",
+    "tasting_notes": {
+      "nose": [
+        "cooked apple",
+        "caramel",
+        "soft oak"
+      ],
+      "palate": [
+        "molasses",
+        "chocolate",
+        "barrel spices"
+      ],
+      "finish": [
+        "long",
+        "warm",
+        "lingering spice"
+      ]
+    },
+    "summary": "Jack Daniel’s 10-Year-Old Tennessee Whiskey Batch 5 is part of the Aged Series lineup, bottled at 97 proof. It offers a balanced and approachable profile with cooked fruit, caramel sweetness, and classic barrel spice, finishing long and warm.",
+    "tags": [
+      "jack daniels",
+      "jd10",
+      "batch 5",
+      "aged series",
+      "10 year",
+      "97 proof",
+      "limited release",
+      "tennessee whiskey"
+    ]
+  },
   "Jack Daniel’s 12-Year-Old Tennessee Whiskey Batch 4": {
     "aliases": [
       "jd12 batch 4",
