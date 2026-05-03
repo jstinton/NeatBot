@@ -169,25 +169,37 @@ def sanitize_iso_text(value: Optional[str]):
     return value
 
 
-def parse_iso_details(iso: Optional[str], iso_value: Optional[int], kicker: Optional[bool]):
-    if not iso:
-        return None, iso_value, bool(kicker)
+def strip_kicker_text(value: Optional[str], kicker: Optional[bool]):
+    if not value:
+        return None, bool(kicker)
 
-    has_kicker = bool(kicker) or bool(re.search(r"🥾|\bboot\b|\bkicker\b", iso, flags=re.IGNORECASE))
+    has_kicker = bool(kicker) or bool(re.search(r"🥾|\bboot\b|\bkicker\b", value, flags=re.IGNORECASE))
+    text = re.sub(r"🥾|\bboot\b|\bkicker\b", "", value, flags=re.IGNORECASE)
+    items = split_bottle_list(text)
+    text = " + ".join(items)
+
+    return text or None, has_kicker
+
+
+def parse_iso_details(iso: Optional[str], iso_value: Optional[int], iso_kicker: Optional[bool]):
+    if not iso:
+        return None, iso_value, bool(iso_kicker)
+
+    has_kicker = bool(iso_kicker) or bool(re.search(r"🥾|\bboot\b|\bkicker\b", iso, flags=re.IGNORECASE))
     text = sanitize_iso_text(iso)
 
     if text == "🌮 Tacos":
         return None, iso_value, has_kicker
 
-    text = re.sub(r"🥾|\bboot\b|\bkicker\b", "", text, flags=re.IGNORECASE)
+    text, has_kicker = strip_kicker_text(text, has_kicker)
 
-    value_match = re.search(r"\b\d{2,6}\b", text)
+    value_match = re.search(r"\b\d{2,6}\b", text or "")
 
     if value_match and iso_value is None:
         iso_value = int(value_match.group(0))
         text = text[:value_match.start()] + text[value_match.end():]
 
-    items = split_bottle_list(text)
+    items = split_bottle_list(text or "")
     text = " + ".join(items)
 
     if not text:
@@ -196,7 +208,7 @@ def parse_iso_details(iso: Optional[str], iso_value: Optional[int], kicker: Opti
     return text, iso_value, has_kicker
 
 
-def iso_thread_target(iso: Optional[str], iso_value: Optional[int], kicker: Optional[bool]):
+def iso_thread_target(iso: Optional[str], iso_value: Optional[int], iso_kicker: Optional[bool]):
     parts = []
 
     if iso:
@@ -207,7 +219,7 @@ def iso_thread_target(iso: Optional[str], iso_value: Optional[int], kicker: Opti
     if iso_value is not None:
         parts.append(flip_taco_value(iso_value))
 
-    if kicker:
+    if iso_kicker:
         parts.append("🥾")
 
     return " + ".join(parts)
@@ -316,7 +328,8 @@ def flip_embed(
     ft_value: int,
     iso: Optional[str],
     iso_value: Optional[int],
-    kicker: Optional[bool],
+    ft_kicker: Optional[bool],
+    iso_kicker: Optional[bool],
     rtr: Optional[bool],
     x_posted: Optional[bool],
     location: str,
@@ -331,6 +344,7 @@ def flip_embed(
     )
     embed.add_field(name="📦 FT:", value=format_bottle_list(ft), inline=False)
     embed.add_field(name="💰 Est. Value:", value=flip_taco_value(ft_value), inline=True)
+    embed.add_field(name="🥾 FT Kicker:", value=yes_no(ft_kicker), inline=True)
 
     if iso:
         iso_text = format_bottle_list(iso)
@@ -345,7 +359,7 @@ def flip_embed(
             embed.add_field(name="🌮 ISO Value:", value=flip_taco_value(iso_value), inline=True)
 
     embed.add_field(name="📍 Location:", value=location, inline=True)
-    embed.add_field(name="🥾 Kicker:", value=yes_no(kicker), inline=True)
+    embed.add_field(name="🥾 ISO Kicker:", value=yes_no(iso_kicker), inline=True)
     embed.add_field(name="🚫 RTR:", value=yes_no(rtr), inline=True)
     embed.add_field(name="📣 X-posted:", value=yes_no(x_posted), inline=True)
     embed.add_field(name="👤 Seller:", value=seller.mention, inline=True)
@@ -897,7 +911,8 @@ async def whadd(interaction: discord.Interaction):
     zip_code="Your 5-digit US ZIP for City, State display",
     iso="Optional ISO bottle or bottles. Leave blank for tacos only.",
     iso_value="Optional ISO value",
-    kicker="Whether a kicker is needed",
+    ft_kicker="Whether your FT side includes a kicker",
+    iso_kicker="Whether your ISO side needs a kicker",
     rtr="Right to refuse",
     x_posted="Whether this flip is x-posted"
 )
@@ -908,7 +923,8 @@ async def flip(
     zip_code: str,
     iso: Optional[str] = None,
     iso_value: Optional[int] = None,
-    kicker: Optional[bool] = False,
+    ft_kicker: Optional[bool] = False,
+    iso_kicker: Optional[bool] = False,
     rtr: Optional[bool] = False,
     x_posted: Optional[bool] = False
 ):
@@ -946,8 +962,9 @@ async def flip(
         )
         return
 
+    ft, ft_kicker = strip_kicker_text(ft, ft_kicker)
     ft = canonical_bottle_list(ft)
-    iso, iso_value, kicker = parse_iso_details(iso, iso_value, kicker)
+    iso, iso_value, iso_kicker = parse_iso_details(iso, iso_value, iso_kicker)
 
     if iso and iso != "🌮 Tacos":
         iso = canonical_bottle_list(iso)
@@ -961,8 +978,9 @@ async def flip(
         )
         return
 
-    target = iso_thread_target(iso, iso_value, kicker)
-    thread_name = thread_safe_name(f"🥃 FT: {ft} ↔ {target}")
+    ft_target = f"{ft} + 🥾" if ft_kicker else ft
+    target = iso_thread_target(iso, iso_value, iso_kicker)
+    thread_name = thread_safe_name(f"🥃 FT: {ft_target} ↔ {target}")
 
     announcement = discord.Embed(
         title=f"🥃 FT: {ft}",
@@ -984,7 +1002,8 @@ async def flip(
         ft_value=ft_value,
         iso=iso,
         iso_value=iso_value,
-        kicker=kicker,
+        ft_kicker=ft_kicker,
+        iso_kicker=iso_kicker,
         rtr=rtr,
         x_posted=x_posted,
         location=location,
