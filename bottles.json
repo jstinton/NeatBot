@@ -1191,6 +1191,78 @@
       "high proof bourbon"
     ]
   },
+  "George T. Stagg 2025": {
+    "aliases": [
+      "gts 2025",
+      "george t stagg 2025",
+      "george stagg 2025",
+      "btac 2025 gts",
+      "gts btac 2025",
+      "george t. stagg 2025"
+    ],
+    "proof": 142.8,
+    "style": "BTAC barrel proof bourbon",
+    "msrp": 150,
+    "fair_price_low": 900,
+    "fair_price_high": 1500,
+    "secondary_low": 1600,
+    "secondary_high": 2800,
+    "profile": "Dark fruit, caramel, oak, spice, intense spice, cherry, char, dry oak, and lingering heat.",
+    "similar": [
+      "George T. Stagg",
+      "George T. Stagg 2024",
+      "Stagg",
+      "William Larue Weller"
+    ],
+    "description": "The 2025 George T. Stagg release from the Buffalo Trace Antique Collection, aged 15 years and bottled at 142.8 proof.",
+    "verdict_notes": "A very high-proof BTAC pour. MSRP is a unicorn; compare against current GTS comps before chasing.",
+    "community_score": 97,
+    "name": "George T. Stagg 2025",
+    "alias": "GTS 2025",
+    "brand": "George T. Stagg",
+    "distillery": "Buffalo Trace Distillery",
+    "location": "Frankfort, Kentucky",
+    "expression": "BTAC 2025",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": 15,
+    "age_detail": "15 years",
+    "batch": "BTAC 2025",
+    "abv": 71.4,
+    "mash_bill": "Undisclosed",
+    "filtration": "Non-chill filtered",
+    "barrel_proof": true,
+    "limited_release": true,
+    "release_year": 2025,
+    "availability": "Extremely limited",
+    "tasting_notes": {
+      "nose": [
+        "dark fruit",
+        "caramel",
+        "oak",
+        "spice"
+      ],
+      "palate": [
+        "intense spice",
+        "cherry",
+        "caramel",
+        "char"
+      ],
+      "finish": [
+        "long",
+        "hot",
+        "dry oak",
+        "lingering spice"
+      ]
+    },
+    "summary": "George T. Stagg 2025 (GTS 2025) is a 15 year, 142.8 proof barrel-proof bourbon from the Buffalo Trace Antique Collection. It delivers an intense high-proof profile with dark fruit, caramel, oak, spice, cherry, and char.",
+    "tags": [
+      "btac",
+      "gts",
+      "barrel proof",
+      "high proof"
+    ]
+  },
   "Heaven Hill Heritage Collection 22-Year-Old Bourbon": {
     "aliases": [
       "hh22",
