@@ -159,6 +159,97 @@
     "verdict_notes": "Release quality varies, but the house blending is usually thoughtful.",
     "community_score": 84
   },
+  "Bardstown Bourbon Company Distillery Reserve Cascadia Garryana Oak Barrel Finish": {
+    "aliases": [
+      "bbc cascadia",
+      "bardstown cascadia",
+      "bardstown garryana",
+      "bbc garryana",
+      "bardstown distillery reserve cascadia",
+      "bardstown bourbon company cascadia",
+      "cascadia garryana"
+    ],
+    "proof": 107.5,
+    "style": "Garryana oak finished bourbon blend",
+    "msrp": 99.99,
+    "fair_price_low": 100,
+    "fair_price_high": 140,
+    "secondary_low": 150,
+    "secondary_high": 225,
+    "profile": "Cinnamon buttercream, coffee ice cream, caramel, charred oak, cocoa, vanilla, leather, tobacco, toasted marshmallow, and dry spice.",
+    "similar": [
+      "Bardstown Bourbon Company Fusion Series",
+      "Bardstown Bourbon Company Origin Series Bourbon",
+      "Barrell Bourbon",
+      "Pursuit United Bourbon Finished with Oak Staves"
+    ],
+    "description": "A 2026 Bardstown Bourbon Company Distillery Reserve release blending 9-10 year bourbons finished in rare Garryana oak barrels.",
+    "verdict_notes": "Strong experimental pick at MSRP if you like finished bourbon and unique oak. Remember this is a 375ml bottle before chasing it hard.",
+    "community_score": 87,
+    "name": "Bardstown Bourbon Company Distillery Reserve Cascadia Garryana Oak Barrel Finish",
+    "alias": "BBC Cascadia",
+    "brand": "Bardstown Bourbon Company",
+    "distillery": "Bardstown Bourbon Company",
+    "location": "Bardstown, Kentucky",
+    "expression": "Distillery Reserve Cascadia Garryana Oak Barrel Finish",
+    "category": "Bourbon",
+    "type": "Blend of Straight Bourbons Finished in Garryana Oak",
+    "age_statement_years": null,
+    "age_detail": "Blend of 9-10 year bourbons",
+    "batch": null,
+    "abv": 53.75,
+    "mash_bill": "Blend of multiple mash bills",
+    "mash_bill_components": [
+      "70% corn, 18% rye, 12% malted barley",
+      "75% corn, 21% rye, 4% malted barley",
+      "74% corn, 18% rye, 8% malted barley"
+    ],
+    "mash_process": null,
+    "filtration": null,
+    "barrel_proof": false,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2026,
+    "size": "375ml",
+    "availability": "Distillery-only (Bardstown & Louisville)",
+    "source_url": "https://www.breakingbourbon.com/review/bardstown-bourbon-company-distillery-reserve-cascadia-garryana-oak-barrel-finish",
+    "tasting_notes": {
+      "nose": [
+        "cinnamon buttercream frosting",
+        "coffee ice cream",
+        "melted caramel",
+        "sweet charred oak",
+        "maple syrup",
+        "leather"
+      ],
+      "palate": [
+        "cocoa powder",
+        "vanilla",
+        "leather",
+        "tobacco",
+        "toasted marshmallow"
+      ],
+      "finish": [
+        "cinnamon toasted oak",
+        "chocolate graham cracker",
+        "black pepper",
+        "allspice",
+        "candied walnut",
+        "roasted malt",
+        "dry oak"
+      ]
+    },
+    "summary": "Bardstown Bourbon Company Cascadia Garryana Oak Barrel Finish is a 2026 Distillery Reserve release blending 9-10 year bourbons and finishing them for 10 months in rare Garryana oak barrels. It delivers a dessert-forward nose with layered spice, chocolate, and dry oak, showcasing a unique and experimental oak influence rarely seen in bourbon.",
+    "tags": [
+      "bardstown bourbon company",
+      "distillery reserve",
+      "garryana oak",
+      "oak finish",
+      "375ml",
+      "limited release",
+      "experimental bourbon"
+    ]
+  },
   "Bardstown Bourbon Company Origin Series Bourbon": {
     "aliases": [
       "bardstown origin",
