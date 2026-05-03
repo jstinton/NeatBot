@@ -3929,5 +3929,100 @@
       "limited release",
       "spring 2026"
     ]
+  },
+  "Penelope Cooper Series Havana Batch 1": {
+    "aliases": [
+      "penelope havana",
+      "penelope havana batch 1",
+      "cooper series havana",
+      "penelope cooper series havana",
+      "havana batch 1"
+    ],
+    "proof": 93,
+    "style": "Four-grain bourbon finished in Caribbean rum barrels and maple syrup barrels",
+    "msrp": 80,
+    "fair_price_low": 80,
+    "fair_price_high": 105,
+    "secondary_low": 115,
+    "secondary_high": 160,
+    "profile": "Maple syrup, molasses, brown sugar, honey, apricot, raisin, slight oak, allspice, caramel, slight leather, and a sweet full-bodied finish.",
+    "similar": [
+      "Penelope Valencia",
+      "Penelope Rio",
+      "Barrell Bourbon Dovetail",
+      "Casey Jones Wheated Bourbon Honey Cask Finish"
+    ],
+    "description": "A four-grain Penelope Cooper Series bourbon finished in Caribbean rum casks and maple syrup barrels.",
+    "verdict_notes": "At MSRP this is a good buy for fans of sweeter finished bourbon. Above fair range, compare against other Penelope finished releases before chasing.",
+    "community_score": 85,
+    "name": "Penelope Cooper Series Havana Batch 1",
+    "alias": [
+      "Penelope Havana",
+      "Penelope Havana Batch 1",
+      "Cooper Series Havana"
+    ],
+    "brand": "Penelope Bourbon",
+    "distillery": "Ross & Squibb Distillery (MGP)",
+    "location": "Lawrenceburg, Indiana",
+    "expression": "Cooper Series Havana",
+    "category": "Bourbon",
+    "type": "Straight Bourbon Finished in Caribbean Rum Barrels and Maple Syrup Barrels",
+    "age_statement_years": null,
+    "age_detail": "NAS (4 year base, 12 month rum barrel finish, 1 month maple syrup barrel finish)",
+    "batch": "Batch 1",
+    "abv": 46.5,
+    "mash_bill": "74% corn, 16% wheat, 7% rye, 3% malted barley",
+    "mash_process": null,
+    "filtration": null,
+    "barrel_proof": false,
+    "single_barrel": false,
+    "limited_release": false,
+    "release_year": 2024,
+    "availability": "Available; released December 2024, ~27,000 bottles in Batch 1",
+    "source_url": "https://www.breakingbourbon.com/review/penelope-cooper-series-havana-batch-1",
+    "tasting_notes": {
+      "nose": [
+        "maple syrup",
+        "molasses",
+        "brown sugar",
+        "honey",
+        "hint of apricot"
+      ],
+      "palate": [
+        "brown sugar",
+        "maple syrup",
+        "raisin",
+        "slight oak",
+        "hint of allspice",
+        "full-bodied mouthfeel"
+      ],
+      "finish": [
+        "allspice",
+        "brown sugar",
+        "caramel",
+        "maple syrup",
+        "molasses",
+        "slight leather",
+        "sweet"
+      ]
+    },
+    "summary": "Penelope Cooper Series Havana Batch 1 is a four-grain wheated bourbon distilled at MGP's Ross & Squibb Distillery, aged approximately 4 years, finished 12 months in Caribbean rum casks and 1 additional month in maple syrup barrels, and bottled at 93 proof. The inaugural batch yielded approximately 27,000 bottles and hit shelves in December 2024 at an $80 MSRP.",
+    "tags": [
+      "penelope",
+      "penelope bourbon",
+      "cooper series",
+      "havana",
+      "mgp",
+      "ross and squibb",
+      "rum barrel finish",
+      "maple syrup finish",
+      "double finish",
+      "four grain",
+      "wheated bourbon",
+      "93 proof",
+      "batch 1",
+      "2024 release",
+      "nas"
+    ]
   }
 }
