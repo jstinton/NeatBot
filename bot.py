@@ -297,7 +297,7 @@ def flip_embed(
         embed.add_field(name="🌮 Looking For:", value="Tacos only", inline=False)
 
     embed.add_field(name="📍 Location:", value=location, inline=True)
-    embed.add_field(name="🚚 RTR:", value=yes_no(rtr), inline=True)
+    embed.add_field(name="🚫 RTR:", value=yes_no(rtr), inline=True)
     embed.add_field(name="📣 X-posted:", value=yes_no(x_posted), inline=True)
     embed.add_field(name="👤 Seller:", value=seller.mention, inline=True)
     embed.add_field(name="📅 Posted:", value=discord.utils.format_dt(posted_at, "f"), inline=False)
@@ -848,7 +848,7 @@ async def whadd(interaction: discord.Interaction):
     zip_code="Your 5-digit US ZIP for City, State display",
     iso="Optional ISO bottle or bottles. Leave blank for tacos only.",
     iso_value="Optional ISO value",
-    rtr="Whether the bottle is RTR",
+    rtr="Right to refuse",
     x_posted="Whether this flip is x-posted"
 )
 async def flip(
