@@ -1404,6 +1404,76 @@
       "barrel proof"
     ]
   },
+  "Sazerac 18-Year Rye 2025": {
+    "aliases": [
+      "saz18 2025",
+      "saz 18 2025",
+      "sazerac 18 2025",
+      "sazerac 18 year 2025",
+      "sazerac 18-year 2025",
+      "sazerac 18-year rye 2025",
+      "btac 2025 saz18",
+      "saz18 btac 2025"
+    ],
+    "proof": 90,
+    "style": "BTAC 18 year straight rye",
+    "msrp": 150,
+    "fair_price_low": 700,
+    "fair_price_high": 1100,
+    "secondary_low": 1200,
+    "secondary_high": 2000,
+    "profile": "Herbal notes, oak, citrus, mint, light spice, dry subtle finish, and balanced oak.",
+    "similar": [
+      "Thomas H. Handy Sazerac Rye 2025",
+      "Michter's 10 Year Rye",
+      "Wild Turkey Master's Keep Cornerstone Rye",
+      "WhistlePig 18 Year"
+    ],
+    "description": "The 2025 Sazerac 18-Year Rye release from the Buffalo Trace Antique Collection, bottled at 90 proof.",
+    "verdict_notes": "Lower proof, old rye, and BTAC scarcity. Best for mature rye fans who prize balance over heat.",
+    "community_score": 94,
+    "name": "Sazerac 18-Year Rye 2025",
+    "alias": "Saz18 2025",
+    "brand": "Sazerac",
+    "distillery": "Buffalo Trace Distillery",
+    "location": "Frankfort, Kentucky",
+    "expression": "BTAC 2025",
+    "category": "Rye",
+    "type": "Straight Rye Whiskey",
+    "age_statement_years": 18,
+    "batch": "BTAC 2025",
+    "abv": 45,
+    "mash_bill": "Undisclosed rye mash bill",
+    "filtration": "Non-chill filtered",
+    "barrel_proof": false,
+    "limited_release": true,
+    "release_year": 2025,
+    "availability": "Extremely limited",
+    "tasting_notes": {
+      "nose": [
+        "herbal",
+        "oak",
+        "citrus"
+      ],
+      "palate": [
+        "mint",
+        "light spice",
+        "oak"
+      ],
+      "finish": [
+        "dry",
+        "subtle",
+        "balanced"
+      ]
+    },
+    "summary": "Sazerac 18-Year Rye 2025 (Saz18 2025) is an extremely limited 18-year straight rye from the Buffalo Trace Antique Collection, bottled at 90 proof. It delivers a mature, lower-proof profile of herbal notes, oak, citrus, mint, light spice, and balanced dryness.",
+    "tags": [
+      "btac",
+      "sazerac",
+      "18 year",
+      "low proof"
+    ]
+  },
   "Heaven Hill Heritage Collection 22-Year-Old Bourbon": {
     "aliases": [
       "hh22",
