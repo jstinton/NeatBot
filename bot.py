@@ -17,6 +17,7 @@ GUILD_IDS = os.getenv("GUILD_IDS")
 DATA_PATH = Path(__file__).parent / "bottles.json"
 BOTY_VOTES_PATH = Path(__file__).parent / "boty_votes.json"
 BATTLE_VOTES_PATH = Path(__file__).parent / "battle_votes.json"
+WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
 
 
 def load_bottles():
@@ -511,6 +512,19 @@ async def compare(interaction: discord.Interaction, bottle_one: str, bottle_two:
     embed.add_field(name="NeatBot Pick", value=pick, inline=False)
 
     await interaction.response.send_message(embed=embed)
+
+
+@bot.tree.command(name="whadd", description="Post the WHADD?? image.")
+async def whadd(interaction: discord.Interaction):
+    if not WHADD_IMAGE_PATH.exists():
+        await interaction.response.send_message(
+            "I can’t find the WHADD image file on the server.",
+            ephemeral=True
+        )
+        return
+
+    file = discord.File(WHADD_IMAGE_PATH, filename="whadd.png")
+    await interaction.response.send_message(file=file)
 
 
 @bot.tree.command(name="boty", description="Start a Bottle of the Year rating with 1-10 buttons.")
