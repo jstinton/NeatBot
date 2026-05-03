@@ -281,7 +281,7 @@ def flip_embed(
     binned_at=None
 ):
     embed = discord.Embed(
-        title=f"🥃 Bottle Flip — {ft}",
+        title=f"🥃 {ft}",
         color=discord.Color.from_str("#C9973A")
     )
     embed.add_field(name="📦 FT:", value=format_bottle_list(ft), inline=False)
@@ -613,7 +613,7 @@ class FlipBinButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bin_(?
             )
             return
 
-        bottle_ft = (embed.title or "🥃 Bottle Flip — this bottle").replace("🥃 Bottle Flip — ", "", 1)
+        bottle_ft = (embed.title or "🥃 this bottle").replace("🥃 ", "", 1)
         binned_at = discord.utils.utcnow()
         updated_embed = discord.Embed.from_dict(embed.to_dict())
         updated_embed.add_field(
