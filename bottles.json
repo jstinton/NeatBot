@@ -1103,6 +1103,94 @@
     "verdict_notes": "A benchmark high-proof bourbon, but never confuse MSRP value with market value.",
     "community_score": 98
   },
+  "George T. Stagg 2024": {
+    "aliases": [
+      "gts 2024",
+      "george t stagg 2024",
+      "george stagg 2024",
+      "btac 2024 gts",
+      "gts btac 2024",
+      "george t. stagg 2024"
+    ],
+    "proof": 136.1,
+    "style": "BTAC barrel proof bourbon",
+    "msrp": 150,
+    "fair_price_low": 900,
+    "fair_price_high": 1500,
+    "secondary_low": 1600,
+    "secondary_high": 2800,
+    "profile": "Cinnamon, allspice, black raspberry, pear, cherry cola, leather, barrel char, caramel, tobacco, stone fruit, nuttiness, dry cherry, baking chocolate, and warm lingering heat.",
+    "similar": [
+      "George T. Stagg",
+      "Stagg",
+      "William Larue Weller",
+      "Elijah Craig Barrel Proof"
+    ],
+    "description": "The 2024 George T. Stagg release from the Buffalo Trace Antique Collection, aged 15 years and bottled at 136.1 proof.",
+    "verdict_notes": "A massive BTAC pour. MSRP is fantasyland for most people; compare carefully against current GTS comps.",
+    "community_score": 97,
+    "name": "George T. Stagg 2024",
+    "alias": "GTS 2024",
+    "brand": "George T. Stagg",
+    "distillery": "Buffalo Trace Distillery",
+    "company": "Sazerac Company",
+    "location": "Frankfort, Kentucky",
+    "expression": "Buffalo Trace Antique Collection 2024",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": 15,
+    "age_detail": "15 years, 2 months",
+    "batch": "BTAC 2024",
+    "abv": 68.05,
+    "mash_bill": "Undisclosed",
+    "mash_process": null,
+    "filtration": "Non-chill filtered",
+    "barrel_proof": true,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2024,
+    "release_date": "November 2024",
+    "availability": "Extremely limited annual release",
+    "source_url": "https://www.breakingbourbon.com/review/george-t-stagg-2024",
+    "tasting_notes": {
+      "nose": [
+        "cinnamon",
+        "allspice",
+        "black raspberry",
+        "pear",
+        "cherry cola"
+      ],
+      "palate": [
+        "allspice",
+        "cinnamon",
+        "leather",
+        "barrel char",
+        "caramel",
+        "tobacco",
+        "stone fruit",
+        "cherry",
+        "nuttiness"
+      ],
+      "finish": [
+        "intense spice",
+        "barrel char",
+        "dry cherry",
+        "baking chocolate",
+        "warm lingering heat"
+      ]
+    },
+    "summary": "George T. Stagg 2024 (GTS 2024) is a 15 year, 136.1 proof barrel-proof bourbon from the Buffalo Trace Antique Collection. It delivers a bold, high-proof profile layered with dark fruit, spice, caramel, and char, while maintaining a more balanced heat compared to some prior releases.",
+    "tags": [
+      "george t stagg",
+      "gts",
+      "btac",
+      "2024",
+      "136.1 proof",
+      "barrel proof",
+      "limited release",
+      "high proof bourbon"
+    ]
+  },
   "Heaven Hill Heritage Collection 22-Year-Old Bourbon": {
     "aliases": [
       "hh22",
