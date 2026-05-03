@@ -41,6 +41,12 @@ def parse_guild_ids():
     return guild_ids
 
 
+def configure_guild_commands():
+    for guild_id in parse_guild_ids():
+        guild = discord.Object(id=guild_id)
+        bot.tree.copy_global_to(guild=guild)
+
+
 def load_json(path: Path, default):
     if not path.exists():
         return default
@@ -282,6 +288,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def setup_hook():
     bot.add_view(BOTYView())
     bot.add_view(BattleView())
+    configure_guild_commands()
 
 
 @bot.event
@@ -290,11 +297,13 @@ async def on_ready():
 
     try:
         guild_ids = parse_guild_ids()
+        command_names = ", ".join(f"/{command.name}" for command in bot.tree.get_commands())
+        print(f"Loaded {len(bot.tree.get_commands())} global command(s): {command_names}")
+        print(f"Configured guild IDs: {guild_ids or 'none; syncing globally'}")
 
         if guild_ids:
             for guild_id in guild_ids:
                 guild = discord.Object(id=guild_id)
-                bot.tree.copy_global_to(guild=guild)
                 synced = await bot.tree.sync(guild=guild)
                 print(f"Synced {len(synced)} command(s) to guild {guild_id}")
         else:
