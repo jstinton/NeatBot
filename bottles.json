@@ -1036,6 +1036,93 @@
     "verdict_notes": "Can be excellent, but single barrel variation is real.",
     "community_score": 86
   },
+  "Jack Daniel’s 14-Year-Old Tennessee Whiskey Batch 1": {
+    "aliases": [
+      "jd14 batch 1",
+      "jack daniels 14 batch 1",
+      "jack daniel 14 batch 1",
+      "jack daniels 14 year batch 1",
+      "jack daniel’s 14 year batch 1",
+      "jd14 b1"
+    ],
+    "proof": 126.3,
+    "style": "14 year barrel proof Tennessee whiskey",
+    "msrp": 149.99,
+    "fair_price_low": 150,
+    "fair_price_high": 240,
+    "secondary_low": 275,
+    "secondary_high": 500,
+    "profile": "Caramelized sweetness, chocolate, nutty notes, oak, spice, cherry, banana, toffee, brown sugar, spiced fruit, tobacco, leather, dry seasoned oak, burnt sugar, dark chocolate, molasses, and lingering spice.",
+    "similar": [
+      "Jack Daniel’s 14-Year-Old Tennessee Whiskey Batch 2",
+      "Jack Daniel's Single Barrel Barrel Proof",
+      "Jack Daniel's 12 Year Tennessee Whiskey",
+      "Russell's Reserve 13 Year"
+    ],
+    "description": "The inaugural modern Jack Daniel’s 14-year age-stated Tennessee whiskey release, bottled at 126.3 proof.",
+    "verdict_notes": "At MSRP this is a standout buy for mature barrel-proof Jack Daniel’s fans. Higher prices move quickly into collector territory.",
+    "community_score": 93,
+    "name": "Jack Daniel’s 14-Year-Old Tennessee Whiskey Batch 1",
+    "alias": "JD14 Batch 1",
+    "brand": "Jack Daniel’s",
+    "distillery": "Jack Daniel Distillery",
+    "location": "Lynchburg, Tennessee",
+    "expression": "Aged Series Batch 1",
+    "category": "Tennessee Whiskey",
+    "type": "Straight Tennessee Whiskey",
+    "age_statement_years": 14,
+    "batch": "Batch 1",
+    "abv": 63.15,
+    "mash_bill": "80% corn, 12% malted barley, 8% rye",
+    "mash_process": "Lincoln County Process (charcoal mellowed)",
+    "filtration": "Charcoal filtered",
+    "barrel_proof": true,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2025,
+    "availability": "Limited nationwide release",
+    "source_url": "https://www.breakingbourbon.com/review/jack-daniels-14-year-old-tennessee-whiskey-batch-1",
+    "tasting_notes": {
+      "nose": [
+        "caramelized sweetness",
+        "chocolate",
+        "nutty notes",
+        "oak",
+        "spice",
+        "cherry",
+        "banana"
+      ],
+      "palate": [
+        "chocolate",
+        "toffee",
+        "brown sugar",
+        "spiced fruit",
+        "oak",
+        "tobacco",
+        "leather"
+      ],
+      "finish": [
+        "dry seasoned oak",
+        "aged leather",
+        "burnt sugar",
+        "oak spice",
+        "dark chocolate",
+        "molasses",
+        "lingering spice"
+      ]
+    },
+    "summary": "Jack Daniel’s 14-Year-Old Tennessee Whiskey Batch 1 is the inaugural modern release of a 14-year age-stated whiskey from the distillery, bottled at 126.3 proof. It delivers a bold, oak-driven profile layered with chocolate, caramelized sweetness, and spice, with a long, dry, and mature finish.",
+    "tags": [
+      "jack daniels",
+      "jd14",
+      "batch 1",
+      "aged series",
+      "14 year",
+      "barrel proof",
+      "limited release",
+      "tennessee whiskey"
+    ]
+  },
   "Jack Daniel’s 14-Year-Old Tennessee Whiskey Batch 2": {
     "aliases": [
       "jd14 batch 2",
