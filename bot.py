@@ -150,6 +150,21 @@ def sanitize_iso_text(value: Optional[str]):
     return value
 
 
+def missing_flip_permissions(channel: discord.abc.GuildChannel, member: discord.Member):
+    permissions = channel.permissions_for(member)
+    checks = {
+        "View Channel": permissions.view_channel,
+        "Send Messages": permissions.send_messages,
+        "Create Public Threads": permissions.create_public_threads,
+        "Send Messages in Threads": permissions.send_messages_in_threads,
+        "Embed Links": permissions.embed_links,
+        "Add Reactions": permissions.add_reactions,
+        "Manage Threads": permissions.manage_threads,
+    }
+
+    return [name for name, allowed in checks.items() if not allowed]
+
+
 def thread_safe_name(name: str, limit: int = 100):
     return name[:limit]
 
@@ -774,6 +789,26 @@ async def flip(
     looking_for: Optional[str] = None,
     iso_value: Optional[int] = None
 ):
+    if not interaction.guild or not isinstance(interaction.channel, discord.abc.GuildChannel):
+        await interaction.response.send_message(
+            "`/flip` can only be used inside a server channel.",
+            ephemeral=True
+        )
+        return
+
+    bot_member = interaction.guild.me
+
+    if bot_member:
+        missing_permissions = missing_flip_permissions(interaction.channel, bot_member)
+
+        if missing_permissions:
+            await interaction.response.send_message(
+                "I need these channel permissions before I can create and close flip threads:\n"
+                f"{', '.join(missing_permissions)}",
+                ephemeral=True
+            )
+            return
+
     if sale_value <= 0:
         await interaction.response.send_message(
             "Use a positive value for the bottle.",
