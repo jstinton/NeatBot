@@ -209,6 +209,68 @@ def battle_embed(message_id: str):
     return embed
 
 
+def recover_boty_state(message: discord.Message):
+    for embed in message.embeds:
+        title = embed.title or ""
+        prefix = "🏆 BOTY Score: "
+
+        if title.startswith(prefix):
+            bottle_name = title[len(prefix):].strip()
+
+            if bottle_name and bottle_name != "Unknown bottle":
+                return {
+                    "bottle": bottle_name,
+                    "votes": {}
+                }
+
+    thread = getattr(message, "thread", None)
+
+    if thread and thread.name.startswith("BOTY: "):
+        bottle_name = thread.name[len("BOTY: "):].strip()
+
+        if bottle_name:
+            return {
+                "bottle": bottle_name,
+                "thread_id": thread.id,
+                "votes": {}
+            }
+
+    return None
+
+
+def clean_battle_bottle_label(label: str) -> str:
+    for marker in ("🏆 ", "💩 ", "⚔️ "):
+        if label.startswith(marker):
+            return label[len(marker):].strip()
+
+    return label.strip()
+
+
+def recover_battle_state(message: discord.Message):
+    for embed in message.embeds:
+        if len(embed.fields) < 2:
+            continue
+
+        bottle_one = clean_battle_bottle_label(embed.fields[0].name)
+        bottle_two = clean_battle_bottle_label(embed.fields[1].name)
+
+        if bottle_one and bottle_two:
+            state = {
+                "bottle_one": bottle_one,
+                "bottle_two": bottle_two,
+                "votes": {}
+            }
+
+            thread = getattr(message, "thread", None)
+
+            if thread:
+                state["thread_id"] = thread.id
+
+            return state
+
+    return None
+
+
 class BOTYView(discord.ui.View):
     def __init__(self):
         super().__init__(timeout=None)
@@ -231,10 +293,16 @@ class BOTYScoreButton(discord.ui.Button):
         message_id = str(interaction.message.id)
 
         if message_id not in BOTY_VOTES:
-            BOTY_VOTES[message_id] = {
-                "bottle": "Unknown bottle",
-                "votes": {}
-            }
+            recovered_state = recover_boty_state(interaction.message)
+
+            if not recovered_state:
+                await interaction.response.send_message(
+                    "I lost the saved state for this BOTY post. Please start a new `/boty` post for this bottle.",
+                    ephemeral=True
+                )
+                return
+
+            BOTY_VOTES[message_id] = recovered_state
 
         BOTY_VOTES[message_id].setdefault("votes", {})[str(interaction.user.id)] = self.score
         save_json(BOTY_VOTES_PATH, BOTY_VOTES)
@@ -266,11 +334,16 @@ class BattleVoteButton(discord.ui.Button):
         message_id = str(interaction.message.id)
 
         if message_id not in BATTLE_VOTES:
-            await interaction.response.send_message(
-                "I can’t find this battle in the vote database anymore.",
-                ephemeral=True
-            )
-            return
+            recovered_state = recover_battle_state(interaction.message)
+
+            if not recovered_state:
+                await interaction.response.send_message(
+                    "I can’t find this battle in the vote database anymore. Please start a new `/battle` post.",
+                    ephemeral=True
+                )
+                return
+
+            BATTLE_VOTES[message_id] = recovered_state
 
         BATTLE_VOTES[message_id].setdefault("votes", {})[str(interaction.user.id)] = self.pick
         save_json(BATTLE_VOTES_PATH, BATTLE_VOTES)
