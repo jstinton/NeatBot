@@ -1036,6 +1036,85 @@
     "verdict_notes": "Can be excellent, but single barrel variation is real.",
     "community_score": 86
   },
+  "Jack Daniel’s 12-Year-Old Tennessee Whiskey Batch 4": {
+    "aliases": [
+      "jd12 batch 4",
+      "jd12 b4",
+      "jd12",
+      "jack daniels 12 batch 4",
+      "jack daniel 12 batch 4",
+      "jack daniels 12 year batch 4",
+      "jack daniels aged series 12"
+    ],
+    "proof": 107,
+    "style": "12 year Tennessee whiskey",
+    "msrp": 99.99,
+    "fair_price_low": 100,
+    "fair_price_high": 160,
+    "secondary_low": 180,
+    "secondary_high": 300,
+    "profile": "Maple, brown sugar, graham cracker, subtle banana, oak, cinnamon, maple candy, caramel, vanilla, dry oak, and baking spices.",
+    "similar": [
+      "Jack Daniel’s 14-Year-Old Tennessee Whiskey Batch 1",
+      "Jack Daniel’s 14-Year-Old Tennessee Whiskey Batch 2",
+      "Jack Daniel's Single Barrel Barrel Proof",
+      "Old Forester 1920 Prohibition Style"
+    ],
+    "description": "A limited Jack Daniel’s Aged Series Batch 4 Tennessee whiskey, aged 12 years and bottled at 107 proof.",
+    "verdict_notes": "At MSRP this is a strong buy for age-stated Jack Daniel’s fans. Above fair range, compare against JD14 and barrel-proof Jack releases.",
+    "community_score": 89,
+    "name": "Jack Daniel’s 12-Year-Old Tennessee Whiskey Batch 4",
+    "alias": "JD12 Batch 4",
+    "brand": "Jack Daniel’s",
+    "distillery": "Jack Daniel Distillery",
+    "location": "Lynchburg, Tennessee",
+    "expression": "Aged Series Batch 4",
+    "category": "Tennessee Whiskey",
+    "type": "Straight Tennessee Whiskey",
+    "age_statement_years": 12,
+    "batch": "Batch 4",
+    "abv": 53.5,
+    "mash_bill": "80% corn, 12% malted barley, 8% rye",
+    "mash_process": "Lincoln County Process (charcoal mellowed)",
+    "filtration": "Charcoal filtered",
+    "barrel_proof": false,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2026,
+    "availability": "Limited nationwide release",
+    "source_url": "https://www.breakingbourbon.com/bourbon-whiskey-press-releases/jack-daniels-introduces-new-batches-of-award-winning-aged-series-tennessee-whiskeys",
+    "tasting_notes": {
+      "nose": [
+        "maple",
+        "brown sugar",
+        "graham cracker",
+        "subtle banana",
+        "oak"
+      ],
+      "palate": [
+        "cinnamon",
+        "maple candy",
+        "caramel",
+        "vanilla"
+      ],
+      "finish": [
+        "caramel",
+        "dry oak",
+        "baking spices"
+      ]
+    },
+    "summary": "Jack Daniel’s 12-Year-Old Tennessee Whiskey Batch 4 is part of the Aged Series lineup, bottled at 107 proof. It delivers a balanced profile of maple sweetness, baking spice, and oak, with classic Jack Daniel’s banana undertones and a dry, spice-forward finish.",
+    "tags": [
+      "jack daniels",
+      "jd12",
+      "batch 4",
+      "aged series",
+      "12 year",
+      "107 proof",
+      "limited release",
+      "tennessee whiskey"
+    ]
+  },
   "Jack Daniel’s 14-Year-Old Tennessee Whiskey Batch 1": {
     "aliases": [
       "jd14 batch 1",
