@@ -106,6 +106,21 @@ def find_bottle(query: str):
     return canonical, BOTTLES[canonical]
 
 
+def find_exact_bottle(query: str):
+    q = normalize(query)
+
+    for name in BOTTLE_NAMES:
+        if q == normalize(name):
+            return name, BOTTLES[name]
+
+    for name, data in BOTTLES.items():
+        for alias in data.get("aliases", []):
+            if q == normalize(alias):
+                return name, data
+
+    return None, None
+
+
 def price_verdict(price: float, data: dict):
     msrp = data.get("msrp")
     fair_low = data.get("fair_price_low")
@@ -153,6 +168,38 @@ def sanitize_iso_text(value: Optional[str]):
 def split_bottle_list(value: str):
     items = re.split(r"\s*(?:\+|,|\n)\s*", value)
     return [item.strip() for item in items if item.strip()]
+
+
+def title_format_bottle_name(value: str):
+    words = []
+
+    for word in value.strip().split():
+        if any(character.isdigit() for character in word):
+            words.append(word.upper())
+        elif word.isupper() and len(word) <= 5:
+            words.append(word)
+        else:
+            words.append(word.capitalize())
+
+    return " ".join(words)
+
+
+def canonical_bottle_name(value: str):
+    bottle_name, _ = find_exact_bottle(value)
+
+    if bottle_name:
+        return bottle_name
+
+    return title_format_bottle_name(value)
+
+
+def canonical_bottle_list(value: str):
+    items = split_bottle_list(value)
+
+    if not items:
+        return value.strip()
+
+    return " + ".join(canonical_bottle_name(item) for item in items)
 
 
 def format_bottle_list(value: str):
@@ -836,7 +883,11 @@ async def flip(
         )
         return
 
+    ft = canonical_bottle_list(ft)
     iso = sanitize_iso_text(iso)
+
+    if iso and iso != "🌮 Tacos":
+        iso = canonical_bottle_list(iso)
 
     if iso_value is not None and not iso:
         await interaction.response.send_message(
