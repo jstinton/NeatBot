@@ -23,6 +23,7 @@ BATTLE_VOTES_PATH = Path(__file__).parent / "battle_votes.json"
 WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
 ZIP_CODE_PATTERN = re.compile(r"^\d{5}$")
 USER_MENTION_PATTERN = re.compile(r"<@!?(?P<user_id>\d+)>")
+VINTAGE_YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
 
 
 def load_bottles():
@@ -153,6 +154,10 @@ def dollars(value):
 
 def flip_taco_value(value: int):
     return f"🌮 {value:,}"
+
+
+def has_value_mismatch(ft_value: int, iso_value: Optional[int]):
+    return iso_value is not None and iso_value * 100 > ft_value * 115
 
 
 def yes_no(value: Optional[bool]):
@@ -343,25 +348,34 @@ def flip_embed(
         color=discord.Color.from_str("#C9973A")
     )
     embed.add_field(name="📦 FT:", value=format_bottle_list(ft), inline=False)
-    embed.add_field(name="💰 Est. Value:", value=flip_taco_value(ft_value), inline=True)
-    embed.add_field(name="🥾 FT Kicker:", value=yes_no(ft_kicker), inline=True)
+    embed.add_field(name="💰 Est. Value (per seller):", value=flip_taco_value(ft_value), inline=True)
+
+    if ft_kicker:
+        embed.add_field(name="🥾 FT Kicker:", value="Yes", inline=True)
 
     if iso:
         iso_text = format_bottle_list(iso)
         embed.add_field(name="🔍 ISO:", value=iso_text, inline=False)
 
         if iso_value is not None:
-            embed.add_field(name="🌮 ISO Value:", value=flip_taco_value(iso_value), inline=True)
+            embed.add_field(name="💵 ISO Value:", value=flip_taco_value(iso_value), inline=True)
     else:
         embed.add_field(name="🌮 Looking For:", value="Tacos only", inline=False)
 
         if iso_value is not None:
-            embed.add_field(name="🌮 ISO Value:", value=flip_taco_value(iso_value), inline=True)
+            embed.add_field(name="💵 ISO Value:", value=flip_taco_value(iso_value), inline=True)
 
     embed.add_field(name="📍 Location:", value=location, inline=True)
-    embed.add_field(name="🥾 ISO Kicker:", value=yes_no(iso_kicker), inline=True)
-    embed.add_field(name="🚫 RTR:", value=yes_no(rtr), inline=True)
-    embed.add_field(name="📣 X-posted:", value=yes_no(x_posted), inline=True)
+
+    if iso_kicker:
+        embed.add_field(name="🥾 ISO Kicker:", value="Yes", inline=True)
+
+    rtr_value = "Yes *(Right to Refuse)*" if rtr else "No"
+    embed.add_field(name="🚫 RTR:", value=rtr_value, inline=True)
+
+    if x_posted:
+        embed.add_field(name="📣 X-posted:", value="Yes", inline=True)
+
     embed.add_field(name="👤 Seller:", value=seller.mention, inline=True)
     embed.add_field(name="📅 Posted:", value=discord.utils.format_dt(posted_at, "f"), inline=False)
 
@@ -1085,6 +1099,8 @@ async def flip(
     if iso and iso != "🌮 Tacos":
         iso = canonical_bottle_list(iso)
 
+    value_warning = has_value_mismatch(ft_value, iso_value)
+    iso_needs_vintage_tip = bool(iso) and not VINTAGE_YEAR_PATTERN.search(iso)
     location = await resolve_zip_location(zip_code)
 
     if location is None:
@@ -1097,15 +1113,35 @@ async def flip(
     ft_target = f"{ft} + 🥾" if ft_kicker else ft
     target = iso_thread_target(iso, iso_value, iso_kicker)
     thread_name = thread_safe_name(f"🥃 FT: {ft_target} ↔ {target}")
+    seller_name = interaction.user.display_name
+
+    if iso:
+        announcement_description = (
+            f"{seller_name} is offering **{ft}** — ISO **{iso}**. "
+            "Drop a ✅ or hit BIN below 👇"
+        )
+    else:
+        announcement_description = (
+            f"{seller_name} is offering **{ft}** — looking for tacos only. "
+            "Drop a ✅ or hit BIN below 👇"
+        )
 
     announcement = discord.Embed(
         title=f"🥃 FT: {ft}",
-        description="Check the thread below 👇",
+        description=announcement_description,
         color=discord.Color.from_str("#C9973A")
     )
 
-    await interaction.response.send_message(embed=announcement)
-    message = await interaction.original_response()
+    if value_warning:
+        await interaction.response.send_message(
+            f"⚠️ Your ISO value ({flip_taco_value(iso_value)}) is significantly higher than "
+            f"your FT value ({flip_taco_value(ft_value)}). Consider adding a kicker or adjusting values.",
+            ephemeral=True
+        )
+        message = await interaction.followup.send(embed=announcement, wait=True)
+    else:
+        await interaction.response.send_message(embed=announcement)
+        message = await interaction.original_response()
 
     try:
         thread = await message.create_thread(name=thread_name)
@@ -1135,6 +1171,13 @@ async def flip(
         await detail_message.add_reaction("✅")
     except discord.HTTPException:
         pass
+
+    if iso_needs_vintage_tip:
+        await interaction.followup.send(
+            "📅 Tip: Your ISO doesn't mention a vintage year. If you're open to any year, "
+            'consider adding "any year" to your ISO description next time.',
+            ephemeral=True
+        )
 
 
 @bot.tree.command(name="boty", description="Start a Bottle of the Year rating with 1-10 buttons.")
