@@ -342,6 +342,92 @@
     "verdict_notes": "Batch quality matters. Great when you want a big, nutty barrel-proof pour.",
     "community_score": 87
   },
+  "Booker’s Bourbon Batch 2026-01 “Big Easy Batch”": {
+    "aliases": [
+      "bookers big easy",
+      "booker big easy",
+      "big easy batch",
+      "bookers 2026-01",
+      "booker’s 2026-01",
+      "bookers batch 2026-01",
+      "bookers big easy batch"
+    ],
+    "proof": 129.1,
+    "style": "Barrel proof small batch straight bourbon",
+    "msrp": 100,
+    "fair_price_low": 100,
+    "fair_price_high": 130,
+    "secondary_low": 140,
+    "secondary_high": 190,
+    "profile": "Raspberry, strawberry, powdered sugar, rich vanilla, chestnut, baking spices, clove, raisin, chocolate-covered cherry, hazelnut, plum, toasted cinnamon, rye spice, tannic oak, dry leather, faint grapefruit, and lingering spice.",
+    "similar": [
+      "Booker's",
+      "Knob Creek Single Barrel Reserve",
+      "Old Ezra 7 Year",
+      "Elijah Craig Barrel Proof"
+    ],
+    "description": "Booker’s Bourbon Batch 2026-01 “Big Easy Batch,” aged 7 years, 2 months, and 15 days, bottled at 129.1 proof.",
+    "verdict_notes": "At MSRP this is a strong buy if you like fruit-forward barrel-proof Beam. Above fair range, compare against other Booker’s batches and ECBP.",
+    "community_score": 88,
+    "name": "Booker’s Bourbon Batch 2026-01 “Big Easy Batch”",
+    "alias": "Bookers Big Easy",
+    "brand": "Booker’s",
+    "distillery": "Jim Beam Distillery",
+    "company": "Beam Global Spirits",
+    "expression": "Batch 2026-01 “Big Easy Batch”",
+    "category": "Bourbon",
+    "type": "Straight Bourbon",
+    "age_statement_years": 7,
+    "age_detail": "7 years, 2 months, 15 days",
+    "batch": "2026-01",
+    "abv": 64.55,
+    "mash_bill": "77% corn, 13% rye, 10% malted barley",
+    "mash_process": null,
+    "filtration": null,
+    "barrel_proof": true,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2026,
+    "release_date": "March 2026",
+    "color": "Dark Gold",
+    "availability": null,
+    "source_url": "https://www.breakingbourbon.com/review/bookers-bourbon-batch-2026-01-big-easy-batch",
+    "tasting_notes": {
+      "nose": [
+        "raspberry",
+        "strawberry",
+        "powdered sugar",
+        "rich vanilla",
+        "chestnut",
+        "baking spices",
+        "clove"
+      ],
+      "palate": [
+        "raisin",
+        "chocolate-covered cherry",
+        "hazelnut",
+        "plum"
+      ],
+      "finish": [
+        "toasted cinnamon",
+        "rye spice",
+        "tannic oak",
+        "dry leather",
+        "faint grapefruit",
+        "lingering rye spice"
+      ]
+    },
+    "summary": "Booker’s Bourbon Batch 2026-01 “Big Easy Batch” is a 129.1 proof straight bourbon aged 7 years, 2 months, and 15 days. Breaking Bourbon describes it as a complex, fruit-forward release with confectionery sweetness and a dry, spicy finish.",
+    "tags": [
+      "bookers",
+      "jim beam",
+      "big easy batch",
+      "2026-01",
+      "barrel proof",
+      "limited release",
+      "129.1 proof"
+    ]
+  },
   "Buffalo Trace": {
     "aliases": [
       "bt",
