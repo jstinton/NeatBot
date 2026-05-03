@@ -1,8 +1,11 @@
 import os
 import json
 import difflib
+import re
 from pathlib import Path
+from typing import Optional
 
+import aiohttp
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -18,6 +21,8 @@ DATA_PATH = Path(__file__).parent / "bottles.json"
 BOTY_VOTES_PATH = Path(__file__).parent / "boty_votes.json"
 BATTLE_VOTES_PATH = Path(__file__).parent / "battle_votes.json"
 WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
+ZIP_CODE_PATTERN = re.compile(r"^\d{5}$")
+USER_MENTION_PATTERN = re.compile(r"<@!?(?P<user_id>\d+)>")
 
 
 def load_bottles():
@@ -120,7 +125,7 @@ def price_verdict(price: float, data: dict):
     if price <= fair_high:
         return "🟡 Fair but not exciting", "Reasonable drinker price, but not a steal."
     if price <= secondary_high:
-        return "🟠 Only if you really want it", "You are paying collector/secondary-ish pricing."
+        return "🟠 Only if you really want it", "That is collector/secondary-ish pricing."
     return "🔴 Pass", "That price is deep into emotional damage territory."
 
 
@@ -129,6 +134,118 @@ def dollars(value):
         return "Unknown"
 
     return f"${value}"
+
+
+def flip_taco_value(value: int):
+    return f"${value:,}"
+
+
+def thread_safe_name(name: str, limit: int = 100):
+    return name[:limit]
+
+
+def close_thread_title(title: str):
+    cleaned = title
+
+    if cleaned.startswith("🥃 "):
+        cleaned = cleaned[len("🥃 "):]
+
+    if cleaned.startswith("🔒 CLOSED — "):
+        return thread_safe_name(cleaned)
+
+    return thread_safe_name(f"🔒 CLOSED — {cleaned}")
+
+
+def extract_embed_field(embed: discord.Embed, field_name: str):
+    for field in embed.fields:
+        if field.name == field_name:
+            return field.value
+
+    return None
+
+
+def extract_user_id_from_mention(value: Optional[str]):
+    if not value:
+        return None
+
+    match = USER_MENTION_PATTERN.search(value)
+
+    if not match:
+        return None
+
+    return int(match.group("user_id"))
+
+
+def flip_embed(
+    *,
+    bottle_for_sale: str,
+    sale_value: int,
+    looking_for: Optional[str],
+    iso_value: Optional[int],
+    location: str,
+    seller,
+    posted_at,
+    binner=None,
+    binned_at=None
+):
+    embed = discord.Embed(
+        title=f"🥃 Bottle Flip — {bottle_for_sale}",
+        color=discord.Color.from_str("#C9973A")
+    )
+    embed.add_field(name="📦 For Sale:", value=bottle_for_sale, inline=False)
+    embed.add_field(name="💰 Est. Value:", value=flip_taco_value(sale_value), inline=True)
+
+    if looking_for:
+        iso_text = looking_for
+
+        if iso_value is not None:
+            iso_text = f"{iso_text} — {flip_taco_value(iso_value)}"
+
+        embed.add_field(name="🔍 ISO:", value=iso_text, inline=False)
+    else:
+        embed.add_field(name="🌮 Looking For:", value="Tacos only", inline=False)
+
+    embed.add_field(name="📍 Location:", value=location, inline=True)
+    embed.add_field(name="👤 Seller:", value=seller.mention, inline=True)
+    embed.add_field(name="📅 Posted:", value=discord.utils.format_dt(posted_at, "f"), inline=False)
+
+    if binner and binned_at:
+        embed.add_field(
+            name="🤝 Binned by:",
+            value=f"{binner.mention} at {discord.utils.format_dt(binned_at, 'f')}",
+            inline=False
+        )
+
+    embed.set_footer(text="React with ✅ to show interest • Hit BIN to close the deal")
+
+    return embed
+
+
+async def resolve_zip_location(zip_code: str):
+    if not ZIP_CODE_PATTERN.fullmatch(zip_code):
+        return None
+
+    url = f"https://ziptastic.com/v3/us/{zip_code}"
+
+    try:
+        timeout = aiohttp.ClientTimeout(total=4)
+
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            async with session.get(url) as response:
+                if response.status != 200:
+                    return "Unknown Location"
+
+                data = await response.json()
+    except (aiohttp.ClientError, TimeoutError, ValueError):
+        return "Unknown Location"
+
+    city = data.get("city")
+    state = data.get("state_short") or data.get("state")
+
+    if not city or not state:
+        return "Unknown Location"
+
+    return f"{city.title()}, {state.upper()}"
 
 
 def bottle_embed(name: str, data: dict):
@@ -354,6 +471,109 @@ class BattleVoteButton(discord.ui.Button):
         await interaction.message.edit(embed=battle_embed(message_id), view=BattleView())
 
 
+class FlipBinButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bin_(?P<message_id>[0-9]+)"):
+    def __init__(self, original_message_id: int, *, disabled: bool = False):
+        super().__init__(
+            discord.ui.Button(
+                label="BIN 🤝",
+                style=discord.ButtonStyle.success,
+                custom_id=f"bin_{original_message_id}",
+                disabled=disabled
+            )
+        )
+        self.original_message_id = original_message_id
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(int(match.group("message_id")))
+
+    async def callback(self, interaction: discord.Interaction):
+        if not interaction.message or not interaction.message.embeds:
+            await interaction.response.send_message(
+                "I can’t read this flip anymore. Please make a new `/flip` post.",
+                ephemeral=True
+            )
+            return
+
+        embed = interaction.message.embeds[0]
+
+        if extract_embed_field(embed, "🤝 Binned by:"):
+            await interaction.response.send_message(
+                "This flip is already closed.",
+                ephemeral=True
+            )
+            return
+
+        seller_id = extract_user_id_from_mention(extract_embed_field(embed, "👤 Seller:"))
+
+        if not seller_id:
+            await interaction.response.send_message(
+                "I can’t find the original seller on this flip. Please make a new `/flip` post.",
+                ephemeral=True
+            )
+            return
+
+        if interaction.user.id == seller_id:
+            await interaction.response.send_message(
+                "You can't bin your own flip, boss. 😄",
+                ephemeral=True
+            )
+            return
+
+        bottle_for_sale = (embed.title or "🥃 Bottle Flip — this bottle").replace("🥃 Bottle Flip — ", "", 1)
+        binned_at = discord.utils.utcnow()
+        updated_embed = discord.Embed.from_dict(embed.to_dict())
+        updated_embed.add_field(
+            name="🤝 Binned by:",
+            value=f"{interaction.user.mention} at {discord.utils.format_dt(binned_at, 'f')}",
+            inline=False
+        )
+
+        await interaction.response.edit_message(
+            embed=updated_embed,
+            view=FlipBinView(self.original_message_id, disabled=True)
+        )
+
+        author = interaction.guild.get_member(seller_id) if interaction.guild else None
+
+        if author is None:
+            try:
+                author = await bot.fetch_user(seller_id)
+            except discord.HTTPException:
+                author = None
+
+        dm_sent = False
+
+        if author:
+            try:
+                await author.send(
+                    f"Hey {author.mention}! 🥃 {interaction.user.mention} binned your flip for "
+                    f"**{bottle_for_sale}**. Reach out to get the deal done!"
+                )
+                dm_sent = True
+            except discord.HTTPException:
+                dm_sent = False
+
+        thread = interaction.channel
+
+        if isinstance(thread, discord.Thread):
+            await thread.send(f"🔒 Deal closed! {interaction.user.mention} binned this one. Thread is now locked.")
+
+            if author and not dm_sent:
+                await thread.send(f"{author.mention} has DMs closed — reach out to {interaction.user.mention} directly!")
+
+            try:
+                await thread.edit(name=close_thread_title(thread.name), locked=True)
+            except discord.HTTPException:
+                await thread.send("I could not lock this thread automatically. A mod may need to lock it.")
+
+
+class FlipBinView(discord.ui.View):
+    def __init__(self, original_message_id: int, *, disabled: bool = False):
+        super().__init__(timeout=None)
+        self.add_item(FlipBinButton(original_message_id, disabled=disabled))
+
+
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -362,6 +582,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 async def setup_hook():
     bot.add_view(BOTYView())
     bot.add_view(BattleView())
+    bot.add_dynamic_items(FlipBinButton)
     configure_guild_commands()
 
 
@@ -525,6 +746,90 @@ async def whadd(interaction: discord.Interaction):
 
     file = discord.File(WHADD_IMAGE_PATH, filename="whadd.png")
     await interaction.response.send_message(file=file)
+
+
+@bot.tree.command(name="flip", description="Post a bottle flip with a BIN button and discussion thread.")
+@app_commands.describe(
+    bottle_for_sale="Name of the bottle being offered",
+    sale_value="Estimated bottle value",
+    zip_code="Your 5-digit US ZIP for City, State display",
+    looking_for="Optional ISO bottle. Leave blank for tacos only.",
+    iso_value="Optional ISO bottle value"
+)
+async def flip(
+    interaction: discord.Interaction,
+    bottle_for_sale: str,
+    sale_value: int,
+    zip_code: str,
+    looking_for: Optional[str] = None,
+    iso_value: Optional[int] = None
+):
+    if sale_value <= 0:
+        await interaction.response.send_message(
+            "Use a positive value for the bottle.",
+            ephemeral=True
+        )
+        return
+
+    if iso_value is not None and iso_value <= 0:
+        await interaction.response.send_message(
+            "Use a positive value for the ISO bottle.",
+            ephemeral=True
+        )
+        return
+
+    if iso_value is not None and not looking_for:
+        await interaction.response.send_message(
+            "Add an ISO bottle before adding an ISO value.",
+            ephemeral=True
+        )
+        return
+
+    location = await resolve_zip_location(zip_code)
+
+    if location is None:
+        await interaction.response.send_message(
+            "Enter a 5-digit US ZIP so I can show City, State.",
+            ephemeral=True
+        )
+        return
+
+    target = looking_for or "🌮 Tacos"
+    thread_name = thread_safe_name(f"🥃 {interaction.user.display_name} — {bottle_for_sale} ↔ {target}")
+
+    announcement = discord.Embed(
+        title=f"🥃 New Flip from {interaction.user.display_name}!",
+        description="Check the thread below 👇",
+        color=discord.Color.from_str("#C9973A")
+    )
+
+    await interaction.response.send_message(embed=announcement)
+    message = await interaction.original_response()
+
+    try:
+        thread = await message.create_thread(name=thread_name)
+    except discord.HTTPException:
+        await message.reply("I could not create the flip thread. A mod may need to check my thread permissions.")
+        return
+
+    detail_embed = flip_embed(
+        bottle_for_sale=bottle_for_sale,
+        sale_value=sale_value,
+        looking_for=looking_for,
+        iso_value=iso_value,
+        location=location,
+        seller=interaction.user,
+        posted_at=interaction.created_at
+    )
+    detail_message = await thread.send(
+        embed=detail_embed,
+        view=FlipBinView(message.id)
+    )
+
+    try:
+        await detail_message.add_reaction("✅")
+    except discord.HTTPException:
+        pass
 
 
 @bot.tree.command(name="boty", description="Start a Bottle of the Year rating with 1-10 buttons.")
