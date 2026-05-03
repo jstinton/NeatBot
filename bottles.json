@@ -850,6 +850,82 @@
     "verdict_notes": "A benchmark high-proof bourbon, but never confuse MSRP value with market value.",
     "community_score": 98
   },
+  "Heaven Hill Heritage Collection 22-Year-Old Bourbon": {
+    "aliases": [
+      "hh22",
+      "heaven hill 22",
+      "heaven hill heritage 22",
+      "heaven hill heritage collection 22",
+      "heaven hill 22 year",
+      "heritage collection 22"
+    ],
+    "proof": 129.2,
+    "style": "22 year barrel proof Kentucky straight bourbon",
+    "msrp": 319.99,
+    "fair_price_low": 320,
+    "fair_price_high": 450,
+    "secondary_low": 500,
+    "secondary_high": 900,
+    "profile": "Seasoned oak, dark caramel, toasted vanilla, leather, warm cinnamon, subtle dried fruit, caramelized sweetness, charred oak, toffee, and peppery spice.",
+    "similar": [
+      "Heaven Hill Heritage Collection",
+      "Elijah Craig Barrel Proof",
+      "Parker's Heritage Collection",
+      "Knob Creek 18 Year",
+      "Eagle Rare 17 Year"
+    ],
+    "description": "The 2026 Heaven Hill Heritage Collection ultra-aged bourbon release, aged 22 years and bottled at 129.2 proof.",
+    "verdict_notes": "At MSRP this is a serious premium limited-release buy for ultra-aged Heaven Hill fans. Above fair range, make sure you actively want oak-forward mature bourbon.",
+    "community_score": 94,
+    "name": "Heaven Hill Heritage Collection 22-Year-Old Bourbon",
+    "alias": "HH22",
+    "brand": "Heaven Hill",
+    "distillery": "Heaven Hill Distillery",
+    "expression": "Heritage Collection",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": 22,
+    "batch": null,
+    "abv": 64.6,
+    "mash_bill": "78% corn, 10% rye, 12% malted barley",
+    "mash_process": "Sour mash",
+    "filtration": "Non-chill filtered",
+    "barrel_proof": true,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2026,
+    "availability": "Limited national release",
+    "source_url": "https://www.breakingbourbon.com/bourbon-whiskey-press-releases/heaven-hill-distillery-announces-2026-heaven-hill-heritage-collection-release",
+    "tasting_notes": {
+      "nose": [
+        "seasoned oak",
+        "dark caramel",
+        "toasted vanilla"
+      ],
+      "palate": [
+        "leather",
+        "warm cinnamon",
+        "subtle dried fruit",
+        "caramelized sweetness"
+      ],
+      "finish": [
+        "charred oak",
+        "toffee",
+        "peppery spice",
+        "long and resonant"
+      ]
+    },
+    "summary": "Heaven Hill Heritage Collection 22-Year-Old Bourbon (HH22) is the 2026 ultra-aged release, bottled at 129.2 proof from barrels aged over two decades in Rickhouse Y. It delivers a deeply mature, oak-forward profile balanced by caramel sweetness and baking spice, representing one of the oldest and most premium expressions in Heaven Hill’s lineup.",
+    "tags": [
+      "heaven hill",
+      "heritage collection",
+      "22 year",
+      "barrel proof",
+      "limited release",
+      "ultra aged",
+      "hh22"
+    ]
+  },
   "Henry McKenna 10 Year Bottled in Bond": {
     "aliases": [
       "henry mckenna",
