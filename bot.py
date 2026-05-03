@@ -169,6 +169,50 @@ def sanitize_iso_text(value: Optional[str]):
     return value
 
 
+def parse_iso_details(iso: Optional[str], iso_value: Optional[int], kicker: Optional[bool]):
+    if not iso:
+        return None, iso_value, bool(kicker)
+
+    has_kicker = bool(kicker) or bool(re.search(r"🥾|\bboot\b|\bkicker\b", iso, flags=re.IGNORECASE))
+    text = sanitize_iso_text(iso)
+
+    if text == "🌮 Tacos":
+        return None, iso_value, has_kicker
+
+    text = re.sub(r"🥾|\bboot\b|\bkicker\b", "", text, flags=re.IGNORECASE)
+
+    value_match = re.search(r"\b\d{2,6}\b", text)
+
+    if value_match and iso_value is None:
+        iso_value = int(value_match.group(0))
+        text = text[:value_match.start()] + text[value_match.end():]
+
+    items = split_bottle_list(text)
+    text = " + ".join(items)
+
+    if not text:
+        return None, iso_value, has_kicker
+
+    return text, iso_value, has_kicker
+
+
+def iso_thread_target(iso: Optional[str], iso_value: Optional[int], kicker: Optional[bool]):
+    parts = []
+
+    if iso:
+        parts.append(iso)
+    elif iso_value is None:
+        parts.append("🌮 Tacos")
+
+    if iso_value is not None:
+        parts.append(flip_taco_value(iso_value))
+
+    if kicker:
+        parts.append("🥾")
+
+    return " + ".join(parts)
+
+
 def split_bottle_list(value: str):
     items = re.split(r"\s*(?:\+|,|\n)\s*", value)
     return [item.strip() for item in items if item.strip()]
@@ -272,6 +316,7 @@ def flip_embed(
     ft_value: int,
     iso: Optional[str],
     iso_value: Optional[int],
+    kicker: Optional[bool],
     rtr: Optional[bool],
     x_posted: Optional[bool],
     location: str,
@@ -296,7 +341,11 @@ def flip_embed(
     else:
         embed.add_field(name="🌮 Looking For:", value="Tacos only", inline=False)
 
+        if iso_value is not None:
+            embed.add_field(name="🌮 ISO Value:", value=flip_taco_value(iso_value), inline=True)
+
     embed.add_field(name="📍 Location:", value=location, inline=True)
+    embed.add_field(name="🥾 Kicker:", value=yes_no(kicker), inline=True)
     embed.add_field(name="🚫 RTR:", value=yes_no(rtr), inline=True)
     embed.add_field(name="📣 X-posted:", value=yes_no(x_posted), inline=True)
     embed.add_field(name="👤 Seller:", value=seller.mention, inline=True)
@@ -848,6 +897,7 @@ async def whadd(interaction: discord.Interaction):
     zip_code="Your 5-digit US ZIP for City, State display",
     iso="Optional ISO bottle or bottles. Leave blank for tacos only.",
     iso_value="Optional ISO value",
+    kicker="Whether a kicker is needed",
     rtr="Right to refuse",
     x_posted="Whether this flip is x-posted"
 )
@@ -858,6 +908,7 @@ async def flip(
     zip_code: str,
     iso: Optional[str] = None,
     iso_value: Optional[int] = None,
+    kicker: Optional[bool] = False,
     rtr: Optional[bool] = False,
     x_posted: Optional[bool] = False
 ):
@@ -896,17 +947,10 @@ async def flip(
         return
 
     ft = canonical_bottle_list(ft)
-    iso = sanitize_iso_text(iso)
+    iso, iso_value, kicker = parse_iso_details(iso, iso_value, kicker)
 
     if iso and iso != "🌮 Tacos":
         iso = canonical_bottle_list(iso)
-
-    if iso_value is not None and not iso:
-        await interaction.response.send_message(
-            "Add an ISO before adding an ISO value.",
-            ephemeral=True
-        )
-        return
 
     location = await resolve_zip_location(zip_code)
 
@@ -917,7 +961,7 @@ async def flip(
         )
         return
 
-    target = iso or "🌮 Tacos"
+    target = iso_thread_target(iso, iso_value, kicker)
     thread_name = thread_safe_name(f"🥃 FT: {ft} ↔ {target}")
 
     announcement = discord.Embed(
@@ -940,6 +984,7 @@ async def flip(
         ft_value=ft_value,
         iso=iso,
         iso_value=iso_value,
+        kicker=kicker,
         rtr=rtr,
         x_posted=x_posted,
         location=location,
