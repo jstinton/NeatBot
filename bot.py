@@ -137,7 +137,7 @@ def dollars(value):
 
 
 def flip_taco_value(value: int):
-    return f"${value:,}"
+    return f"🌮 {value:,}"
 
 
 def sanitize_iso_text(value: Optional[str]):
