@@ -140,6 +140,16 @@ def flip_taco_value(value: int):
     return f"${value:,}"
 
 
+def sanitize_iso_text(value: Optional[str]):
+    if not value:
+        return None
+
+    if re.search(r"\bcash\b", value, flags=re.IGNORECASE):
+        return "🌮 Tacos"
+
+    return value
+
+
 def thread_safe_name(name: str, limit: int = 100):
     return name[:limit]
 
@@ -178,7 +188,7 @@ def extract_user_id_from_mention(value: Optional[str]):
 
 def flip_embed(
     *,
-    bottle_for_sale: str,
+    bottle_ft: str,
     sale_value: int,
     looking_for: Optional[str],
     iso_value: Optional[int],
@@ -189,10 +199,10 @@ def flip_embed(
     binned_at=None
 ):
     embed = discord.Embed(
-        title=f"🥃 Bottle Flip — {bottle_for_sale}",
+        title=f"🥃 Bottle Flip — {bottle_ft}",
         color=discord.Color.from_str("#C9973A")
     )
-    embed.add_field(name="📦 For Sale:", value=bottle_for_sale, inline=False)
+    embed.add_field(name="📦 FT:", value=bottle_ft, inline=False)
     embed.add_field(name="💰 Est. Value:", value=flip_taco_value(sale_value), inline=True)
 
     if looking_for:
@@ -233,17 +243,17 @@ async def resolve_zip_location(zip_code: str):
         async with aiohttp.ClientSession(timeout=timeout) as session:
             async with session.get(url) as response:
                 if response.status != 200:
-                    return "Unknown Location"
+                    return zip_code
 
                 data = await response.json()
     except (aiohttp.ClientError, TimeoutError, ValueError):
-        return "Unknown Location"
+        return zip_code
 
     city = data.get("city")
     state = data.get("state_short") or data.get("state")
 
     if not city or not state:
-        return "Unknown Location"
+        return zip_code
 
     return f"{city.title()}, {state.upper()}"
 
@@ -520,7 +530,7 @@ class FlipBinButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bin_(?
             )
             return
 
-        bottle_for_sale = (embed.title or "🥃 Bottle Flip — this bottle").replace("🥃 Bottle Flip — ", "", 1)
+        bottle_ft = (embed.title or "🥃 Bottle Flip — this bottle").replace("🥃 Bottle Flip — ", "", 1)
         binned_at = discord.utils.utcnow()
         updated_embed = discord.Embed.from_dict(embed.to_dict())
         updated_embed.add_field(
@@ -548,7 +558,7 @@ class FlipBinButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bin_(?
             try:
                 await author.send(
                     f"Hey {author.mention}! 🥃 {interaction.user.mention} binned your flip for "
-                    f"**{bottle_for_sale}**. Reach out to get the deal done!"
+                    f"**{bottle_ft}**. Reach out to get the deal done!"
                 )
                 dm_sent = True
             except discord.HTTPException:
@@ -750,7 +760,7 @@ async def whadd(interaction: discord.Interaction):
 
 @bot.tree.command(name="flip", description="Post a bottle flip with a BIN button and discussion thread.")
 @app_commands.describe(
-    bottle_for_sale="Name of the bottle being offered",
+    bottle_ft="Name of the bottle being offered",
     sale_value="Estimated bottle value",
     zip_code="Your 5-digit US ZIP for City, State display",
     looking_for="Optional ISO bottle. Leave blank for tacos only.",
@@ -758,7 +768,7 @@ async def whadd(interaction: discord.Interaction):
 )
 async def flip(
     interaction: discord.Interaction,
-    bottle_for_sale: str,
+    bottle_ft: str,
     sale_value: int,
     zip_code: str,
     looking_for: Optional[str] = None,
@@ -778,6 +788,8 @@ async def flip(
         )
         return
 
+    looking_for = sanitize_iso_text(looking_for)
+
     if iso_value is not None and not looking_for:
         await interaction.response.send_message(
             "Add an ISO bottle before adding an ISO value.",
@@ -795,10 +807,10 @@ async def flip(
         return
 
     target = looking_for or "🌮 Tacos"
-    thread_name = thread_safe_name(f"🥃 {interaction.user.display_name} — {bottle_for_sale} ↔ {target}")
+    thread_name = thread_safe_name(f"🥃 FT: {bottle_ft} ↔ {target}")
 
     announcement = discord.Embed(
-        title=f"🥃 New Flip from {interaction.user.display_name}!",
+        title=f"🥃 FT: {bottle_ft}",
         description="Check the thread below 👇",
         color=discord.Color.from_str("#C9973A")
     )
@@ -813,7 +825,7 @@ async def flip(
         return
 
     detail_embed = flip_embed(
-        bottle_for_sale=bottle_for_sale,
+        bottle_ft=bottle_ft,
         sale_value=sale_value,
         looking_for=looking_for,
         iso_value=iso_value,
