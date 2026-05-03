@@ -3001,6 +3001,97 @@
     "verdict_notes": "A forever recommendation for a house bottle.",
     "community_score": 85
   },
+  "Wild Turkey Master’s Keep Beacon": {
+    "aliases": [
+      "mk beacon",
+      "masters keep beacon",
+      "master's keep beacon",
+      "master’s keep beacon",
+      "wild turkey beacon",
+      "wild turkey masters keep beacon",
+      "wild turkey master's keep beacon",
+      "wild turkey master’s keep beacon"
+    ],
+    "proof": 118,
+    "style": "Limited barrel proof Kentucky straight bourbon",
+    "msrp": 300,
+    "fair_price_low": 300,
+    "fair_price_high": 450,
+    "secondary_low": 500,
+    "secondary_high": 800,
+    "profile": "Toasted caramel, tobacco, toffee, oak, orange creamsicle, stewed apple, vanilla bean, cherry, cola, brown sugar, root beer, leather, and clove.",
+    "similar": [
+      "Russell's Reserve 13 Year",
+      "Russell's Reserve Single Barrel",
+      "Wild Turkey Rare Breed",
+      "King of Kentucky Small Batch Bourbon"
+    ],
+    "description": "A limited 2025 Master’s Keep release blending 10- and 16-year-old Wild Turkey bourbons, bottled at 118 proof.",
+    "verdict_notes": "At MSRP this is a strong premium Wild Turkey buy. Above fair range, make sure the Master’s Keep story and mature Turkey profile are what you want.",
+    "community_score": 92,
+    "name": "Wild Turkey Master’s Keep Beacon",
+    "alias": "MK Beacon",
+    "brand": "Wild Turkey",
+    "distillery": "Wild Turkey Distilling Co.",
+    "location": "Lawrenceburg, Kentucky",
+    "expression": "Master’s Keep Beacon",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": 10,
+    "age_detail": "Blend of 10 and 16 year bourbons",
+    "batch": null,
+    "abv": 59,
+    "mash_bill": "75% corn, 13% rye, 12% malted barley",
+    "mash_process": null,
+    "filtration": null,
+    "barrel_proof": true,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2025,
+    "availability": "Limited nationwide release",
+    "source_url": "https://rarebird101.com/2025/09/08/masters-keep-beacon/",
+    "tasting_notes": {
+      "nose": [
+        "toasted caramel",
+        "tobacco",
+        "toffee",
+        "oak",
+        "orange creamsicle",
+        "stewed apple",
+        "leather"
+      ],
+      "palate": [
+        "vanilla bean",
+        "charred oak",
+        "cherry",
+        "tobacco",
+        "blood orange",
+        "cola",
+        "fermented orchard fruit"
+      ],
+      "finish": [
+        "brown sugar",
+        "white pepper",
+        "oak spice",
+        "root beer",
+        "cherry skin",
+        "tobacco",
+        "leather",
+        "clove"
+      ]
+    },
+    "summary": "Wild Turkey Master’s Keep Beacon is a limited 2025 release blending 10- and 16-year-old bourbons, bottled at 118 proof. Created by Eddie and Bruce Russell, it represents a generational collaboration and potentially the final chapter in the Master’s Keep series, delivering a bold, mature profile of caramel, tobacco, fruit, and spice.",
+    "tags": [
+      "wild turkey",
+      "masters keep",
+      "beacon",
+      "mk beacon",
+      "118 proof",
+      "limited release",
+      "high age blend",
+      "premium bourbon"
+    ]
+  },
   "Wild Turkey Rare Breed": {
     "aliases": [
       "rare breed",
