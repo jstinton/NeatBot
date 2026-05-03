@@ -3863,5 +3863,71 @@
       "limited release",
       "kentucky bourbon"
     ]
+  },
+  "Kentucky Nectar Spring 2026 Release": {
+    "aliases": [
+      "kentucky nectar spring 2026",
+      "kn",
+      "kentucky nectar",
+      "kentucky nectar spring",
+      "old commonwealth kentucky nectar"
+    ],
+    "proof": 105,
+    "style": "Cask-strength wheated Kentucky straight bourbon finished in honey casks",
+    "msrp": 99.99,
+    "fair_price_low": 100,
+    "fair_price_high": 135,
+    "secondary_low": 150,
+    "secondary_high": 225,
+    "profile": "Honey cask-finished wheated bourbon profile. Official tasting notes are not listed yet.",
+    "similar": [
+      "Casey Jones Wheated Bourbon Honey Cask Finish",
+      "Penelope Valencia",
+      "Nulu Honey Toasted Barrel",
+      "Maker's Mark Private Selection"
+    ],
+    "description": "A Spring 2026 cask-strength Kentucky Nectar release from Old Commonwealth, made from a wheated bourbon mash bill and finished in honey casks.",
+    "verdict_notes": "At MSRP this is a solid limited online-release buy for fans of wheated bourbon and honey cask finishes. Above fair range, treat it like a specialty finished bourbon rather than a daily drinker.",
+    "community_score": 84,
+    "name": "Kentucky Nectar Spring 2026 Release",
+    "alias": [
+      "Kentucky Nectar Spring 2026",
+      "KN"
+    ],
+    "brand": "Kentucky Nectar",
+    "distillery": "Old Commonwealth Distillery",
+    "location": "Lawrenceburg, Kentucky",
+    "expression": "Spring 2026 Release",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon Finished in Honey Casks",
+    "age_statement_years": null,
+    "age_detail": "NAS",
+    "batch": "Spring 2026",
+    "abv": 52.5,
+    "mash_bill": "64% corn, 24% wheat, 12% malted barley",
+    "mash_process": null,
+    "filtration": null,
+    "barrel_proof": true,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2026,
+    "availability": "Limited online release; sold out",
+    "source_url": "https://oldcommonwealth.com/products/kentucky-nectar-spring-2026-release",
+    "tasting_notes": {
+      "nose": [],
+      "palate": [],
+      "finish": []
+    },
+    "summary": "Kentucky Nectar Spring 2026 Release is a cask-strength, wheated Kentucky straight bourbon finished in honey casks. Bottled at 105 proof with a 64% corn, 24% wheat, and 12% malted barley mash bill, it continues Old Commonwealth's revived Kentucky Nectar series.",
+    "tags": [
+      "kentucky nectar",
+      "kn",
+      "old commonwealth",
+      "honey cask finish",
+      "wheated bourbon",
+      "105 proof",
+      "limited release",
+      "spring 2026"
+    ]
   }
 }
