@@ -2040,6 +2040,89 @@
     "verdict_notes": "Great wheated option that often beats hyped bottles on price.",
     "community_score": 90
   },
+  "Maker’s Mark Cellar Aged 2025 Release": {
+    "aliases": [
+      "mm cellar aged 2025",
+      "makers cellar aged 2025",
+      "maker's cellar aged 2025",
+      "maker’s cellar aged 2025",
+      "makers mark cellar aged",
+      "maker's mark cellar aged",
+      "maker’s mark cellar aged",
+      "maker cellar aged 2025"
+    ],
+    "proof": 112.9,
+    "style": "Limited aged wheated bourbon blend",
+    "msrp": 175,
+    "fair_price_low": 175,
+    "fair_price_high": 250,
+    "secondary_low": 275,
+    "secondary_high": 450,
+    "profile": "Aged oak, baking spices, brown sugar, black forest cake, mixed berry pie, fudge brownie, marshmallow, dark cinnamon, and dried tobacco.",
+    "similar": [
+      "Maker's Mark 46 Cask Strength",
+      "Maker's Mark Cask Strength",
+      "Weller Antique 107",
+      "Larceny Barrel Proof"
+    ],
+    "description": "A limited annual Maker's Mark Cellar Aged release blending 11, 13, and 14 year wheated bourbons.",
+    "verdict_notes": "Excellent at MSRP for a mature wheated bourbon. Above fair range, make sure you specifically want Cellar Aged and not just a strong cask-strength Maker's pour.",
+    "community_score": 91,
+    "name": "Maker’s Mark Cellar Aged 2025 Release",
+    "alias": "MM Cellar Aged 2025",
+    "brand": "Maker’s Mark",
+    "distillery": "Maker’s Mark Distillery",
+    "location": "Loretto, Kentucky",
+    "expression": "Cellar Aged 2025",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": null,
+    "age_detail": "Blend of 11, 13, and 14 year bourbons",
+    "batch": "2025 Release",
+    "abv": 56.45,
+    "mash_bill": "70% corn, 16% wheat, 14% malted barley",
+    "mash_process": null,
+    "filtration": null,
+    "barrel_proof": true,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2025,
+    "release_date": "September 2025",
+    "availability": "Limited nationwide and global release",
+    "source_url": "https://www.breakingbourbon.com/review/makers-mark-cellar-aged-2025-release",
+    "tasting_notes": {
+      "nose": [
+        "aged oak",
+        "baking spices",
+        "brown sugar",
+        "black forest cake",
+        "mixed berry pie"
+      ],
+      "palate": [
+        "brown sugar",
+        "fudge brownie",
+        "marshmallow",
+        "sweet confectionery notes",
+        "aged oak"
+      ],
+      "finish": [
+        "aged oak",
+        "dark cinnamon",
+        "dried tobacco",
+        "creamy mouthfeel transitioning to dry spice"
+      ]
+    },
+    "summary": "Maker’s Mark Cellar Aged 2025 is a limited annual release blending 11, 13, and 14 year wheated bourbons, finished in a temperature-controlled limestone cellar. Bottled at 112.9 proof, it delivers a rich balance of confectionery sweetness and mature oak with a long, spice-driven finish.",
+    "tags": [
+      "makers mark",
+      "cellar aged",
+      "2025 release",
+      "wheated bourbon",
+      "limited release",
+      "112.9 proof",
+      "high age blend"
+    ]
+  },
   "Maker's Mark Cask Strength": {
     "aliases": [
       "makers cask",
