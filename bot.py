@@ -1132,16 +1132,8 @@ async def flip(
         color=discord.Color.from_str("#C9973A")
     )
 
-    if value_warning:
-        await interaction.response.send_message(
-            f"⚠️ Your ISO value ({flip_taco_value(iso_value)}) is significantly higher than "
-            f"your FT value ({flip_taco_value(ft_value)}). Consider adding a kicker or adjusting values.",
-            ephemeral=True
-        )
-        message = await interaction.followup.send(embed=announcement, wait=True)
-    else:
-        await interaction.response.send_message(embed=announcement)
-        message = await interaction.original_response()
+    await interaction.response.send_message(embed=announcement)
+    message = await interaction.original_response()
 
     try:
         thread = await message.create_thread(name=thread_name)
@@ -1171,6 +1163,13 @@ async def flip(
         await detail_message.add_reaction("✅")
     except discord.HTTPException:
         pass
+
+    if value_warning:
+        await interaction.followup.send(
+            f"⚠️ Your ISO value ({flip_taco_value(iso_value)}) is significantly higher than "
+            f"your FT value ({flip_taco_value(ft_value)}). Consider adding a kicker or adjusting values.",
+            ephemeral=True
+        )
 
     if iso_needs_vintage_tip:
         await interaction.followup.send(
