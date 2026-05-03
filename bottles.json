@@ -2740,6 +2740,88 @@
     "verdict_notes": "Outstanding mature Turkey profile, but the market knows it.",
     "community_score": 94
   },
+  "Russell's Reserve 15 Year": {
+    "aliases": [
+      "rr15",
+      "russells 15",
+      "russell's 15",
+      "russells reserve 15",
+      "russell's reserve 15",
+      "russell reserve 15",
+      "russell's reserve 15 year",
+      "russells reserve 15 year"
+    ],
+    "proof": 117.2,
+    "style": "15 year barrel proof bourbon",
+    "msrp": 250,
+    "fair_price_low": 350,
+    "fair_price_high": 550,
+    "secondary_low": 600,
+    "secondary_high": 1000,
+    "profile": "Dried fruit, caramel, nutmeg, clove, oak, spiced cherry, plum, molasses, coffee, tobacco, dark cocoa, and mature oak.",
+    "similar": [
+      "Russell's Reserve 13 Year",
+      "Wild Turkey Master’s Keep Beacon",
+      "Michter's 10 Year Bourbon",
+      "Eagle Rare 17 Year"
+    ],
+    "description": "A limited 15-year Russell's Reserve bourbon bottled non-chill filtered at 117.2 proof.",
+    "verdict_notes": "A premium mature Turkey bottle. Strong at MSRP, but secondary pricing gets serious fast.",
+    "community_score": 95,
+    "name": "Russell's Reserve 15 Year",
+    "alias": "RR15",
+    "brand": "Russell's Reserve",
+    "distillery": "Wild Turkey Distilling Co.",
+    "location": "Lawrenceburg, Kentucky",
+    "expression": "15 Year Bourbon",
+    "category": "Bourbon",
+    "type": "Kentucky Straight Bourbon",
+    "age_statement_years": 15,
+    "batch": "2024 Release",
+    "abv": 58.6,
+    "mash_bill": "75% corn, 13% rye, 12% malted barley",
+    "filtration": "Non-chill filtered",
+    "barrel_proof": true,
+    "single_barrel": false,
+    "limited_release": true,
+    "release_year": 2024,
+    "availability": "Limited release",
+    "source_url": "https://www.breakingbourbon.com/review/russells-reserve-15-year-bourbon-2024",
+    "tasting_notes": {
+      "nose": [
+        "dried fruits",
+        "caramel",
+        "nutmeg",
+        "clove",
+        "oak"
+      ],
+      "palate": [
+        "spiced fruits",
+        "cherry",
+        "plum",
+        "molasses",
+        "coffee",
+        "tobacco",
+        "mature oak"
+      ],
+      "finish": [
+        "dark cocoa",
+        "caramel",
+        "smooth oak",
+        "long finish"
+      ]
+    },
+    "summary": "Russell's Reserve 15 Year is a limited, extra-aged Kentucky straight bourbon selected by Eddie Russell and bottled non-chill filtered at 117.2 proof. It delivers a mature Wild Turkey profile with dried fruit, caramel, spice, tobacco, dark cocoa, and oak.",
+    "tags": [
+      "russells reserve",
+      "rr15",
+      "15 year",
+      "wild turkey",
+      "barrel proof",
+      "limited release",
+      "premium bourbon"
+    ]
+  },
   "Russell's Reserve Single Barrel": {
     "aliases": [
       "russells single barrel",
