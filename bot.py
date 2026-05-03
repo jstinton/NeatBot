@@ -534,6 +534,18 @@ async def battle(interaction: discord.Interaction, bottle_one: str, bottle_two: 
         "votes": {}
     }
     save_json(BATTLE_VOTES_PATH, BATTLE_VOTES)
+
+    try:
+        thread = await message.create_thread(name=f"Battle: {name1} vs {name2}"[:100])
+        BATTLE_VOTES[message_id]["thread_id"] = thread.id
+        save_json(BATTLE_VOTES_PATH, BATTLE_VOTES)
+        await thread.send(
+            f"Battle thread: **{name1}** vs **{name2}**.\n"
+            "Make your case. Flavor, value, proof, hype, bottle kill stories, all of it."
+        )
+    except discord.HTTPException:
+        pass
+
     await message.edit(embed=battle_embed(message_id), view=BattleView())
 
 
