@@ -213,7 +213,7 @@ def parse_iso_details(iso: Optional[str], iso_value: Optional[int], iso_kicker: 
     return text, iso_value, has_kicker
 
 
-def iso_thread_target(iso: Optional[str], iso_value: Optional[int], iso_kicker: Optional[bool]):
+def iso_thread_target(iso: Optional[str], iso_value: Optional[int]):
     parts = []
 
     if iso:
@@ -223,9 +223,6 @@ def iso_thread_target(iso: Optional[str], iso_value: Optional[int], iso_kicker: 
 
     if iso_value is not None:
         parts.append(flip_taco_value(iso_value))
-
-    if iso_kicker:
-        parts.append("🥾")
 
     return " + ".join(parts)
 
@@ -350,8 +347,8 @@ def flip_embed(
     embed.add_field(name="📦 FT:", value=format_bottle_list(ft), inline=False)
     embed.add_field(name="💰 Est. Value (per seller):", value=flip_taco_value(ft_value), inline=True)
 
-    if ft_kicker:
-        embed.add_field(name="🥾 FT Kicker:", value="Yes", inline=True)
+    if ft_kicker or iso_kicker:
+        embed.add_field(name="🥾 Seller Kicker:", value="Yes", inline=True)
 
     if iso:
         iso_text = format_bottle_list(iso)
@@ -366,9 +363,6 @@ def flip_embed(
             embed.add_field(name="💵 ISO Value:", value=flip_taco_value(iso_value), inline=True)
 
     embed.add_field(name="📍 Location:", value=location, inline=True)
-
-    if iso_kicker:
-        embed.add_field(name="🥾 ISO Kicker:", value="Yes", inline=True)
 
     rtr_value = "Yes *(Right to Refuse)*" if rtr else "No"
     embed.add_field(name="🚫 RTR:", value=rtr_value, inline=True)
@@ -1042,7 +1036,7 @@ async def whadd(interaction: discord.Interaction):
     iso="Optional ISO bottle or bottles. Leave blank for tacos only.",
     iso_value="Optional ISO value",
     ft_kicker="Whether your FT side includes a kicker",
-    iso_kicker="Whether your ISO side needs a kicker",
+    iso_kicker="Whether you need to add a kicker toward your ISO",
     rtr="Right to refuse",
     x_posted="Whether this flip is x-posted"
 )
@@ -1110,8 +1104,9 @@ async def flip(
         )
         return
 
-    ft_target = f"{ft} + 🥾" if ft_kicker else ft
-    target = iso_thread_target(iso, iso_value, iso_kicker)
+    seller_kicker = bool(ft_kicker or iso_kicker)
+    ft_target = f"{ft} + 🥾" if seller_kicker else ft
+    target = iso_thread_target(iso, iso_value)
     thread_name = thread_safe_name(f"🥃 FT: {ft_target} ↔ {target}")
     seller_name = interaction.user.display_name
 
@@ -1167,7 +1162,7 @@ async def flip(
     if value_warning:
         await interaction.followup.send(
             f"⚠️ Your ISO value ({flip_taco_value(iso_value)}) is significantly higher than "
-            f"your FT value ({flip_taco_value(ft_value)}). Consider adding a kicker or adjusting values.",
+            f"your FT value ({flip_taco_value(ft_value)}). Consider adding a seller kicker or adjusting values.",
             ephemeral=True
         )
 
