@@ -18,8 +18,10 @@ Create `.env`:
 
 ```env
 DISCORD_TOKEN=your_discord_bot_token_here
-GUILD_ID=your_discord_server_id_here
+GUILD_IDS=your_first_server_id_here,your_second_server_id_here
 ```
+
+For one server, `GUILD_ID=your_discord_server_id_here` still works. For multiple servers, use `GUILD_IDS` with comma-separated server IDs.
 
 Install and run:
 
@@ -40,7 +42,7 @@ Use a worker/background service, not a web service. The bot keeps a gateway conn
 3. Railway can use the included `Dockerfile` and `railway.json`.
 4. Add service variables:
    - `DISCORD_TOKEN`
-   - `GUILD_ID`
+   - `GUILD_IDS`
 5. Deploy.
 
 Railway docs: start commands are the process used to run the deployment, and variables are exposed to the running service as environment variables.
@@ -54,7 +56,7 @@ Railway docs: start commands are the process used to run the deployment, and var
    - Start command: `python bot.py`
 4. Add environment variables:
    - `DISCORD_TOKEN`
-   - `GUILD_ID`
+   - `GUILD_IDS`
 5. Deploy.
 
 The included `render.yaml` defines the worker shape, but secrets still need to be entered in Render.

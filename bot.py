@@ -12,6 +12,7 @@ load_dotenv()
 
 TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD_ID = os.getenv("GUILD_ID")
+GUILD_IDS = os.getenv("GUILD_IDS")
 
 DATA_PATH = Path(__file__).parent / "bottles.json"
 BOTY_VOTES_PATH = Path(__file__).parent / "boty_votes.json"
@@ -25,6 +26,19 @@ def load_bottles():
 
 BOTTLES = load_bottles()
 BOTTLE_NAMES = list(BOTTLES.keys())
+
+
+def parse_guild_ids():
+    raw_ids = GUILD_IDS or GUILD_ID or ""
+    guild_ids = []
+
+    for raw_id in raw_ids.split(","):
+        guild_id = raw_id.strip()
+
+        if guild_id:
+            guild_ids.append(int(guild_id))
+
+    return guild_ids
 
 
 def load_json(path: Path, default):
@@ -275,11 +289,14 @@ async def on_ready():
     print(f"Logged in as {bot.user}")
 
     try:
-        if GUILD_ID:
-            guild = discord.Object(id=int(GUILD_ID))
-            bot.tree.copy_global_to(guild=guild)
-            synced = await bot.tree.sync(guild=guild)
-            print(f"Synced {len(synced)} command(s) to guild {GUILD_ID}")
+        guild_ids = parse_guild_ids()
+
+        if guild_ids:
+            for guild_id in guild_ids:
+                guild = discord.Object(id=guild_id)
+                bot.tree.copy_global_to(guild=guild)
+                synced = await bot.tree.sync(guild=guild)
+                print(f"Synced {len(synced)} command(s) to guild {guild_id}")
         else:
             synced = await bot.tree.sync()
             print(f"Synced {len(synced)} global command(s)")
