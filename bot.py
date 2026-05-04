@@ -205,6 +205,16 @@ def buyer_kicker_field_value(ft_value: int, iso_value: Optional[int]):
     return kicker_field_value(buyer_kicker_amount(ft_value, iso_value))
 
 
+def flip_kicker_flags(ft_value: int, iso_value: Optional[int], seller_requested: Optional[bool], buyer_requested: Optional[bool]):
+    if seller_kicker_amount(ft_value, iso_value) is not None:
+        return True, False
+
+    if buyer_kicker_amount(ft_value, iso_value) is not None:
+        return False, True
+
+    return bool(seller_requested), bool(buyer_requested)
+
+
 def yes_no(value: Optional[bool]):
     return "Yes" if value else "No"
 
@@ -1865,8 +1875,7 @@ async def flip(
         )
         return
 
-    seller_kicker = bool(iso_kicker)
-    buyer_kicker = bool(ft_kicker or buyer_kicker_amount(ft_value, iso_value) is not None)
+    seller_kicker, buyer_kicker = flip_kicker_flags(ft_value, iso_value, iso_kicker, ft_kicker)
     seller_kicker_text = seller_kicker_label(ft_value, iso_value) if seller_kicker else None
     buyer_kicker_text = buyer_kicker_label(ft_value, iso_value) if buyer_kicker else None
     ft_target = f"{ft} + {seller_kicker_text}" if seller_kicker_text else ft
@@ -1908,7 +1917,7 @@ async def flip(
         iso=iso,
         iso_value=iso_value,
         ft_kicker=buyer_kicker,
-        iso_kicker=iso_kicker,
+        iso_kicker=seller_kicker,
         rtr=rtr,
         x_posted=x_posted,
         location=location,
