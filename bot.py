@@ -569,20 +569,30 @@ def flip_helper_preview(ft: str, ft_value: int, data: dict):
 
 def finish_flip_helper(data: dict):
     if data.get("separate_posts"):
-        commands = []
-
-        for ft, ft_value in zip(data["ft_items"], data["ft_values"]):
-            command = flip_helper_command(ft, ft_value, data)
-            commands.append(
-                f"Copy this line:\n{command}\n"
-                f"{flip_helper_preview(ft, ft_value, data)}"
-            )
-
-        return "Here are your separate `/flip` posts:\n\n" + "\n\n".join(commands)
+        return [
+            (flip_helper_command(ft, ft_value, data), flip_helper_preview(ft, ft_value, data))
+            for ft, ft_value in zip(data["ft_items"], data["ft_values"])
+        ]
 
     command = flip_helper_command(data["ft"], data["ft_value"], data)
     preview = flip_helper_preview(data["ft"], data["ft_value"], data)
-    return f"Here is your copy/paste `/flip` command:\n\nCopy this line:\n{command}\n\n{preview}"
+    return [(command, preview)]
+
+
+async def send_finished_flip_helper(channel, data: dict):
+    results = finish_flip_helper(data)
+
+    if len(results) > 1:
+        await channel.send("Here are your separate `/flip` posts. Each command is its own message for easier mobile copying.")
+    else:
+        await channel.send("Here is your copy/paste `/flip` command. The next message is only the command.")
+
+    for index, (command, preview) in enumerate(results, start=1):
+        if len(results) > 1:
+            await channel.send(f"Command {index}:")
+
+        await channel.send(command)
+        await channel.send(preview)
 
 
 async def handle_flip_helper_message(message: discord.Message):
@@ -762,7 +772,7 @@ async def handle_flip_helper_message(message: discord.Message):
 
         data["x_posted"] = answer
         FLIP_HELP_SESSIONS.pop(user_id, None)
-        await message.channel.send(finish_flip_helper(data))
+        await send_finished_flip_helper(message.channel, data)
         return
 
 
