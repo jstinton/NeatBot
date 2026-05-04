@@ -320,14 +320,21 @@ def is_skip(value: str):
 
 
 def starts_flip_helper(value: str):
-    return normalize(value) in {
+    normalized = normalize(value).replace(":", " ")
+    compacted = " ".join(normalized.split())
+
+    return compacted in {
         "flip",
         "flip help",
         "/flip help",
         "help flip",
         "trade help",
-        "ft help"
-    }
+        "ft help",
+        "dm neatbot flip help",
+        "dm neatbot /flip help",
+        "neatbot flip help",
+        "neatbot /flip help"
+    } or "flip help" in compacted
 
 
 def is_tacos_only(value: str):
@@ -1278,7 +1285,6 @@ class FlipBinView(discord.ui.View):
 
 
 intents = discord.Intents.default()
-intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
