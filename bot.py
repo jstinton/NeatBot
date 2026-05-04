@@ -470,6 +470,7 @@ def flip_embed(
     binned_at=None
 ):
     offer_kind = flip_offer_kind(iso)
+    iso_kicker, ft_kicker = flip_kicker_flags(ft_value, iso_value, iso_kicker, ft_kicker)
     embed = discord.Embed(
         title=f"🥃 {ft}",
         color=discord.Color.from_str("#C9973A")
