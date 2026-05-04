@@ -70,6 +70,7 @@ def save_json(path: Path, data):
 
 BOTY_VOTES = load_json(BOTY_VOTES_PATH, {})
 BATTLE_VOTES = load_json(BATTLE_VOTES_PATH, {})
+FLIP_HELP_SESSIONS = {}
 
 
 def normalize(text: str) -> str:
@@ -289,6 +290,59 @@ def canonical_bottle_list(value: str):
     return " + ".join(canonical_bottle_name(item) for item in items)
 
 
+def parse_plain_int(value: str):
+    match = re.search(r"\d[\d,]*", value)
+
+    if not match:
+        return None
+
+    return int(match.group(0).replace(",", ""))
+
+
+def parse_plain_ints(value: str):
+    return [int(match.replace(",", "")) for match in re.findall(r"\d[\d,]*", value)]
+
+
+def parse_yes_no(value: str):
+    normalized = normalize(value)
+
+    if normalized in {"yes", "y", "true", "t", "1", "sure", "yeah", "yep"}:
+        return True
+
+    if normalized in {"no", "n", "false", "f", "0", "nope"}:
+        return False
+
+    return None
+
+
+def is_skip(value: str):
+    return normalize(value) in {"skip", "none", "no", "n/a", "na", "blank", "leave blank"}
+
+
+def starts_flip_helper(value: str):
+    return normalize(value) in {
+        "flip",
+        "flip help",
+        "/flip help",
+        "help flip",
+        "trade help",
+        "ft help"
+    }
+
+
+def is_tacos_only(value: str):
+    return bool(re.search(r"\btacos?\b|\bcash\b|\bmoney\b|\bpayment\b|\bdollars?\b|\bfunds\b", value, flags=re.IGNORECASE))
+
+
+def format_flip_helper_bottles(value: str):
+    text, _ = strip_kicker_text(value, False)
+
+    if not text:
+        return ""
+
+    return canonical_bottle_list(text)
+
+
 def format_bottle_list(value: str):
     items = split_bottle_list(value)
 
@@ -449,6 +503,259 @@ async def resolve_zip_location(zip_code: str):
         return zip_code
 
     return f"{city.title()}, {state.upper()}"
+
+
+def flip_helper_intro():
+    return (
+        "🥃 I can help format a `/flip` post. Reply `cancel` anytime.\n\n"
+        "What bottle or bottles are you offering? Separate bundled bottles with `+` or commas."
+    )
+
+
+def flip_helper_command(ft: str, ft_value: int, data: dict):
+    iso = data.get("iso")
+    iso_value = data.get("iso_value")
+    added_kicker = data.get("added_kicker", False)
+    ft_kicker = data.get("ft_kicker", False)
+    iso_kicker = bool(added_kicker or (iso_value is not None and iso_value > ft_value))
+    rtr = data.get("rtr", False)
+    x_posted = data.get("x_posted", False)
+
+    parts = [
+        f"/flip ft:{ft}",
+        f"ft_value:{ft_value}",
+        f"zip_code:{data['zip_code']}",
+    ]
+
+    if iso:
+        parts.append(f"iso:{iso}")
+
+    if iso_value is not None:
+        parts.append(f"iso_value:{iso_value}")
+
+    parts.extend([
+        f"ft_kicker:{ft_kicker}",
+        f"iso_kicker:{iso_kicker}",
+        f"rtr:{rtr}",
+        f"x_posted:{x_posted}",
+    ])
+
+    return " ".join(parts)
+
+
+def flip_helper_preview(ft: str, ft_value: int, data: dict):
+    iso = data.get("iso")
+    iso_value = data.get("iso_value")
+    added_kicker = data.get("added_kicker", False)
+    kicker_amount = seller_kicker_amount(ft_value, iso_value)
+    kicker_text = ""
+
+    if added_kicker or kicker_amount is not None:
+        if kicker_amount is not None:
+            kicker_text = f" plus a seller-side kicker of {kicker_amount} tacos"
+        else:
+            kicker_text = " plus a seller-side kicker"
+
+    target = iso or "tacos only"
+    return f"Preview: Offering {ft}{kicker_text} for {target}."
+
+
+def finish_flip_helper(data: dict):
+    if data.get("separate_posts"):
+        commands = []
+
+        for ft, ft_value in zip(data["ft_items"], data["ft_values"]):
+            commands.append(
+                f"```text\n{flip_helper_command(ft, ft_value, data)}\n```\n"
+                f"{flip_helper_preview(ft, ft_value, data)}"
+            )
+
+        return "Here are your separate `/flip` posts:\n\n" + "\n\n".join(commands)
+
+    command = flip_helper_command(data["ft"], data["ft_value"], data)
+    preview = flip_helper_preview(data["ft"], data["ft_value"], data)
+    return f"Here is your copy/paste `/flip` command:\n\n```text\n{command}\n```\n{preview}"
+
+
+async def handle_flip_helper_message(message: discord.Message):
+    user_id = message.author.id
+    content = message.content.strip()
+
+    if normalize(content) == "cancel":
+        FLIP_HELP_SESSIONS.pop(user_id, None)
+        await message.channel.send("Cancelled. DM me `flip help` when you want to build another post.")
+        return
+
+    session = FLIP_HELP_SESSIONS.get(user_id)
+
+    if not session:
+        if starts_flip_helper(content):
+            FLIP_HELP_SESSIONS[user_id] = {"step": "ft", "data": {}}
+            await message.channel.send(flip_helper_intro())
+        else:
+            await message.channel.send("DM me `flip help` and I’ll walk you through a copy/paste `/flip` post.")
+
+        return
+
+    step = session["step"]
+    data = session["data"]
+
+    if step == "ft":
+        ft_text, ft_kicker = strip_kicker_text(content, False)
+        ft_items = [canonical_bottle_name(item) for item in split_bottle_list(ft_text or "")]
+
+        if not ft_items:
+            await message.channel.send("I need at least one bottle name. What bottle or bottles are you offering?")
+            return
+
+        data["ft_items"] = ft_items
+        data["ft_kicker"] = ft_kicker
+
+        if len(ft_items) > 1:
+            session["step"] = "bundle"
+            await message.channel.send("Are these bottles a bundle in one post, or separate posts? Reply `bundle` or `separate`.")
+        else:
+            data["ft"] = ft_items[0]
+            session["step"] = "ft_value"
+            await message.channel.send(f"What is the estimated FT value for **{data['ft']}**? Use a plain number.")
+
+        return
+
+    if step == "bundle":
+        normalized = normalize(content)
+
+        if normalized.startswith("separate"):
+            data["separate_posts"] = True
+            session["step"] = "separate_values"
+            await message.channel.send(
+                "Got it. Enter the estimated FT values in the same order, separated by commas.\n"
+                f"Order: {', '.join(data['ft_items'])}"
+            )
+            return
+
+        if normalized.startswith("bundle"):
+            data["separate_posts"] = False
+            data["ft"] = " + ".join(data["ft_items"])
+            session["step"] = "ft_value"
+            await message.channel.send("What is the total estimated FT value for the bundle? Use a plain number.")
+            return
+
+        await message.channel.send("Reply `bundle` if they move together, or `separate` if each bottle needs its own post.")
+        return
+
+    if step == "separate_values":
+        values = parse_plain_ints(content)
+
+        if len(values) != len(data["ft_items"]):
+            await message.channel.send(f"I need {len(data['ft_items'])} values, one for each bottle, separated by commas.")
+            return
+
+        data["ft_values"] = values
+        session["step"] = "iso"
+        await message.channel.send("What are you looking for? Reply with bottle(s), or say `tacos only`.")
+        return
+
+    if step == "ft_value":
+        value = parse_plain_int(content)
+
+        if value is None:
+            await message.channel.send("Please send the FT value as a plain number.")
+            return
+
+        data["ft_value"] = value
+        session["step"] = "iso"
+        await message.channel.send("What are you looking for? Reply with bottle(s), or say `tacos only`.")
+        return
+
+    if step == "iso":
+        if is_tacos_only(content):
+            data["iso"] = None
+            session["step"] = "iso_value"
+            await message.channel.send("How many tacos are you looking for? Reply with a number, or `skip`.")
+            return
+
+        iso_text, iso_kicker = strip_kicker_text(content, False)
+        data["iso"] = format_flip_helper_bottles(iso_text or content)
+        data["added_kicker"] = iso_kicker
+
+        if not VINTAGE_YEAR_PATTERN.search(data["iso"]) and "any year" not in normalize(data["iso"]):
+            session["step"] = "vintage"
+            await message.channel.send("Does a specific vintage/release year matter? Reply with a year, `any year`, or `skip`.")
+        else:
+            session["step"] = "iso_value"
+            await message.channel.send("What is the estimated ISO value? Reply with a number, or `skip` if unknown.")
+
+        return
+
+    if step == "vintage":
+        if normalize(content) == "any year":
+            data["iso"] = f"{data['iso']} any year"
+        elif not is_skip(content):
+            year_match = VINTAGE_YEAR_PATTERN.search(content)
+
+            if year_match:
+                data["iso"] = f"{data['iso']} {year_match.group(0)}"
+
+        session["step"] = "iso_value"
+        await message.channel.send("What is the estimated ISO value? Reply with a number, or `skip` if unknown.")
+        return
+
+    if step == "iso_value":
+        data["iso_value"] = None if is_skip(content) else parse_plain_int(content)
+
+        if not is_skip(content) and data["iso_value"] is None:
+            await message.channel.send("Please send the ISO value as a plain number, or `skip`.")
+            return
+
+        session["step"] = "kicker"
+        await message.channel.send("Are you adding any seller-side kicker/extras? Reply yes or no.")
+        return
+
+    if step == "kicker":
+        answer = parse_yes_no(content)
+
+        if answer is None:
+            await message.channel.send("Reply yes or no.")
+            return
+
+        data["added_kicker"] = bool(data.get("added_kicker") or answer)
+        session["step"] = "zip"
+        await message.channel.send("What is your 5-digit ZIP?")
+        return
+
+    if step == "zip":
+        if not ZIP_CODE_PATTERN.fullmatch(content):
+            await message.channel.send("Please send a 5-digit ZIP.")
+            return
+
+        data["zip_code"] = content
+        session["step"] = "rtr"
+        await message.channel.send("Enable RTR / Right to Refuse? Reply yes or no.")
+        return
+
+    if step == "rtr":
+        answer = parse_yes_no(content)
+
+        if answer is None:
+            await message.channel.send("Reply yes or no.")
+            return
+
+        data["rtr"] = answer
+        session["step"] = "x_posted"
+        await message.channel.send("Is this x-posted anywhere else? Reply yes or no.")
+        return
+
+    if step == "x_posted":
+        answer = parse_yes_no(content)
+
+        if answer is None:
+            await message.channel.send("Reply yes or no.")
+            return
+
+        data["x_posted"] = answer
+        FLIP_HELP_SESSIONS.pop(user_id, None)
+        await message.channel.send(finish_flip_helper(data))
+        return
 
 
 def bottle_embed(name: str, data: dict):
@@ -971,6 +1278,7 @@ class FlipBinView(discord.ui.View):
 
 
 intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
@@ -1003,6 +1311,18 @@ async def on_ready():
             print(f"Synced {len(synced)} global command(s)")
     except Exception as e:
         print(f"Command sync failed: {e}")
+
+
+@bot.event
+async def on_message(message: discord.Message):
+    if message.author.bot:
+        return
+
+    if isinstance(message.channel, discord.DMChannel):
+        await handle_flip_helper_message(message)
+        return
+
+    await bot.process_commands(message)
 
 
 @bot.tree.command(name="bottle", description="Look up bourbon info by bottle name.")
