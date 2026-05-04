@@ -1284,6 +1284,168 @@ class FlipBinView(discord.ui.View):
         self.add_item(FlipCloseButton(original_message_id, disabled=disabled))
 
 
+UTILITY_ACTIONS = {
+    "messageneat": {
+        "label": "Message Neat",
+        "emoji": "💬",
+        "style": discord.ButtonStyle.success,
+        "title": "💬 Message Neat",
+        "description": "I’ll DM you and walk you through a copy/paste `/flip` post."
+    },
+    "flip": {
+        "label": "Flip",
+        "emoji": "🔁",
+        "style": discord.ButtonStyle.primary,
+        "title": "🔁 /flip",
+        "description": "Creates an FT/ISO post with a discussion thread, BIN button, and Close Offer button.",
+        "example": "/flip ft:RR15 ft_value:700 zip_code:60657 iso:HH22 iso_value:750 ft_kicker:False iso_kicker:True rtr:True x_posted:False"
+    },
+    "bottle": {
+        "label": "Bottle",
+        "emoji": "🥃",
+        "style": discord.ButtonStyle.secondary,
+        "title": "🥃 /bottle",
+        "description": "Looks up proof, style, MSRP, profile, and similar bottles.",
+        "example": "/bottle name:RR15"
+    },
+    "worth": {
+        "label": "Worth",
+        "emoji": "🌮",
+        "style": discord.ButtonStyle.secondary,
+        "title": "🌮 /worth",
+        "description": "Checks a bottle against MSRP, fair range, and secondary-ish range.",
+        "example": "/worth name:Weller Antique 107 price:90"
+    },
+    "compare": {
+        "label": "Compare",
+        "emoji": "⚖️",
+        "style": discord.ButtonStyle.secondary,
+        "title": "⚖️ /compare",
+        "description": "Compares two bottles side by side and picks one based on NeatBot score.",
+        "example": "/compare bottle_one:Stagg bottle_two:Elijah Craig Barrel Proof"
+    },
+    "boty": {
+        "label": "BOTY",
+        "emoji": "🏆",
+        "style": discord.ButtonStyle.secondary,
+        "title": "🏆 /boty",
+        "description": "Starts a Bottle of the Year score post with 1-10 voting buttons and a thread.",
+        "example": "/boty name:Russell's Reserve 15 Year Bourbon (2024)"
+    },
+    "battle": {
+        "label": "Battle",
+        "emoji": "⚔️",
+        "style": discord.ButtonStyle.secondary,
+        "title": "⚔️ /battle",
+        "description": "Starts a head-to-head bottle vote with a discussion thread.",
+        "example": "/battle bottle_one:RR15 bottle_two:HH22"
+    },
+    "whadd": {
+        "label": "WHADD",
+        "emoji": "❓",
+        "style": discord.ButtonStyle.secondary,
+        "title": "❓ /whadd",
+        "description": "Posts the WHADD?? image in this channel.",
+        "example": "/whadd"
+    }
+}
+
+
+async def start_flip_helper_dm(interaction: discord.Interaction):
+    FLIP_HELP_SESSIONS[interaction.user.id] = {"step": "ft", "data": {}}
+
+    try:
+        await interaction.user.send(flip_helper_intro())
+    except discord.HTTPException:
+        FLIP_HELP_SESSIONS.pop(interaction.user.id, None)
+        await interaction.response.send_message(
+            "I couldn’t DM you. Check your Discord privacy settings for this server, then try again.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.response.send_message(
+        "I sent you a DM to build your `/flip` post.",
+        ephemeral=True
+    )
+
+
+def utility_embed():
+    embed = discord.Embed(
+        title="🥃 NeatBot Utility Board",
+        description=(
+            "Use the buttons below to jump into NeatBot tools. "
+            "Commands that need bottle names or values will show you a private quick-start example."
+        ),
+        color=discord.Color.from_str("#C9973A")
+    )
+    embed.add_field(name="💬 Message Neat", value="Starts the private `/flip` formatting wizard.", inline=False)
+    embed.add_field(name="🔁 Trading", value="Use `/flip`, `/bottle`, `/worth`, and `/compare` helpers.", inline=False)
+    embed.add_field(name="🏆 Community", value="Start BOTY ratings, bottle battles, or the WHADD image.", inline=False)
+    embed.set_footer(text="NeatBot buttons preserve post history. Slash command examples are shown privately.")
+    return embed
+
+
+def utility_tip_embed(action: str):
+    config = UTILITY_ACTIONS[action]
+    embed = discord.Embed(
+        title=config["title"],
+        description=config["description"],
+        color=discord.Color.from_str("#C9973A")
+    )
+
+    if config.get("example"):
+        embed.add_field(name="Try this", value=f"```text\n{config['example']}\n```", inline=False)
+
+    embed.set_footer(text="Run the slash command in the channel where you want NeatBot to respond.")
+    return embed
+
+
+class UtilityButton(discord.ui.Button):
+    def __init__(self, action: str, *, row: int):
+        config = UTILITY_ACTIONS[action]
+        super().__init__(
+            label=config["label"],
+            emoji=config["emoji"],
+            style=config["style"],
+            custom_id=f"utility:{action}",
+            row=row
+        )
+        self.action = action
+
+    async def callback(self, interaction: discord.Interaction):
+        if self.action == "messageneat":
+            await start_flip_helper_dm(interaction)
+            return
+
+        if self.action == "whadd":
+            if not WHADD_IMAGE_PATH.exists():
+                await interaction.response.send_message(
+                    "I can’t find the WHADD image file on the server.",
+                    ephemeral=True
+                )
+                return
+
+            file = discord.File(WHADD_IMAGE_PATH, filename="whadd.png")
+            await interaction.response.send_message(file=file)
+            return
+
+        await interaction.response.send_message(embed=utility_tip_embed(self.action), ephemeral=True)
+
+
+class UtilityView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+        self.add_item(UtilityButton("messageneat", row=0))
+        self.add_item(UtilityButton("flip", row=0))
+        self.add_item(UtilityButton("bottle", row=0))
+        self.add_item(UtilityButton("worth", row=0))
+        self.add_item(UtilityButton("compare", row=0))
+        self.add_item(UtilityButton("boty", row=1))
+        self.add_item(UtilityButton("battle", row=1))
+        self.add_item(UtilityButton("whadd", row=1))
+
+
 intents = discord.Intents.default()
 bot = commands.Bot(command_prefix="!", intents=intents)
 
@@ -1294,6 +1456,7 @@ async def setup_hook():
     bot.add_dynamic_items(BattleVoteButton)
     bot.add_dynamic_items(FlipBinButton)
     bot.add_dynamic_items(FlipCloseButton)
+    bot.add_view(UtilityView())
     configure_guild_commands()
 
 
@@ -1473,22 +1636,12 @@ async def whadd(interaction: discord.Interaction):
 
 @bot.tree.command(name="messageneat", description="Start a DM with NeatBot to format a /flip post.")
 async def messageneat(interaction: discord.Interaction):
-    FLIP_HELP_SESSIONS[interaction.user.id] = {"step": "ft", "data": {}}
+    await start_flip_helper_dm(interaction)
 
-    try:
-        await interaction.user.send(flip_helper_intro())
-    except discord.HTTPException:
-        FLIP_HELP_SESSIONS.pop(interaction.user.id, None)
-        await interaction.response.send_message(
-            "I couldn’t DM you. Check your Discord privacy settings for this server, then try `/messageneat` again.",
-            ephemeral=True
-        )
-        return
 
-    await interaction.response.send_message(
-        "I sent you a DM to build your `/flip` post.",
-        ephemeral=True
-    )
+@bot.tree.command(name="utility", description="Post the NeatBot utility board with buttons for common tools.")
+async def utility(interaction: discord.Interaction):
+    await interaction.response.send_message(embed=utility_embed(), view=UtilityView())
 
 
 @bot.tree.command(name="flip", description="Post a bottle flip with a BIN button and discussion thread.")
