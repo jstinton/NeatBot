@@ -439,6 +439,10 @@ def flip_is_closed(embed: discord.Embed):
     )
 
 
+def flip_offer_kind(iso: Optional[str]):
+    return "FT" if iso else "FS"
+
+
 def flip_embed(
     *,
     ft: str,
@@ -455,11 +459,12 @@ def flip_embed(
     binner=None,
     binned_at=None
 ):
+    offer_kind = flip_offer_kind(iso)
     embed = discord.Embed(
         title=f"🥃 {ft}",
         color=discord.Color.from_str("#C9973A")
     )
-    embed.add_field(name="📦 FT:", value=format_bottle_list(ft), inline=False)
+    embed.add_field(name=f"📦 {offer_kind}:", value=format_bottle_list(ft), inline=False)
     embed.add_field(name="💰 Est. Value (per seller):", value=flip_taco_value(ft_value), inline=True)
 
     if iso_kicker:
@@ -1208,51 +1213,136 @@ class FlipBinButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bin_(?
             return
 
         bottle_ft = (embed.title or "🥃 this bottle").replace("🥃 ", "", 1)
-        binned_at = discord.utils.utcnow()
-        updated_embed = discord.Embed.from_dict(embed.to_dict())
-        updated_embed.add_field(
-            name="🤝 Binned by:",
-            value=f"{interaction.user.mention} at {discord.utils.format_dt(binned_at, 'f')}",
-            inline=False
+        await interaction.response.send_message(
+            f"Are you sure you want to BIN **{bottle_ft}**?",
+            view=ConfirmBinView(self.original_message_id, interaction.message, interaction.user.id),
+            ephemeral=True
         )
 
+
+async def perform_bin(interaction: discord.Interaction, original_message_id: int, flip_message: discord.Message):
+    if not flip_message or not flip_message.embeds:
         await interaction.response.edit_message(
-            embed=updated_embed,
-            view=FlipBinView(self.original_message_id, disabled=True)
+            content="I can’t read this flip anymore. Please make a new `/flip` post.",
+            view=None
         )
+        return
 
-        author = interaction.guild.get_member(seller_id) if interaction.guild else None
+    embed = flip_message.embeds[0]
 
-        if author is None:
-            try:
-                author = await bot.fetch_user(seller_id)
-            except discord.HTTPException:
-                author = None
+    if flip_is_closed(embed):
+        await interaction.response.edit_message(
+            content="This flip is already closed.",
+            view=None
+        )
+        return
 
-        dm_sent = False
+    seller_id = extract_user_id_from_mention(extract_embed_field(embed, "👤 Seller:"))
 
-        if author:
-            try:
-                await author.send(
-                    f"Hey {author.mention}! 🥃 {interaction.user.mention} binned your flip for "
-                    f"**{bottle_ft}**. Reach out to get the deal done!"
-                )
-                dm_sent = True
-            except discord.HTTPException:
-                dm_sent = False
+    if not seller_id:
+        await interaction.response.edit_message(
+            content="I can’t find the original seller on this flip. Please make a new `/flip` post.",
+            view=None
+        )
+        return
 
-        thread = interaction.channel
+    if interaction.user.id == seller_id:
+        await interaction.response.edit_message(
+            content="You can't bin your own flip, boss. 😄",
+            view=None
+        )
+        return
 
-        if isinstance(thread, discord.Thread):
-            await thread.send(f"🔒 Deal closed! {interaction.user.mention} binned this one. Thread is now locked.")
+    bottle_ft = (embed.title or "🥃 this bottle").replace("🥃 ", "", 1)
+    binned_at = discord.utils.utcnow()
+    updated_embed = discord.Embed.from_dict(embed.to_dict())
+    updated_embed.add_field(
+        name="🤝 Binned by:",
+        value=f"{interaction.user.mention} at {discord.utils.format_dt(binned_at, 'f')}",
+        inline=False
+    )
 
-            if author and not dm_sent:
-                await thread.send(f"{author.mention} has DMs closed — reach out to {interaction.user.mention} directly!")
+    await flip_message.edit(
+        embed=updated_embed,
+        view=FlipBinView(original_message_id, disabled=True)
+    )
 
-            try:
-                await thread.edit(name=close_thread_title(thread.name), locked=True)
-            except discord.HTTPException:
-                await thread.send("I could not lock this thread automatically. A mod may need to lock it.")
+    await interaction.response.edit_message(content="Confirmed. This offer is now binned.", view=None)
+
+    author = interaction.guild.get_member(seller_id) if interaction.guild else None
+
+    if author is None:
+        try:
+            author = await bot.fetch_user(seller_id)
+        except discord.HTTPException:
+            author = None
+
+    dm_sent = False
+
+    if author:
+        try:
+            await author.send(
+                f"Hey {author.mention}! 🥃 {interaction.user.mention} binned your flip for "
+                f"**{bottle_ft}**. Reach out to get the deal done!"
+            )
+            dm_sent = True
+        except discord.HTTPException:
+            dm_sent = False
+
+    thread = flip_message.channel
+
+    if isinstance(thread, discord.Thread):
+        await thread.send(f"🔒 Deal closed! {interaction.user.mention} binned this one. Thread is now locked.")
+
+        if author and not dm_sent:
+            await thread.send(f"{author.mention} has DMs closed — reach out to {interaction.user.mention} directly!")
+
+        try:
+            await thread.edit(name=close_thread_title(thread.name), locked=True)
+        except discord.HTTPException:
+            await thread.send("I could not lock this thread automatically. A mod may need to lock it.")
+
+
+class ConfirmBinButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="Yes, BIN it 🤝", style=discord.ButtonStyle.success)
+
+    async def callback(self, interaction: discord.Interaction):
+        view = self.view
+
+        if not isinstance(view, ConfirmBinView):
+            await interaction.response.send_message("I lost the BIN confirmation context. Please click BIN again.", ephemeral=True)
+            return
+
+        if interaction.user.id != view.binner_id:
+            await interaction.response.send_message("Only the person who clicked BIN can confirm this.", ephemeral=True)
+            return
+
+        await perform_bin(interaction, view.original_message_id, view.flip_message)
+
+
+class CancelBinButton(discord.ui.Button):
+    def __init__(self):
+        super().__init__(label="Cancel", style=discord.ButtonStyle.secondary)
+
+    async def callback(self, interaction: discord.Interaction):
+        view = self.view
+
+        if isinstance(view, ConfirmBinView) and interaction.user.id != view.binner_id:
+            await interaction.response.send_message("Only the person who clicked BIN can cancel this confirmation.", ephemeral=True)
+            return
+
+        await interaction.response.edit_message(content="BIN cancelled.", view=None)
+
+
+class ConfirmBinView(discord.ui.View):
+    def __init__(self, original_message_id: int, flip_message: discord.Message, binner_id: int):
+        super().__init__(timeout=60)
+        self.original_message_id = original_message_id
+        self.flip_message = flip_message
+        self.binner_id = binner_id
+        self.add_item(ConfirmBinButton())
+        self.add_item(CancelBinButton())
 
 
 class FlipCloseButton(discord.ui.DynamicItem[discord.ui.Button], template=r"closeflip_(?P<message_id>[0-9]+)"):
@@ -1781,7 +1871,8 @@ async def flip(
     buyer_kicker_text = buyer_kicker_label(ft_value, iso_value) if buyer_kicker else None
     ft_target = f"{ft} + {seller_kicker_text}" if seller_kicker_text else ft
     target = iso_thread_target(iso, iso_value, buyer_kicker_text)
-    thread_name = thread_safe_name(f"🥃 FT: {ft_target} ↔ {target}")
+    offer_kind = flip_offer_kind(iso)
+    thread_name = thread_safe_name(f"🥃 {offer_kind}: {ft_target} ↔ {target}")
     seller_name = interaction.user.display_name
     announcement_ft = ft_target
 
@@ -1797,7 +1888,7 @@ async def flip(
         )
 
     announcement = discord.Embed(
-        title=f"🥃 FT: {ft}",
+        title=f"🥃 {offer_kind}: {ft}",
         description=announcement_description,
         color=discord.Color.from_str("#C9973A")
     )
