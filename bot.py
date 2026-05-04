@@ -168,22 +168,41 @@ def seller_kicker_amount(ft_value: int, iso_value: Optional[int]):
     return iso_value - ft_value
 
 
-def seller_kicker_label(ft_value: int, iso_value: Optional[int]):
-    amount = seller_kicker_amount(ft_value, iso_value)
+def buyer_kicker_amount(ft_value: int, iso_value: Optional[int]):
+    if iso_value is None or ft_value <= iso_value:
+        return None
 
+    return ft_value - iso_value
+
+
+def kicker_label(amount: Optional[int]):
     if amount is None:
         return "🥾"
 
     return f"🥾 {flip_taco_value(amount)}"
 
 
-def seller_kicker_field_value(ft_value: int, iso_value: Optional[int]):
-    amount = seller_kicker_amount(ft_value, iso_value)
-
+def kicker_field_value(amount: Optional[int]):
     if amount is None:
         return "Yes"
 
     return f"Yes — {flip_taco_value(amount)}"
+
+
+def seller_kicker_label(ft_value: int, iso_value: Optional[int]):
+    return kicker_label(seller_kicker_amount(ft_value, iso_value))
+
+
+def buyer_kicker_label(ft_value: int, iso_value: Optional[int]):
+    return kicker_label(buyer_kicker_amount(ft_value, iso_value))
+
+
+def seller_kicker_field_value(ft_value: int, iso_value: Optional[int]):
+    return kicker_field_value(seller_kicker_amount(ft_value, iso_value))
+
+
+def buyer_kicker_field_value(ft_value: int, iso_value: Optional[int]):
+    return kicker_field_value(buyer_kicker_amount(ft_value, iso_value))
 
 
 def yes_no(value: Optional[bool]):
@@ -239,7 +258,7 @@ def parse_iso_details(iso: Optional[str], iso_value: Optional[int], iso_kicker: 
     return text, iso_value, has_kicker
 
 
-def iso_thread_target(iso: Optional[str], iso_value: Optional[int]):
+def iso_thread_target(iso: Optional[str], iso_value: Optional[int], buyer_kicker: Optional[str] = None):
     parts = []
 
     if iso:
@@ -249,6 +268,9 @@ def iso_thread_target(iso: Optional[str], iso_value: Optional[int]):
 
     if iso_value is not None:
         parts.append(flip_taco_value(iso_value))
+
+    if buyer_kicker:
+        parts.append(buyer_kicker)
 
     return " + ".join(parts)
 
@@ -440,8 +462,11 @@ def flip_embed(
     embed.add_field(name="📦 FT:", value=format_bottle_list(ft), inline=False)
     embed.add_field(name="💰 Est. Value (per seller):", value=flip_taco_value(ft_value), inline=True)
 
-    if ft_kicker or iso_kicker:
+    if iso_kicker:
         embed.add_field(name="🥾 Seller Kicker:", value=seller_kicker_field_value(ft_value, iso_value), inline=True)
+
+    if ft_kicker:
+        embed.add_field(name="🥾 Buyer Kicker:", value=buyer_kicker_field_value(ft_value, iso_value), inline=True)
 
     if iso:
         iso_text = format_bottle_list(iso)
@@ -522,9 +547,8 @@ def flip_helper_intro():
 def flip_helper_command(ft: str, ft_value: int, data: dict):
     iso = data.get("iso")
     iso_value = data.get("iso_value")
-    added_kicker = data.get("added_kicker", False)
-    ft_kicker = data.get("ft_kicker", False)
-    iso_kicker = bool(added_kicker or (iso_value is not None and iso_value > ft_value))
+    ft_kicker = bool(data.get("buyer_kicker") or (iso_value is not None and ft_value > iso_value))
+    iso_kicker = bool(data.get("seller_kicker") or (iso_value is not None and iso_value > ft_value))
     rtr = data.get("rtr", False)
     x_posted = data.get("x_posted", False)
 
@@ -553,17 +577,24 @@ def flip_helper_command(ft: str, ft_value: int, data: dict):
 def flip_helper_preview(ft: str, ft_value: int, data: dict):
     iso = data.get("iso")
     iso_value = data.get("iso_value")
-    added_kicker = data.get("added_kicker", False)
-    kicker_amount = seller_kicker_amount(ft_value, iso_value)
+    seller_amount = seller_kicker_amount(ft_value, iso_value)
+    buyer_amount = buyer_kicker_amount(ft_value, iso_value)
     kicker_text = ""
 
-    if added_kicker or kicker_amount is not None:
-        if kicker_amount is not None:
-            kicker_text = f" plus a seller-side kicker of {kicker_amount} tacos"
+    if data.get("seller_kicker") or seller_amount is not None:
+        if seller_amount is not None:
+            kicker_text = f" plus a seller-side kicker of {seller_amount} tacos"
         else:
             kicker_text = " plus a seller-side kicker"
 
     target = iso or "tacos only"
+
+    if data.get("buyer_kicker") or buyer_amount is not None:
+        if buyer_amount is not None:
+            target = f"{target} plus a buyer-side kicker of {buyer_amount} tacos"
+        else:
+            target = f"{target} plus a buyer-side kicker"
+
     return f"Preview: Offering {ft}{kicker_text} for {target}."
 
 
@@ -627,7 +658,7 @@ async def handle_flip_helper_message(message: discord.Message):
             return
 
         data["ft_items"] = ft_items
-        data["ft_kicker"] = ft_kicker
+        data["seller_kicker"] = ft_kicker
 
         if len(ft_items) > 1:
             session["step"] = "bundle"
@@ -694,7 +725,7 @@ async def handle_flip_helper_message(message: discord.Message):
 
         iso_text, iso_kicker = strip_kicker_text(content, False)
         data["iso"] = format_flip_helper_bottles(iso_text or content)
-        data["added_kicker"] = iso_kicker
+        data["seller_kicker"] = iso_kicker
 
         if not VINTAGE_YEAR_PATTERN.search(data["iso"]) and "any year" not in normalize(data["iso"]):
             session["step"] = "vintage"
@@ -726,17 +757,29 @@ async def handle_flip_helper_message(message: discord.Message):
             return
 
         session["step"] = "kicker"
-        await message.channel.send("Are you adding any seller-side kicker/extras? Reply yes or no.")
+        await message.channel.send("Any kicker/extras beyond the value gap? Reply `seller`, `buyer`, or `no`.")
         return
 
     if step == "kicker":
+        normalized = normalize(content)
         answer = parse_yes_no(content)
 
-        if answer is None:
-            await message.channel.send("Reply yes or no.")
+        if "seller" in normalized or "my" in normalized:
+            data["seller_kicker"] = True
+        elif "buyer" in normalized or "their" in normalized or "them" in normalized:
+            data["buyer_kicker"] = True
+        elif answer is True:
+            iso_value = data.get("iso_value")
+            ft_value = data.get("ft_value") or (data.get("ft_values") or [None])[0]
+
+            if iso_value is not None and ft_value is not None and ft_value > iso_value:
+                data["buyer_kicker"] = True
+            else:
+                data["seller_kicker"] = True
+        elif answer is None:
+            await message.channel.send("Reply `seller`, `buyer`, or `no`.")
             return
 
-        data["added_kicker"] = bool(data.get("added_kicker") or answer)
         session["step"] = "zip"
         await message.channel.send("What is your 5-digit ZIP?")
         return
@@ -1662,7 +1705,7 @@ async def utility(interaction: discord.Interaction):
     zip_code="Your 5-digit US ZIP for City, State display",
     iso="Optional ISO bottle or bottles. Leave blank for tacos only.",
     iso_value="Optional ISO value",
-    ft_kicker="Whether your FT side includes a kicker",
+    ft_kicker="Whether the buyer needs to add a kicker toward your FT",
     iso_kicker="Whether you need to add a kicker toward your ISO",
     rtr="Right to refuse",
     x_posted="Whether this flip is x-posted"
@@ -1713,9 +1756,10 @@ async def flip(
         )
         return
 
-    ft, ft_kicker = strip_kicker_text(ft, ft_kicker)
+    ft, seller_text_kicker = strip_kicker_text(ft, False)
     ft = canonical_bottle_list(ft)
     iso, iso_value, iso_kicker = parse_iso_details(iso, iso_value, iso_kicker)
+    iso_kicker = bool(iso_kicker or seller_text_kicker)
 
     if iso and iso != "🌮 Tacos":
         iso = canonical_bottle_list(iso)
@@ -1731,10 +1775,12 @@ async def flip(
         )
         return
 
-    seller_kicker = bool(ft_kicker or iso_kicker)
-    kicker_label = seller_kicker_label(ft_value, iso_value) if seller_kicker else None
-    ft_target = f"{ft} + {kicker_label}" if kicker_label else ft
-    target = iso_thread_target(iso, iso_value)
+    seller_kicker = bool(iso_kicker)
+    buyer_kicker = bool(ft_kicker)
+    seller_kicker_text = seller_kicker_label(ft_value, iso_value) if seller_kicker else None
+    buyer_kicker_text = buyer_kicker_label(ft_value, iso_value) if buyer_kicker else None
+    ft_target = f"{ft} + {seller_kicker_text}" if seller_kicker_text else ft
+    target = iso_thread_target(iso, iso_value, buyer_kicker_text)
     thread_name = thread_safe_name(f"🥃 FT: {ft_target} ↔ {target}")
     seller_name = interaction.user.display_name
     announcement_ft = ft_target
