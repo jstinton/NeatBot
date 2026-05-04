@@ -349,6 +349,13 @@ def extract_user_id_from_mention(value: Optional[str]):
     return int(match.group("user_id"))
 
 
+def flip_is_closed(embed: discord.Embed):
+    return bool(
+        extract_embed_field(embed, "🤝 Binned by:")
+        or extract_embed_field(embed, "🔒 Closed by:")
+    )
+
+
 def flip_embed(
     *,
     ft: str,
@@ -809,7 +816,7 @@ class FlipBinButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bin_(?
 
         embed = interaction.message.embeds[0]
 
-        if extract_embed_field(embed, "🤝 Binned by:"):
+        if flip_is_closed(embed):
             await interaction.response.send_message(
                 "This flip is already closed.",
                 ephemeral=True
@@ -880,10 +887,87 @@ class FlipBinButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bin_(?
                 await thread.send("I could not lock this thread automatically. A mod may need to lock it.")
 
 
+class FlipCloseButton(discord.ui.DynamicItem[discord.ui.Button], template=r"closeflip_(?P<message_id>[0-9]+)"):
+    def __init__(self, original_message_id: int, *, disabled: bool = False):
+        super().__init__(
+            discord.ui.Button(
+                label="Close Offer 🔒",
+                style=discord.ButtonStyle.secondary,
+                custom_id=f"closeflip_{original_message_id}",
+                disabled=disabled
+            )
+        )
+        self.original_message_id = original_message_id
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(int(match.group("message_id")))
+
+    async def callback(self, interaction: discord.Interaction):
+        if not interaction.message or not interaction.message.embeds:
+            await interaction.response.send_message(
+                "I can’t read this flip anymore. Please make a new `/flip` post.",
+                ephemeral=True
+            )
+            return
+
+        embed = interaction.message.embeds[0]
+
+        if flip_is_closed(embed):
+            await interaction.response.send_message(
+                "This flip is already closed.",
+                ephemeral=True
+            )
+            return
+
+        seller_id = extract_user_id_from_mention(extract_embed_field(embed, "👤 Seller:"))
+
+        if not seller_id:
+            await interaction.response.send_message(
+                "I can’t find the original seller on this flip. Please ask a mod to close it manually.",
+                ephemeral=True
+            )
+            return
+
+        permissions = interaction.channel.permissions_for(interaction.user) if interaction.channel else None
+        can_manage_threads = bool(permissions and permissions.manage_threads)
+
+        if interaction.user.id != seller_id and not can_manage_threads:
+            await interaction.response.send_message(
+                "Only the original poster or a mod with Manage Threads can close this offer.",
+                ephemeral=True
+            )
+            return
+
+        closed_at = discord.utils.utcnow()
+        updated_embed = discord.Embed.from_dict(embed.to_dict())
+        updated_embed.add_field(
+            name="🔒 Closed by:",
+            value=f"{interaction.user.mention} at {discord.utils.format_dt(closed_at, 'f')}",
+            inline=False
+        )
+
+        await interaction.response.edit_message(
+            embed=updated_embed,
+            view=FlipBinView(self.original_message_id, disabled=True)
+        )
+
+        thread = interaction.channel
+
+        if isinstance(thread, discord.Thread):
+            await thread.send(f"🔒 Offer closed by {interaction.user.mention}. Thread is now locked.")
+
+            try:
+                await thread.edit(name=close_thread_title(thread.name), locked=True)
+            except discord.HTTPException:
+                await thread.send("I could not lock this thread automatically. A mod may need to lock it.")
+
+
 class FlipBinView(discord.ui.View):
     def __init__(self, original_message_id: int, *, disabled: bool = False):
         super().__init__(timeout=None)
         self.add_item(FlipBinButton(original_message_id, disabled=disabled))
+        self.add_item(FlipCloseButton(original_message_id, disabled=disabled))
 
 
 intents = discord.Intents.default()
@@ -895,6 +979,7 @@ async def setup_hook():
     bot.add_dynamic_items(BOTYScoreButton)
     bot.add_dynamic_items(BattleVoteButton)
     bot.add_dynamic_items(FlipBinButton)
+    bot.add_dynamic_items(FlipCloseButton)
     configure_guild_commands()
 
 
