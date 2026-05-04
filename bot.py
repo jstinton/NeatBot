@@ -1471,6 +1471,26 @@ async def whadd(interaction: discord.Interaction):
     await interaction.response.send_message(file=file)
 
 
+@bot.tree.command(name="messageneat", description="Start a DM with NeatBot to format a /flip post.")
+async def messageneat(interaction: discord.Interaction):
+    FLIP_HELP_SESSIONS[interaction.user.id] = {"step": "ft", "data": {}}
+
+    try:
+        await interaction.user.send(flip_helper_intro())
+    except discord.HTTPException:
+        FLIP_HELP_SESSIONS.pop(interaction.user.id, None)
+        await interaction.response.send_message(
+            "I couldn’t DM you. Check your Discord privacy settings for this server, then try `/messageneat` again.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.response.send_message(
+        "I sent you a DM to build your `/flip` post.",
+        ephemeral=True
+    )
+
+
 @bot.tree.command(name="flip", description="Post a bottle flip with a BIN button and discussion thread.")
 @app_commands.describe(
     ft="Bottle or bottles being offered, e.g. RR15 + Weller 12",
