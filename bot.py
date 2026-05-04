@@ -405,7 +405,14 @@ def flip_embed(
             inline=False
         )
 
-    embed.set_footer(text="React with ✅ to show interest • Hit BIN to close the deal")
+    embed.set_footer(
+        text=(
+            "React with ✅ to show interest • Hit BIN to close the deal • "
+            "I am just a bot, hopefully a good bot and not a bad bot. "
+            "Please check this post for accuracy. The poster is fully responsible for the post, "
+            "not the bot or Discord server."
+        )
+    )
 
     return embed
 
