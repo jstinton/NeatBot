@@ -1866,7 +1866,7 @@ async def flip(
         return
 
     seller_kicker = bool(iso_kicker)
-    buyer_kicker = bool(ft_kicker)
+    buyer_kicker = bool(ft_kicker or buyer_kicker_amount(ft_value, iso_value) is not None)
     seller_kicker_text = seller_kicker_label(ft_value, iso_value) if seller_kicker else None
     buyer_kicker_text = buyer_kicker_label(ft_value, iso_value) if buyer_kicker else None
     ft_target = f"{ft} + {seller_kicker_text}" if seller_kicker_text else ft
@@ -1878,7 +1878,7 @@ async def flip(
 
     if iso:
         announcement_description = (
-            f"{seller_name} is offering **{announcement_ft}** — ISO **{iso}**. "
+            f"{seller_name} is offering **{announcement_ft}** — ISO **{target}**. "
             "Drop a ✅ or hit BIN below 👇"
         )
     else:
@@ -1907,7 +1907,7 @@ async def flip(
         ft_value=ft_value,
         iso=iso,
         iso_value=iso_value,
-        ft_kicker=ft_kicker,
+        ft_kicker=buyer_kicker,
         iso_kicker=iso_kicker,
         rtr=rtr,
         x_posted=x_posted,
