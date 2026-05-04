@@ -1641,7 +1641,7 @@ async def messageneat(interaction: discord.Interaction):
 
 @bot.tree.command(name="utility", description="Post the NeatBot utility board with buttons for common tools.")
 async def utility(interaction: discord.Interaction):
-    await interaction.response.send_message(embed=utility_embed(), view=UtilityView())
+    await interaction.response.send_message(embed=utility_embed(), view=UtilityView(), ephemeral=True)
 
 
 @bot.tree.command(name="flip", description="Post a bottle flip with a BIN button and discussion thread.")
