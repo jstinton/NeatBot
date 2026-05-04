@@ -572,8 +572,9 @@ def finish_flip_helper(data: dict):
         commands = []
 
         for ft, ft_value in zip(data["ft_items"], data["ft_values"]):
+            command = flip_helper_command(ft, ft_value, data)
             commands.append(
-                f"```text\n{flip_helper_command(ft, ft_value, data)}\n```\n"
+                f"Copy this line:\n{command}\n"
                 f"{flip_helper_preview(ft, ft_value, data)}"
             )
 
@@ -581,7 +582,7 @@ def finish_flip_helper(data: dict):
 
     command = flip_helper_command(data["ft"], data["ft_value"], data)
     preview = flip_helper_preview(data["ft"], data["ft_value"], data)
-    return f"Here is your copy/paste `/flip` command:\n\n```text\n{command}\n```\n{preview}"
+    return f"Here is your copy/paste `/flip` command:\n\nCopy this line:\n{command}\n\n{preview}"
 
 
 async def handle_flip_helper_message(message: discord.Message):
