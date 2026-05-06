@@ -131,8 +131,8 @@ def save_json(path: Path, data):
         f.write("\n")
 
 
-def configured_tater_location(store: str, location: Optional[str]):
-    store_config = STORE_ROLE_MAP.get(store, {})
+def configured_tater_location(store: Optional[str], location: Optional[str]):
+    store_config = STORE_ROLE_MAP.get(store or "", {})
     configured_address = store_config.get("address")
 
     if configured_address and configured_address != "TBD":
@@ -141,12 +141,8 @@ def configured_tater_location(store: str, location: Optional[str]):
     return location
 
 
-def tater_store_needs_location(store: str):
-    return STORE_ROLE_MAP.get(store, {}).get("address") == "TBD"
-
-
-def tater_role_tag(store: str):
-    role_id = STORE_ROLE_MAP.get(store, {}).get("role_id")
+def tater_role_tag(store: Optional[str]):
+    role_id = STORE_ROLE_MAP.get(store or "", {}).get("role_id")
 
     if role_id and DISCORD_ID_PATTERN.fullmatch(role_id):
         return f"<@&{role_id}>"
@@ -170,11 +166,17 @@ def google_maps_url(location: str):
     return f"https://www.google.com/maps/search/?api=1&query={quote_plus(location)}"
 
 
-def tater_store_location_link(store: str, location: str):
-    label = f"{store} — {location}"
+def tater_store_location_link(store: Optional[str], location: Optional[str]):
+    if not store and not location:
+        return None
+
+    if not store:
+        return f"[{location}]({google_maps_url(location)})" if location else None
 
     if not location:
-        return label
+        return store
+
+    label = f"{store} — {location}"
 
     return f"[{label}]({google_maps_url(location)})"
 
@@ -182,8 +184,8 @@ def tater_store_location_link(store: str, location: str):
 def taterfind_message(
     *,
     bottle: str,
-    store: str,
-    location: str,
+    store: Optional[str],
+    location: Optional[str],
     price: Optional[float],
     quantity: Optional[int],
     notes: Optional[str],
@@ -192,8 +194,12 @@ def taterfind_message(
         "🥃 **TATER FIND ALERT** 🥃",
         "",
         f"**Bottle:** {bottle}",
-        f"**Store:** {tater_store_location_link(store, location)}",
     ]
+
+    store_location = tater_store_location_link(store, location)
+
+    if store_location:
+        lines.append(f"**Store:** {store_location}")
 
     formatted_price = tater_price(price)
 
@@ -1646,6 +1652,14 @@ UTILITY_ACTIONS = {
         "description": "Compares two bottles side by side and picks one based on NeatBot score.",
         "example": "/compare bottle_one:Stagg bottle_two:Elijah Craig Barrel Proof"
     },
+    "taterfind": {
+        "label": "Tater Find",
+        "emoji": "🔔",
+        "style": discord.ButtonStyle.secondary,
+        "title": "🔔 /taterfind",
+        "description": "Posts a rare bottle shelf alert in the current channel. Only the bottle name is required.",
+        "example": "/taterfind bottle:RR15 store:Binny's Lakeview price:250 quantity:1 notes:Behind customer service"
+    },
     "boty": {
         "label": "BOTY",
         "emoji": "🏆",
@@ -1703,6 +1717,7 @@ def utility_embed():
     )
     embed.add_field(name="💬 Message Neat", value="Starts the private `/flip` formatting wizard.", inline=False)
     embed.add_field(name="🔁 Trading", value="Use `/flip`, `/bottle`, `/worth`, and `/compare` helpers.", inline=False)
+    embed.add_field(name="🔔 Finds", value="Use `/taterfind` to post rare bottle shelf alerts.", inline=False)
     embed.add_field(name="🏆 Community", value="Start BOTY ratings, bottle battles, or the WHADD image.", inline=False)
     embed.set_footer(text="NeatBot buttons preserve post history. Slash command examples are shown privately.")
     return embed
@@ -1763,6 +1778,7 @@ class UtilityView(discord.ui.View):
         self.add_item(UtilityButton("bottle", row=0))
         self.add_item(UtilityButton("worth", row=0))
         self.add_item(UtilityButton("compare", row=0))
+        self.add_item(UtilityButton("taterfind", row=1))
         self.add_item(UtilityButton("boty", row=1))
         self.add_item(UtilityButton("battle", row=1))
         self.add_item(UtilityButton("whadd", row=1))
@@ -1970,7 +1986,7 @@ async def utility(interaction: discord.Interaction):
 @app_commands.describe(
     bottle="Name of the rare bottle spotted",
     store="Store group/location to alert",
-    location="Specific store address or location. Only needed for TBD regions.",
+    location="Specific store address or location",
     price="Retail price seen on shelf",
     quantity="Number of bottles spotted",
     notes="Shelf location, limits, timing, or other useful details",
@@ -1980,7 +1996,7 @@ async def utility(interaction: discord.Interaction):
 async def taterfind(
     interaction: discord.Interaction,
     bottle: str,
-    store: str,
+    store: Optional[str] = None,
     location: Optional[str] = None,
     price: Optional[float] = None,
     quantity: Optional[int] = None,
@@ -1995,13 +2011,6 @@ async def taterfind(
 
     if quantity is not None and quantity < 1:
         await interaction.followup.send("Quantity needs to be at least 1.", ephemeral=True)
-        return
-
-    if tater_store_needs_location(store) and not location:
-        await interaction.followup.send(
-            "That store group needs a location, since it does not have a saved address yet.",
-            ephemeral=True
-        )
         return
 
     try:
