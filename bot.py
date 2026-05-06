@@ -87,6 +87,10 @@ TATER_STORE_CHOICES = [
     app_commands.Choice(name=store_name, value=store_name)
     for store_name in STORE_ROLE_MAP
 ]
+TATER_FIND_TYPE_CHOICES = [
+    app_commands.Choice(name="On Shelf", value="on_shelf"),
+    app_commands.Choice(name="Brown Bag", value="brown_bag"),
+]
 
 
 def load_bottles():
@@ -162,6 +166,21 @@ def tater_price(value: Optional[float]):
     return f"${numeric_value:,.2f}"
 
 
+def tater_find_type_label(find_type: Optional[str]):
+    if not find_type:
+        return None
+
+    normalized_type = normalize(find_type).replace(" ", "_").replace("-", "_")
+
+    if normalized_type in {"on_shelf", "shelf", "on_the_shelf"}:
+        return "🛒 On Shelf"
+
+    if normalized_type in {"brown_bag", "brownbag", "bag", "brown"}:
+        return "🛍️ Brown Bag"
+
+    return None
+
+
 def google_maps_url(location: str):
     return f"https://www.google.com/maps/search/?api=1&query={quote_plus(location)}"
 
@@ -186,6 +205,7 @@ def taterfind_message(
     bottle: str,
     store: Optional[str],
     location: Optional[str],
+    find_type: Optional[str],
     price: Optional[float],
     quantity: Optional[int],
     notes: Optional[str],
@@ -200,6 +220,11 @@ def taterfind_message(
 
     if store_location:
         lines.append(f"**Store:** {store_location}")
+
+    find_type_label = tater_find_type_label(find_type)
+
+    if find_type_label:
+        lines.append(f"**Find Type:** {find_type_label}")
 
     formatted_price = tater_price(price)
 
@@ -275,12 +300,33 @@ def match_tater_store(value: Optional[str]):
     return None, cleaned
 
 
+def parse_tater_find_type(value: Optional[str]):
+    if not value:
+        return None
+
+    cleaned = value.strip()
+
+    if not cleaned:
+        return None
+
+    normalized_type = normalize(cleaned).replace(" ", "_").replace("-", "_")
+
+    if normalized_type in {"on_shelf", "shelf", "on_the_shelf"}:
+        return "on_shelf"
+
+    if normalized_type in {"brown_bag", "brownbag", "bag", "brown"}:
+        return "brown_bag"
+
+    return None
+
+
 async def post_tater_find_alert(
     interaction: discord.Interaction,
     *,
     bottle: str,
     store: Optional[str],
     location: Optional[str],
+    find_type: Optional[str],
     price: Optional[float],
     quantity: Optional[int],
     notes: Optional[str],
@@ -311,6 +357,7 @@ async def post_tater_find_alert(
             bottle=display_bottle,
             store=store,
             location=resolved_location,
+            find_type=find_type,
             price=price,
             quantity=quantity,
             notes=notes,
@@ -1788,7 +1835,7 @@ UTILITY_ACTIONS = {
         "style": discord.ButtonStyle.secondary,
         "title": "🔔 /taterfind",
         "description": "Posts a rare bottle shelf alert in the current channel. Only the bottle name is required.",
-        "example": "/taterfind bottle:RR15 store:Binny's Lakeview price:250 quantity:1 notes:Behind customer service"
+        "example": "/taterfind bottle:RR15 find_type:On Shelf store:Binny's Lakeview price:250 quantity:1 notes:Behind customer service"
     },
     "boty": {
         "label": "BOTY",
@@ -1881,21 +1928,21 @@ class TaterFindModal(discord.ui.Modal, title="Tater Find Alert"):
         required=False,
         max_length=180
     )
+    find_type = discord.ui.TextInput(
+        label="On shelf or Brown Bag",
+        placeholder="On shelf or Brown Bag",
+        required=False,
+        max_length=30
+    )
     price = discord.ui.TextInput(
         label="Price",
         placeholder="250",
         required=False,
         max_length=20
     )
-    quantity = discord.ui.TextInput(
-        label="Qty seen",
-        placeholder="1",
-        required=False,
-        max_length=10
-    )
     notes = discord.ui.TextInput(
-        label="Notes",
-        placeholder="Behind customer service, limit 1, ask manager...",
+        label="Notes / qty",
+        placeholder="Qty 2, behind customer service, limit 1...",
         required=False,
         max_length=400,
         style=discord.TextStyle.paragraph
@@ -1911,8 +1958,9 @@ class TaterFindModal(discord.ui.Modal, title="Tater Find Alert"):
             bottle=str(self.bottle),
             store=store,
             location=location,
+            find_type=parse_tater_find_type(str(self.find_type)),
             price=parse_tater_price(str(self.price)),
-            quantity=parse_tater_quantity(str(self.quantity)),
+            quantity=None,
             notes=str(self.notes).strip() or None
         )
 
@@ -2168,6 +2216,7 @@ async def utility(interaction: discord.Interaction):
 @bot.tree.command(name="taterfind", description="Post a rare bottle shelf alert in the current channel.")
 @app_commands.describe(
     bottle="Name of the rare bottle spotted",
+    find_type="Whether the bottle was on shelf or brown bag",
     store="Store group/location to alert",
     location="Specific store address or location",
     price="Retail price seen on shelf",
@@ -2176,9 +2225,11 @@ async def utility(interaction: discord.Interaction):
     photo="Photo of the find"
 )
 @app_commands.choices(store=TATER_STORE_CHOICES)
+@app_commands.choices(find_type=TATER_FIND_TYPE_CHOICES)
 async def taterfind(
     interaction: discord.Interaction,
     bottle: str,
+    find_type: Optional[str] = None,
     store: Optional[str] = None,
     location: Optional[str] = None,
     price: Optional[float] = None,
@@ -2193,6 +2244,7 @@ async def taterfind(
         bottle=bottle,
         store=store,
         location=location,
+        find_type=find_type,
         price=price,
         quantity=quantity,
         notes=notes,
