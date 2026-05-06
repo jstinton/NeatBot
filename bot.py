@@ -2,6 +2,7 @@ import os
 import json
 import difflib
 import re
+from urllib.parse import quote_plus
 from pathlib import Path
 from typing import Optional
 
@@ -165,6 +166,19 @@ def tater_price(value: Optional[float]):
     return f"${numeric_value:,.2f}"
 
 
+def google_maps_url(location: str):
+    return f"https://www.google.com/maps/search/?api=1&query={quote_plus(location)}"
+
+
+def tater_store_location_link(store: str, location: str):
+    label = f"{store} — {location}"
+
+    if not location:
+        return label
+
+    return f"[{label}]({google_maps_url(location)})"
+
+
 def taterfind_message(
     *,
     bottle: str,
@@ -178,7 +192,7 @@ def taterfind_message(
         "🥃 **TATER FIND ALERT** 🥃",
         "",
         f"**Bottle:** {bottle}",
-        f"**Store:** {store} — {location}",
+        f"**Store:** {tater_store_location_link(store, location)}",
     ]
 
     formatted_price = tater_price(price)
