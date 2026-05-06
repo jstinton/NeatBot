@@ -16,6 +16,7 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD_ID = os.getenv("GUILD_ID")
 GUILD_IDS = os.getenv("GUILD_IDS")
+TATER_FINDS_CHANNEL_ID = os.getenv("TATER_FINDS_CHANNEL_ID")
 
 DATA_PATH = Path(__file__).parent / "bottles.json"
 BOTY_VOTES_PATH = Path(__file__).parent / "boty_votes.json"
@@ -24,6 +25,72 @@ WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
 ZIP_CODE_PATTERN = re.compile(r"^\d{5}$")
 USER_MENTION_PATTERN = re.compile(r"<@!?(?P<user_id>\d+)>")
 VINTAGE_YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
+DISCORD_ID_PATTERN = re.compile(r"^\d{15,25}$")
+
+
+def env_role(name: str):
+    return os.getenv(name, name)
+
+
+STORE_ROLE_MAP = {
+    "Binny's Bucktown": {
+        "address": "2409 N Elston Ave, Chicago, IL 60614",
+        "role_id": env_role("ROLE_ID_BUCKTOWN"),
+    },
+    "Binny's Oak Brook": {
+        "address": "1500 16th St Ste A, Oak Brook, IL 60523",
+        "role_id": env_role("ROLE_ID_OAKBROOK"),
+    },
+    "Binny's Lincoln Park": {
+        "address": "1720 N Marcey St, Chicago, IL 60614",
+        "role_id": env_role("ROLE_ID_LINCOLNPARK"),
+    },
+    "Binny's Rockford": {
+        "address": "6363 E State St, Rockford, IL 61108",
+        "role_id": env_role("ROLE_ID_ROCKFORD"),
+    },
+    "Binny's River North": {
+        "address": "213 W Grand Ave, Chicago, IL 60654",
+        "role_id": env_role("ROLE_ID_RIVERNORTH"),
+    },
+    "Binny's South Loop": {
+        "address": "1132 S Jefferson St, Chicago, IL 60607",
+        "role_id": env_role("ROLE_ID_SOUTHLOOP"),
+    },
+    "Binny's Logan Square": {
+        "address": "3934 W Diversey Ave, Chicago, IL 60647",
+        "role_id": env_role("ROLE_ID_LOGAN"),
+    },
+    "Binny's Lakeview": {
+        "address": "3000 N Clark St, Chicago, IL 60657",
+        "role_id": env_role("ROLE_ID_LAKEVIEW"),
+    },
+    "Binny's Elmwood Park": {
+        "address": "7330 W North Ave, Elmwood Park, IL 60707",
+        "role_id": env_role("ROLE_ID_ELMWOOD"),
+    },
+    "Almost Wisconsin (NW Burb)": {
+        "address": "TBD",
+        "role_id": env_role("ROLE_ID_ALMOSTWI"),
+    },
+    "NorthBurbs": {
+        "address": "TBD",
+        "role_id": env_role("ROLE_ID_NORTHBURBS"),
+    },
+    "OutWESTTTT": {
+        "address": "TBD",
+        "role_id": env_role("ROLE_ID_OUTWEST"),
+    },
+    "NW City": {
+        "address": "TBD",
+        "role_id": env_role("ROLE_ID_NWCITY"),
+    },
+}
+
+TATER_STORE_CHOICES = [
+    app_commands.Choice(name=store_name, value=store_name)
+    for store_name in STORE_ROLE_MAP
+]
 
 
 def load_bottles():
@@ -66,6 +133,89 @@ def save_json(path: Path, data):
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
         f.write("\n")
+
+
+def configured_tater_location(store: str, location: str):
+    store_config = STORE_ROLE_MAP.get(store, {})
+    configured_address = store_config.get("address")
+
+    if configured_address and configured_address != "TBD":
+        return configured_address
+
+    return location
+
+
+def tater_role_tag(store: str):
+    role_id = STORE_ROLE_MAP.get(store, {}).get("role_id")
+
+    if role_id and DISCORD_ID_PATTERN.fullmatch(role_id):
+        return f"<@&{role_id}>"
+
+    return None
+
+
+def tater_price(value: Optional[float]):
+    if value is None:
+        return None
+
+    numeric_value = float(value)
+
+    if numeric_value.is_integer():
+        return f"${int(numeric_value):,}"
+
+    return f"${numeric_value:,.2f}"
+
+
+def taterfind_message(
+    *,
+    bottle: str,
+    store: str,
+    location: str,
+    price: Optional[float],
+    quantity: Optional[int],
+    notes: Optional[str],
+):
+    lines = [
+        "🥃 **TATER FIND ALERT** 🥃",
+        "",
+        f"**Bottle:** {bottle}",
+        f"**Store:** {store} — {location}",
+    ]
+
+    formatted_price = tater_price(price)
+
+    if formatted_price:
+        lines.append(f"**Price:** {formatted_price}")
+
+    if quantity is not None:
+        lines.append(f"**Qty Seen:** {quantity}")
+
+    if notes:
+        lines.append(f"**Notes:** {notes}")
+
+    role_tag = tater_role_tag(store)
+
+    if role_tag:
+        lines.extend(["", f"{role_tag} — heads up! 🔔"])
+
+    lines.extend(["", "_Posted via /taterfind · NeatBot_"])
+
+    return "\n".join(lines)
+
+
+async def taterfind_channel():
+    if not TATER_FINDS_CHANNEL_ID or not DISCORD_ID_PATTERN.fullmatch(TATER_FINDS_CHANNEL_ID):
+        return None
+
+    channel = bot.get_channel(int(TATER_FINDS_CHANNEL_ID))
+
+    if channel:
+        return channel
+
+    try:
+        return await bot.fetch_channel(int(TATER_FINDS_CHANNEL_ID))
+    except discord.HTTPException:
+        return None
 
 
 BOTY_VOTES = load_json(BOTY_VOTES_PATH, {})
@@ -1797,6 +1947,84 @@ async def messageneat(interaction: discord.Interaction):
 @bot.tree.command(name="utility", description="Post the NeatBot utility board with buttons for common tools.")
 async def utility(interaction: discord.Interaction):
     await interaction.response.send_message(embed=utility_embed(), view=UtilityView(), ephemeral=True)
+
+
+@bot.tree.command(name="taterfind", description="Post a rare bottle shelf alert to the tater-finds channel.")
+@app_commands.describe(
+    bottle="Name of the rare bottle spotted",
+    store="Store group/location to alert",
+    location="Specific store address or location. Used when the store config has no address.",
+    price="Retail price seen on shelf",
+    quantity="Number of bottles spotted",
+    notes="Shelf location, limits, timing, or other useful details",
+    photo="Photo of the find"
+)
+@app_commands.choices(store=TATER_STORE_CHOICES)
+async def taterfind(
+    interaction: discord.Interaction,
+    bottle: str,
+    store: str,
+    location: str,
+    price: Optional[float] = None,
+    quantity: Optional[int] = None,
+    notes: Optional[str] = None,
+    photo: Optional[discord.Attachment] = None
+):
+    if price is not None and price < 0:
+        await interaction.response.send_message(
+            "Price cannot be negative.",
+            ephemeral=True
+        )
+        return
+
+    if quantity is not None and quantity < 1:
+        await interaction.response.send_message(
+            "Quantity needs to be at least 1.",
+            ephemeral=True
+        )
+        return
+
+    channel = await taterfind_channel()
+
+    if channel is None:
+        await interaction.response.send_message(
+            "I need `TATER_FINDS_CHANNEL_ID` set to the #tater-finds channel before I can post alerts.",
+            ephemeral=True
+        )
+        return
+
+    resolved_location = configured_tater_location(store, location)
+    content = taterfind_message(
+        bottle=bottle,
+        store=store,
+        location=resolved_location,
+        price=price,
+        quantity=quantity,
+        notes=notes,
+    )
+    embed = None
+
+    if photo:
+        embed = discord.Embed(color=discord.Color.from_str("#C9973A"))
+        embed.set_image(url=photo.url)
+
+    try:
+        post = await channel.send(
+            content=content,
+            embed=embed,
+            allowed_mentions=discord.AllowedMentions(roles=True)
+        )
+    except discord.HTTPException:
+        await interaction.response.send_message(
+            "I could not post to the configured #tater-finds channel. A mod may need to check my permissions.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.response.send_message(
+        f"Tater find posted: {post.jump_url}",
+        ephemeral=True
+    )
 
 
 @bot.tree.command(name="flip", description="Post a bottle flip with a BIN button and discussion thread.")
