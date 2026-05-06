@@ -210,7 +210,7 @@ async def taterfind_channel():
 
     try:
         return await bot.fetch_channel(int(TATER_FINDS_CHANNEL_ID))
-    except discord.HTTPException:
+    except (discord.HTTPException, discord.NotFound, discord.Forbidden):
         return None
 
 
@@ -1966,58 +1966,61 @@ async def taterfind(
     notes: Optional[str] = None,
     photo: Optional[discord.Attachment] = None
 ):
+    await interaction.response.defer(ephemeral=True, thinking=True)
+
     if price is not None and price < 0:
-        await interaction.response.send_message(
-            "Price cannot be negative.",
-            ephemeral=True
-        )
+        await interaction.followup.send("Price cannot be negative.", ephemeral=True)
         return
 
     if quantity is not None and quantity < 1:
-        await interaction.response.send_message(
-            "Quantity needs to be at least 1.",
-            ephemeral=True
-        )
+        await interaction.followup.send("Quantity needs to be at least 1.", ephemeral=True)
         return
-
-    channel = await taterfind_channel()
-
-    if channel is None:
-        await interaction.response.send_message(
-            "I need `TATER_FINDS_CHANNEL_ID` set to the #tater-finds channel before I can post alerts.",
-            ephemeral=True
-        )
-        return
-
-    resolved_location = configured_tater_location(store, location)
-    content = taterfind_message(
-        bottle=bottle,
-        store=store,
-        location=resolved_location,
-        price=price,
-        quantity=quantity,
-        notes=notes,
-    )
-    embed = None
-
-    if photo:
-        embed = discord.Embed(color=discord.Color.from_str("#C9973A"))
-        embed.set_image(url=photo.url)
 
     try:
+        channel = await taterfind_channel()
+
+        if channel is None or not hasattr(channel, "send"):
+            await interaction.followup.send(
+                "I need `TATER_FINDS_CHANNEL_ID` set to a channel I can post in before I can send alerts.",
+                ephemeral=True
+            )
+            return
+
+        resolved_location = configured_tater_location(store, location)
+        content = taterfind_message(
+            bottle=bottle,
+            store=store,
+            location=resolved_location,
+            price=price,
+            quantity=quantity,
+            notes=notes,
+        )
+        embed = None
+
+        if photo:
+            embed = discord.Embed(color=discord.Color.from_str("#C9973A"))
+            embed.set_image(url=photo.url)
+
         post = await channel.send(
             content=content,
             embed=embed,
             allowed_mentions=discord.AllowedMentions(roles=True)
         )
     except discord.HTTPException:
-        await interaction.response.send_message(
+        await interaction.followup.send(
             "I could not post to the configured #tater-finds channel. A mod may need to check my permissions.",
             ephemeral=True
         )
         return
+    except Exception as error:
+        print(f"/taterfind failed: {error}")
+        await interaction.followup.send(
+            "Something went sideways while posting that tater find. I logged the error so it can be fixed.",
+            ephemeral=True
+        )
+        return
 
-    await interaction.response.send_message(
+    await interaction.followup.send(
         f"Tater find posted: {post.jump_url}",
         ephemeral=True
     )
