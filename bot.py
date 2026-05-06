@@ -16,7 +16,6 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD_ID = os.getenv("GUILD_ID")
 GUILD_IDS = os.getenv("GUILD_IDS")
-TATER_FINDS_CHANNEL_ID = os.getenv("TATER_FINDS_CHANNEL_ID")
 
 DATA_PATH = Path(__file__).parent / "bottles.json"
 BOTY_VOTES_PATH = Path(__file__).parent / "boty_votes.json"
@@ -201,21 +200,6 @@ def taterfind_message(
     lines.extend(["", "_Posted via /taterfind · NeatBot_"])
 
     return "\n".join(lines)
-
-
-async def taterfind_channel():
-    if not TATER_FINDS_CHANNEL_ID or not DISCORD_ID_PATTERN.fullmatch(TATER_FINDS_CHANNEL_ID):
-        return None
-
-    channel = bot.get_channel(int(TATER_FINDS_CHANNEL_ID))
-
-    if channel:
-        return channel
-
-    try:
-        return await bot.fetch_channel(int(TATER_FINDS_CHANNEL_ID))
-    except (discord.HTTPException, discord.NotFound, discord.Forbidden):
-        return None
 
 
 BOTY_VOTES = load_json(BOTY_VOTES_PATH, {})
@@ -1988,11 +1972,11 @@ async def taterfind(
         return
 
     try:
-        channel = await taterfind_channel()
+        channel = interaction.channel
 
         if channel is None or not hasattr(channel, "send"):
             await interaction.followup.send(
-                "I need `TATER_FINDS_CHANNEL_ID` set to a channel I can post in before I can send alerts.",
+                "I can’t post alerts in this channel.",
                 ephemeral=True
             )
             return
@@ -2019,7 +2003,7 @@ async def taterfind(
         )
     except discord.HTTPException:
         await interaction.followup.send(
-            "I could not post to the configured #tater-finds channel. A mod may need to check my permissions.",
+            "I could not post in this channel. A mod may need to check my permissions.",
             ephemeral=True
         )
         return
