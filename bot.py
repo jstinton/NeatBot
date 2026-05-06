@@ -211,6 +211,25 @@ def normalize(text: str) -> str:
     return text.lower().strip().replace("'", "").replace("’", "")
 
 
+def bottle_aliases(data: dict):
+    aliases = []
+    raw_aliases = data.get("aliases", [])
+
+    if isinstance(raw_aliases, str):
+        aliases.append(raw_aliases)
+    else:
+        aliases.extend(raw_aliases)
+
+    raw_alias = data.get("alias")
+
+    if isinstance(raw_alias, str):
+        aliases.append(raw_alias)
+    elif isinstance(raw_alias, list):
+        aliases.extend(raw_alias)
+
+    return [alias for alias in aliases if alias]
+
+
 def find_bottle(query: str):
     q = normalize(query)
 
@@ -219,7 +238,7 @@ def find_bottle(query: str):
             return name, BOTTLES[name]
 
     for name, data in BOTTLES.items():
-        for alias in data.get("aliases", []):
+        for alias in bottle_aliases(data):
             if q == normalize(alias):
                 return name, data
 
@@ -227,7 +246,7 @@ def find_bottle(query: str):
     alias_to_name = {}
 
     for name, data in BOTTLES.items():
-        for alias in data.get("aliases", []):
+        for alias in bottle_aliases(data):
             searchable.append(alias)
             alias_to_name[alias] = name
 
@@ -250,7 +269,7 @@ def find_exact_bottle(query: str):
             return name, BOTTLES[name]
 
     for name, data in BOTTLES.items():
-        for alias in data.get("aliases", []):
+        for alias in bottle_aliases(data):
             if q == normalize(alias):
                 return name, data
 
@@ -1981,9 +2000,11 @@ async def taterfind(
             )
             return
 
+        bottle_name, _ = find_bottle(bottle)
+        display_bottle = bottle_name or canonical_bottle_name(bottle)
         resolved_location = configured_tater_location(store, location)
         content = taterfind_message(
-            bottle=bottle,
+            bottle=display_bottle,
             store=store,
             location=resolved_location,
             price=price,
