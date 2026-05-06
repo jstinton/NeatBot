@@ -222,6 +222,136 @@ def taterfind_message(
     return "\n".join(lines)
 
 
+def parse_tater_price(value: Optional[str]):
+    if not value:
+        return None
+
+    cleaned = value.strip().replace("$", "").replace(",", "")
+
+    if not cleaned:
+        return None
+
+    return float(cleaned)
+
+
+def parse_tater_quantity(value: Optional[str]):
+    if not value:
+        return None
+
+    cleaned = value.strip()
+
+    if not cleaned:
+        return None
+
+    return int(cleaned)
+
+
+def match_tater_store(value: Optional[str]):
+    if not value:
+        return None, None
+
+    cleaned = value.strip()
+
+    if not cleaned:
+        return None, None
+
+    normalized_input = normalize(cleaned)
+    normalized_stores = {normalize(store_name): store_name for store_name in STORE_ROLE_MAP}
+
+    if normalized_input in normalized_stores:
+        store = normalized_stores[normalized_input]
+        return store, configured_tater_location(store, None)
+
+    for normalized_store, store in normalized_stores.items():
+        if normalized_input in normalized_store:
+            return store, configured_tater_location(store, None)
+
+    matches = difflib.get_close_matches(normalized_input, list(normalized_stores.keys()), n=1, cutoff=0.72)
+
+    if matches:
+        store = normalized_stores[matches[0]]
+        return store, configured_tater_location(store, None)
+
+    return None, cleaned
+
+
+async def post_tater_find_alert(
+    interaction: discord.Interaction,
+    *,
+    bottle: str,
+    store: Optional[str],
+    location: Optional[str],
+    price: Optional[float],
+    quantity: Optional[int],
+    notes: Optional[str],
+    photo: Optional[discord.Attachment] = None
+):
+    if price is not None and price < 0:
+        await interaction.followup.send("Price cannot be negative.", ephemeral=True)
+        return
+
+    if quantity is not None and quantity < 1:
+        await interaction.followup.send("Quantity needs to be at least 1.", ephemeral=True)
+        return
+
+    try:
+        channel = interaction.channel
+
+        if channel is None or not hasattr(channel, "send"):
+            await interaction.followup.send(
+                "I can’t post alerts in this channel.",
+                ephemeral=True
+            )
+            return
+
+        bottle_name, _ = find_bottle(bottle)
+        display_bottle = bottle_name or canonical_bottle_name(bottle)
+        resolved_location = configured_tater_location(store, location)
+        content = taterfind_message(
+            bottle=display_bottle,
+            store=store,
+            location=resolved_location,
+            price=price,
+            quantity=quantity,
+            notes=notes,
+        )
+        embed = None
+
+        if photo:
+            embed = discord.Embed(color=discord.Color.from_str("#C9973A"))
+            embed.set_image(url=photo.url)
+
+        post = await channel.send(
+            content=content,
+            embed=embed,
+            allowed_mentions=discord.AllowedMentions(roles=True)
+        )
+    except ValueError:
+        await interaction.followup.send(
+            "Price must be a number and quantity must be a whole number.",
+            ephemeral=True
+        )
+        return
+    except discord.HTTPException:
+        await interaction.followup.send(
+            "I could not post in this channel. A mod may need to check my permissions.",
+            ephemeral=True
+        )
+        return
+    except Exception as error:
+        print(f"/taterfind failed: {error}")
+        await interaction.followup.send(
+            "Something went sideways while posting that tater find. I logged the error so it can be fixed.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.followup.send(
+        f"Tater find posted: {post.jump_url}",
+        ephemeral=True
+    )
+
+
 BOTY_VOTES = load_json(BOTY_VOTES_PATH, {})
 BATTLE_VOTES = load_json(BATTLE_VOTES_PATH, {})
 FLIP_HELP_SESSIONS = {}
@@ -1738,6 +1868,55 @@ def utility_tip_embed(action: str):
     return embed
 
 
+class TaterFindModal(discord.ui.Modal, title="Tater Find Alert"):
+    bottle = discord.ui.TextInput(
+        label="Bottle",
+        placeholder="RR15, Blanton's, GTS 2025...",
+        required=True,
+        max_length=120
+    )
+    store_location = discord.ui.TextInput(
+        label="Store or location",
+        placeholder="Binny's Lakeview, Costco, 123 Main St...",
+        required=False,
+        max_length=180
+    )
+    price = discord.ui.TextInput(
+        label="Price",
+        placeholder="250",
+        required=False,
+        max_length=20
+    )
+    quantity = discord.ui.TextInput(
+        label="Qty seen",
+        placeholder="1",
+        required=False,
+        max_length=10
+    )
+    notes = discord.ui.TextInput(
+        label="Notes",
+        placeholder="Behind customer service, limit 1, ask manager...",
+        required=False,
+        max_length=400,
+        style=discord.TextStyle.paragraph
+    )
+
+    async def on_submit(self, interaction: discord.Interaction):
+        await interaction.response.defer(ephemeral=True, thinking=True)
+
+        store, location = match_tater_store(str(self.store_location))
+
+        await post_tater_find_alert(
+            interaction,
+            bottle=str(self.bottle),
+            store=store,
+            location=location,
+            price=parse_tater_price(str(self.price)),
+            quantity=parse_tater_quantity(str(self.quantity)),
+            notes=str(self.notes).strip() or None
+        )
+
+
 class UtilityButton(discord.ui.Button):
     def __init__(self, action: str, *, row: int):
         config = UTILITY_ACTIONS[action]
@@ -1765,6 +1944,10 @@ class UtilityButton(discord.ui.Button):
 
             file = discord.File(WHADD_IMAGE_PATH, filename="whadd.png")
             await interaction.response.send_message(file=file)
+            return
+
+        if self.action == "taterfind":
+            await interaction.response.send_modal(TaterFindModal())
             return
 
         await interaction.response.send_message(embed=utility_tip_embed(self.action), ephemeral=True)
@@ -1982,7 +2165,7 @@ async def utility(interaction: discord.Interaction):
     await interaction.response.send_message(embed=utility_embed(), view=UtilityView(), ephemeral=True)
 
 
-@bot.tree.command(name="taterfind", description="Post a rare bottle shelf alert to the tater-finds channel.")
+@bot.tree.command(name="taterfind", description="Post a rare bottle shelf alert in the current channel.")
 @app_commands.describe(
     bottle="Name of the rare bottle spotted",
     store="Store group/location to alert",
@@ -2005,63 +2188,15 @@ async def taterfind(
 ):
     await interaction.response.defer(ephemeral=True, thinking=True)
 
-    if price is not None and price < 0:
-        await interaction.followup.send("Price cannot be negative.", ephemeral=True)
-        return
-
-    if quantity is not None and quantity < 1:
-        await interaction.followup.send("Quantity needs to be at least 1.", ephemeral=True)
-        return
-
-    try:
-        channel = interaction.channel
-
-        if channel is None or not hasattr(channel, "send"):
-            await interaction.followup.send(
-                "I can’t post alerts in this channel.",
-                ephemeral=True
-            )
-            return
-
-        bottle_name, _ = find_bottle(bottle)
-        display_bottle = bottle_name or canonical_bottle_name(bottle)
-        resolved_location = configured_tater_location(store, location)
-        content = taterfind_message(
-            bottle=display_bottle,
-            store=store,
-            location=resolved_location,
-            price=price,
-            quantity=quantity,
-            notes=notes,
-        )
-        embed = None
-
-        if photo:
-            embed = discord.Embed(color=discord.Color.from_str("#C9973A"))
-            embed.set_image(url=photo.url)
-
-        post = await channel.send(
-            content=content,
-            embed=embed,
-            allowed_mentions=discord.AllowedMentions(roles=True)
-        )
-    except discord.HTTPException:
-        await interaction.followup.send(
-            "I could not post in this channel. A mod may need to check my permissions.",
-            ephemeral=True
-        )
-        return
-    except Exception as error:
-        print(f"/taterfind failed: {error}")
-        await interaction.followup.send(
-            "Something went sideways while posting that tater find. I logged the error so it can be fixed.",
-            ephemeral=True
-        )
-        return
-
-    await interaction.followup.send(
-        f"Tater find posted: {post.jump_url}",
-        ephemeral=True
+    await post_tater_find_alert(
+        interaction,
+        bottle=bottle,
+        store=store,
+        location=location,
+        price=price,
+        quantity=quantity,
+        notes=notes,
+        photo=photo
     )
 
 
