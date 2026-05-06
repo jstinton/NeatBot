@@ -28,62 +28,58 @@ VINTAGE_YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
 DISCORD_ID_PATTERN = re.compile(r"^\d{15,25}$")
 
 
-def env_role(name: str):
-    return os.getenv(name, name)
-
-
 STORE_ROLE_MAP = {
     "Binny's Bucktown": {
         "address": "2409 N Elston Ave, Chicago, IL 60614",
-        "role_id": env_role("ROLE_ID_BUCKTOWN"),
+        "role_id": "1470964559740403722",
     },
     "Binny's Oak Brook": {
         "address": "1500 16th St Ste A, Oak Brook, IL 60523",
-        "role_id": env_role("ROLE_ID_OAKBROOK"),
+        "role_id": "1470964788749402254",
     },
     "Binny's Lincoln Park": {
         "address": "1720 N Marcey St, Chicago, IL 60614",
-        "role_id": env_role("ROLE_ID_LINCOLNPARK"),
+        "role_id": "1470966132537168090",
     },
     "Binny's Rockford": {
         "address": "6363 E State St, Rockford, IL 61108",
-        "role_id": env_role("ROLE_ID_ROCKFORD"),
+        "role_id": "1470967512953917541",
     },
     "Binny's River North": {
         "address": "213 W Grand Ave, Chicago, IL 60654",
-        "role_id": env_role("ROLE_ID_RIVERNORTH"),
+        "role_id": "1470968160047071314",
     },
     "Binny's South Loop": {
         "address": "1132 S Jefferson St, Chicago, IL 60607",
-        "role_id": env_role("ROLE_ID_SOUTHLOOP"),
+        "role_id": "1470968434434244689",
     },
     "Binny's Logan Square": {
         "address": "3934 W Diversey Ave, Chicago, IL 60647",
-        "role_id": env_role("ROLE_ID_LOGAN"),
+        "role_id": "1470969243775406202",
     },
     "Binny's Lakeview": {
         "address": "3000 N Clark St, Chicago, IL 60657",
-        "role_id": env_role("ROLE_ID_LAKEVIEW"),
+        "role_id": "1470969593446006837",
     },
     "Binny's Elmwood Park": {
         "address": "7330 W North Ave, Elmwood Park, IL 60707",
-        "role_id": env_role("ROLE_ID_ELMWOOD"),
+        "role_id": "1470977144321478841",
     },
     "Almost Wisconsin (NW Burb)": {
         "address": "TBD",
-        "role_id": env_role("ROLE_ID_ALMOSTWI"),
+        "role_id": None,
     },
     "NorthBurbs": {
         "address": "TBD",
-        "role_id": env_role("ROLE_ID_NORTHBURBS"),
+        "role_id": None,
     },
     "OutWESTTTT": {
         "address": "TBD",
-        "role_id": env_role("ROLE_ID_OUTWEST"),
+        "role_id": None,
     },
     "NW City": {
         "address": "TBD",
-        "role_id": env_role("ROLE_ID_NWCITY"),
+        "role_id": None,
     },
 }
 
