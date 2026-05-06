@@ -131,7 +131,7 @@ def save_json(path: Path, data):
         f.write("\n")
 
 
-def configured_tater_location(store: str, location: str):
+def configured_tater_location(store: str, location: Optional[str]):
     store_config = STORE_ROLE_MAP.get(store, {})
     configured_address = store_config.get("address")
 
@@ -139,6 +139,10 @@ def configured_tater_location(store: str, location: str):
         return configured_address
 
     return location
+
+
+def tater_store_needs_location(store: str):
+    return STORE_ROLE_MAP.get(store, {}).get("address") == "TBD"
 
 
 def tater_role_tag(store: str):
@@ -1949,7 +1953,7 @@ async def utility(interaction: discord.Interaction):
 @app_commands.describe(
     bottle="Name of the rare bottle spotted",
     store="Store group/location to alert",
-    location="Specific store address or location. Used when the store config has no address.",
+    location="Specific store address or location. Only needed for TBD regions.",
     price="Retail price seen on shelf",
     quantity="Number of bottles spotted",
     notes="Shelf location, limits, timing, or other useful details",
@@ -1960,7 +1964,7 @@ async def taterfind(
     interaction: discord.Interaction,
     bottle: str,
     store: str,
-    location: str,
+    location: Optional[str] = None,
     price: Optional[float] = None,
     quantity: Optional[int] = None,
     notes: Optional[str] = None,
@@ -1974,6 +1978,13 @@ async def taterfind(
 
     if quantity is not None and quantity < 1:
         await interaction.followup.send("Quantity needs to be at least 1.", ephemeral=True)
+        return
+
+    if tater_store_needs_location(store) and not location:
+        await interaction.followup.send(
+            "That store group needs a location, since it does not have a saved address yet.",
+            ephemeral=True
+        )
         return
 
     try:
