@@ -22,6 +22,7 @@ DATA_PATH = Path(__file__).parent / "bottles.json"
 BOTY_VOTES_PATH = Path(__file__).parent / "boty_votes.json"
 BATTLE_VOTES_PATH = Path(__file__).parent / "battle_votes.json"
 WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
+NERD_IMAGE_PATH = Path(__file__).parent / "assets" / "youve-been-juiced.png"
 ZIP_CODE_PATTERN = re.compile(r"^\d{5}$")
 USER_MENTION_PATTERN = re.compile(r"<@!?(?P<user_id>\d+)>")
 VINTAGE_YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
@@ -2316,6 +2317,19 @@ async def whadd(interaction: discord.Interaction):
         return
 
     file = discord.File(WHADD_IMAGE_PATH, filename="whadd.png")
+    await interaction.response.send_message(file=file)
+
+
+@bot.tree.command(name="nerd", description="Post the nerd image.")
+async def nerd(interaction: discord.Interaction):
+    if not NERD_IMAGE_PATH.exists():
+        await interaction.response.send_message(
+            "I can’t find the nerd image file on the server.",
+            ephemeral=True
+        )
+        return
+
+    file = discord.File(NERD_IMAGE_PATH, filename="nerd.png")
     await interaction.response.send_message(file=file)
 
 
