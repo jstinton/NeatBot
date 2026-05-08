@@ -12,7 +12,7 @@ from discord.ext import commands
 
 DB_PATH = Path(__file__).parent / "trips.db"
 JUICED_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
-DEFAULT_MOD_CHANNEL_ID = os.getenv("JUICETRIP_MOD_CHANNEL_ID")
+DEFAULT_MOD_CHANNEL_ID = os.getenv("JUICETRIP_MOD_CHANNEL_ID") or "1502458379875127346"
 STATUS_LABELS = {
     "confirmed": "✅ Confirmed",
     "maybe": "🤔 Maybe",
