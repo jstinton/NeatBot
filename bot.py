@@ -2256,7 +2256,7 @@ async def utility(interaction: discord.Interaction):
     price="Retail price seen on shelf",
     quantity="Number of bottles spotted",
     notes="Shelf location, limits, timing, or other useful details",
-    source_link="Link to the original Discord post or forwarded source",
+    source="Link to the original Discord post or forwarded source",
     photo="Photo of the find"
 )
 @app_commands.choices(store=TATER_STORE_CHOICES)
@@ -2270,7 +2270,7 @@ async def taterfind(
     price: Optional[float] = None,
     quantity: Optional[int] = None,
     notes: Optional[str] = None,
-    source_link: Optional[str] = None,
+    source: Optional[str] = None,
     photo: Optional[discord.Attachment] = None
 ):
     await interaction.response.defer(ephemeral=True, thinking=True)
@@ -2284,7 +2284,7 @@ async def taterfind(
         price=price,
         quantity=quantity,
         notes=notes,
-        source_link=source_link,
+        source_link=source,
         photo=photo
     )
 
