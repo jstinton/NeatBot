@@ -10,6 +10,7 @@ from discord.ext import commands
 
 
 DB_PATH = Path(__file__).parent / "trips.db"
+JUICED_IMAGE_PATH = Path(__file__).parent / "assets" / "youve-been-juiced.png"
 STATUS_LABELS = {
     "confirmed": "✅ Confirmed",
     "maybe": "🤔 Maybe",
@@ -454,6 +455,21 @@ class GroupTripCog(commands.Cog):
 
         return int(row[0])
 
+    async def send_juiced_dm(self, user: discord.abc.User, label: str, destination: str, dates: str):
+        content = (
+            "Thanks for the input, YOUVE BEEN JUICED\n\n"
+            f"You're marked as {label} for {destination} ({dates})!"
+        )
+
+        if JUICED_IMAGE_PATH.exists():
+            await user.send(
+                content,
+                file=discord.File(JUICED_IMAGE_PATH, filename="youve-been-juiced.png"),
+            )
+            return
+
+        await user.send(content)
+
     async def set_rsvp(
         self,
         trip_id: int,
@@ -652,7 +668,7 @@ class GroupTripCog(commands.Cog):
         )
 
         try:
-            await interaction.user.send(f"You're marked as {label} for {trip['destination']} ({trip['dates']})!")
+            await self.send_juiced_dm(interaction.user, label, trip["destination"], trip["dates"])
         except discord.HTTPException:
             pass
 
