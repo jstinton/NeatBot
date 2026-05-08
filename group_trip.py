@@ -1,5 +1,5 @@
 import asyncio
-from datetime import datetime, time, timedelta, timezone
+from datetime import datetime, time, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -18,10 +18,17 @@ STATUS_LABELS = {
     "waitlist": "⏳ Waitlist",
 }
 BUTTONS = [
-    ("confirmed", "I'm In", "✅", discord.ButtonStyle.success),
+    ("confirmed", "I'm In", "🥃", discord.ButtonStyle.success),
     ("maybe", "Maybe", "🤔", discord.ButtonStyle.secondary),
     ("daytrip", "Day Trip Only", "🏨", discord.ButtonStyle.primary),
-    ("out", "Can't Make It", "❌", discord.ButtonStyle.danger),
+    ("out", "Can't Make It", "💧", discord.ButtonStyle.danger),
+]
+BOURBON_EASTER_EGGS = [
+    "Hydrate like a pro. Sip like a legend.",
+    "No unopened bottle left behind.",
+    "The itinerary has legs, finish, and questionable restraint.",
+    "Allocated bottles are not guaranteed, but questionable decisions are possible.",
+    "Remember: shared pours count as group bonding.",
 ]
 
 
@@ -76,6 +83,10 @@ def progress_bar(filled: int, capacity: int, width: int = 10):
     return "█" * filled_blocks + "░" * (width - filled_blocks)
 
 
+def bourbon_easter_egg(trip_id: int):
+    return BOURBON_EASTER_EGGS[trip_id % len(BOURBON_EASTER_EGGS)]
+
+
 def truncate_names(names: list[str], limit: int = 900):
     if not names:
         return "None yet"
@@ -127,7 +138,7 @@ class GroupTripButton(discord.ui.Button):
             label=label,
             emoji=emoji,
             style=style,
-            custom_id=f"grouptrip:{trip_id}:{status}",
+            custom_id=f"juicetrip:{trip_id}:{status}",
             disabled=disabled,
         )
         self.cog = cog
@@ -164,8 +175,8 @@ class FollowUpMaybeView(discord.ui.View):
             try:
                 user = interaction.client.get_user(maybe["user_id"]) or await interaction.client.fetch_user(maybe["user_id"])
                 await user.send(
-                    f"Quick trip check-in: are you in for **{trip['destination']}** ({trip['dates']})? "
-                    "Please update your RSVP when you know."
+                    f"Quick JuiceTrip barrel check: are you in for **{trip['destination']}** ({trip['dates']})? "
+                    "Please update your RSVP when you know. The maybes are still nosing the glass."
                 )
                 sent += 1
             except discord.HTTPException:
@@ -241,7 +252,7 @@ class GroupTripCog(commands.Cog):
             try:
                 await self.disable_expired_trips()
             except Exception as error:
-                print(f"group trip deadline loop failed: {error}")
+                print(f"juicetrip deadline loop failed: {error}")
 
             await asyncio.sleep(60)
 
@@ -347,16 +358,17 @@ class GroupTripCog(commands.Cog):
         remaining = max(0, capacity - len(confirmed))
 
         embed = discord.Embed(
-            title=f"🥃 Group Trip: {trip['destination']}",
+            title=f"🥃 JuiceTrip: {trip['destination']}",
             description=(
                 f"**Dates:** {trip['dates']}\n"
                 f"**Estimated Cost:** {trip['estimated_cost']}\n"
-                f"**Tours / Stops:** {trip['tours'] or 'TBD'}"
+                f"**Tours / Stops:** {trip['tours'] or 'TBD'}\n"
+                f"*{bourbon_easter_egg(trip_id)}*"
             ),
             color=discord.Color.from_str("#C9973A"),
         )
         embed.add_field(
-            name=f"✅ Confirmed · 🛏️ {filled} of {capacity} spots filled",
+            name=f"🥃 Confirmed · 🛏️ {filled} of {capacity} barrel bunk spots filled",
             value=(
                 f"`{progress_bar(filled, capacity)}`\n"
                 f"Remaining Airbnb spots: **{remaining}**\n"
@@ -389,12 +401,12 @@ class GroupTripCog(commands.Cog):
                 inline=False,
             )
 
-        footer = "RSVP buttons are closed." if deadline_is_past(trip["deadline"]) else "Click a button below to RSVP."
+        footer = "RSVP barrel is closed." if deadline_is_past(trip["deadline"]) else "Pick your pour below to RSVP."
 
         if trip["deadline"]:
             footer = f"{footer} RSVP deadline: {trip['deadline']}"
 
-        embed.set_footer(text=footer)
+        embed.set_footer(text=f"{footer} · NeatBot JuiceTrip Department")
         return embed
 
     async def refresh_trip_message(self, trip_id: int, source_message: Optional[discord.Message] = None):
@@ -455,7 +467,7 @@ class GroupTripCog(commands.Cog):
         except discord.HTTPException:
             pass
 
-    @app_commands.command(name="grouptrip", description="Create an interactive group trip RSVP post.")
+    @app_commands.command(name="juicetrip", description="Create an interactive bourbon trip RSVP post.")
     @app_commands.checks.has_permissions(manage_guild=True)
     @app_commands.describe(
         destination="Name/location of the trip",
@@ -465,7 +477,7 @@ class GroupTripCog(commands.Cog):
         tours="Comma-separated tour/distillery stops",
         deadline='RSVP deadline, e.g. "Sept 30"',
     )
-    async def grouptrip(
+    async def juicetrip(
         self,
         interaction: discord.Interaction,
         destination: str,
@@ -518,15 +530,15 @@ class GroupTripCog(commands.Cog):
             )
             await db.commit()
 
-    @grouptrip.error
-    async def grouptrip_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
+    @juicetrip.error
+    async def juicetrip_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
         if isinstance(error, app_commands.MissingPermissions):
-            await interaction.response.send_message("Only mods can create group trip posts.", ephemeral=True)
+            await interaction.response.send_message("Only mods can create JuiceTrip posts.", ephemeral=True)
             return
 
         raise error
 
-    @app_commands.command(name="tripstatus", description="Show the active group trip RSVP tally.")
+    @app_commands.command(name="tripstatus", description="Show the active JuiceTrip RSVP tally.")
     @app_commands.checks.has_permissions(manage_guild=True)
     async def tripstatus(self, interaction: discord.Interaction):
         trip = await self.active_trip_for_channel(interaction.channel_id)
@@ -541,7 +553,7 @@ class GroupTripCog(commands.Cog):
         remaining = max(0, capacity - len(confirmed))
         fill_rate = f"{len(confirmed)}/{capacity}"
         embed = discord.Embed(
-            title=f"Trip Status: {trip['destination']}",
+            title=f"JuiceTrip Status: {trip['destination']}",
             description=(
                 f"**Dates:** {trip['dates']}\n"
                 f"**Airbnb Fill:** {fill_rate} spots filled · **{remaining}** remaining"
