@@ -1942,6 +1942,14 @@ UTILITY_ACTIONS = {
         "description": "Posts a rare bottle shelf alert in the current channel. Only the bottle name is required.",
         "example": "/taterfind bottle:RR15 find_type:On Shelf store:Binny's Lakeview price:250 quantity:1 notes:Behind customer service"
     },
+    "juicetrip": {
+        "label": "JuiceTrip",
+        "emoji": "🚌",
+        "style": discord.ButtonStyle.secondary,
+        "title": "🚌 /juicetrip",
+        "description": "Mod-only RSVP board for bourbon trips, tours, Airbnb capacity, maybes, and day-trip folks.",
+        "example": "/juicetrip destination:Bardstown dates:Oct 10-12, 2026 airbnb_capacity:8 estimated_cost:150-200 tours:Heaven Hill, Willett, Bardstown Bourbon Co deadline:Sept 30"
+    },
     "boty": {
         "label": "BOTY",
         "emoji": "🏆",
@@ -2000,7 +2008,7 @@ def utility_embed():
     embed.add_field(name="💬 Message Neat", value="Starts the private `/flip` formatting wizard.", inline=False)
     embed.add_field(name="🔁 Trading", value="Use `/flip`, `/bottle`, `/worth`, and `/compare` helpers.", inline=False)
     embed.add_field(name="🔔 Finds", value="Use `/taterfind` to post rare bottle shelf alerts.", inline=False)
-    embed.add_field(name="🏆 Community", value="Start BOTY ratings, bottle battles, or the WHADD image.", inline=False)
+    embed.add_field(name="🏆 Community", value="Start BOTY ratings, bottle battles, JuiceTrip RSVPs, or the WHADD image.", inline=False)
     embed.set_footer(text="NeatBot buttons preserve post history. Slash command examples are shown privately.")
     return embed
 
@@ -2116,9 +2124,10 @@ class UtilityView(discord.ui.View):
         self.add_item(UtilityButton("worth", row=0))
         self.add_item(UtilityButton("compare", row=0))
         self.add_item(UtilityButton("taterfind", row=1))
+        self.add_item(UtilityButton("juicetrip", row=1))
         self.add_item(UtilityButton("boty", row=1))
-        self.add_item(UtilityButton("battle", row=1))
-        self.add_item(UtilityButton("whadd", row=1))
+        self.add_item(UtilityButton("battle", row=2))
+        self.add_item(UtilityButton("whadd", row=2))
 
 
 intents = discord.Intents.default()
