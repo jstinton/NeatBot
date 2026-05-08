@@ -27,6 +27,10 @@ USER_MENTION_PATTERN = re.compile(r"<@!?(?P<user_id>\d+)>")
 VINTAGE_YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
 DISCORD_ID_PATTERN = re.compile(r"^\d{15,25}$")
 URL_PATTERN = re.compile(r"https?://\S+")
+DISCORD_MESSAGE_LINK_PATTERN = re.compile(
+    r"https?://(?:canary\.|ptb\.)?discord(?:app)?\.com/channels/"
+    r"(?P<guild_id>\d+|@me)/(?P<channel_id>\d+)/(?P<message_id>\d+)"
+)
 
 
 STORE_ROLE_MAP = {
@@ -211,6 +215,7 @@ def taterfind_message(
     quantity: Optional[int],
     notes: Optional[str],
     source_link: Optional[str],
+    source_preview: Optional[str],
 ):
     lines = [
         "🥃 **TATER FIND ALERT** 🥃",
@@ -239,7 +244,10 @@ def taterfind_message(
     if notes:
         lines.append(f"**Notes:** {notes}")
 
-    if source_link:
+    if source_preview:
+        lines.extend(["", source_preview])
+
+    if source_link and not source_preview:
         lines.append(f"**Source Post:** [Open post]({source_link})")
 
     role_tag = tater_role_tag(store)
@@ -274,6 +282,68 @@ def extract_source_link_from_notes(notes: Optional[str]):
     cleaned_notes = re.sub(r"\s{2,}", " ", cleaned_notes).strip(" -—:|")
 
     return cleaned_notes or None, source_link
+
+
+def discord_message_link_ids(source_link: Optional[str]):
+    if not source_link:
+        return None
+
+    match = DISCORD_MESSAGE_LINK_PATTERN.search(source_link)
+
+    if not match:
+        return None
+
+    return int(match.group("channel_id")), int(match.group("message_id"))
+
+
+def preview_message_text(message: discord.Message):
+    content = (message.content or "").strip()
+
+    if not content and message.embeds:
+        embed = message.embeds[0]
+        content = (embed.description or embed.title or "").strip()
+
+    if not content and message.attachments:
+        content = "Attachment included in source post."
+
+    if not content:
+        content = "Source post preview unavailable."
+
+    content = re.sub(r"\s+", " ", content)
+
+    if len(content) > 420:
+        content = f"{content[:417]}..."
+
+    return content
+
+
+async def source_post_preview(source_link: Optional[str]):
+    ids = discord_message_link_ids(source_link)
+
+    if not ids:
+        return None
+
+    channel_id, message_id = ids
+
+    try:
+        channel = bot.get_channel(channel_id) or await bot.fetch_channel(channel_id)
+
+        if not hasattr(channel, "fetch_message"):
+            return None
+
+        message = await channel.fetch_message(message_id)
+    except discord.HTTPException:
+        return None
+
+    channel_name = getattr(channel, "name", "source")
+    timestamp = discord.utils.format_dt(message.created_at, "t")
+    text = preview_message_text(message)
+
+    return (
+        "↪ **Forwarded**\n"
+        f"{text}\n"
+        f"[#{channel_name}]({source_link}) · {timestamp} ›"
+    )
 
 
 def parse_tater_price(value: Optional[str]):
@@ -385,6 +455,7 @@ async def post_tater_find_alert(
         resolved_location = configured_tater_location(store, location)
         notes, extracted_source_link = extract_source_link_from_notes(notes)
         display_source_link = clean_source_link(source_link) or extracted_source_link
+        display_source_preview = await source_post_preview(display_source_link)
         content = taterfind_message(
             bottle=display_bottle,
             store=store,
@@ -394,6 +465,7 @@ async def post_tater_find_alert(
             quantity=quantity,
             notes=notes,
             source_link=display_source_link,
+            source_preview=display_source_preview,
         )
         embed = None
 
