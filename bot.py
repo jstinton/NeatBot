@@ -2127,6 +2127,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def setup_hook():
+    await bot.load_extension("group_trip")
     bot.add_dynamic_items(BOTYScoreButton)
     bot.add_dynamic_items(BattleVoteButton)
     bot.add_dynamic_items(FlipBinButton)
