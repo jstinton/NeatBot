@@ -26,6 +26,7 @@ ZIP_CODE_PATTERN = re.compile(r"^\d{5}$")
 USER_MENTION_PATTERN = re.compile(r"<@!?(?P<user_id>\d+)>")
 VINTAGE_YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
 DISCORD_ID_PATTERN = re.compile(r"^\d{15,25}$")
+URL_PATTERN = re.compile(r"https?://\S+")
 
 
 STORE_ROLE_MAP = {
@@ -209,6 +210,7 @@ def taterfind_message(
     price: Optional[float],
     quantity: Optional[int],
     notes: Optional[str],
+    source_link: Optional[str],
 ):
     lines = [
         "🥃 **TATER FIND ALERT** 🥃",
@@ -237,6 +239,9 @@ def taterfind_message(
     if notes:
         lines.append(f"**Notes:** {notes}")
 
+    if source_link:
+        lines.append(f"**Source Post:** [Open post]({source_link})")
+
     role_tag = tater_role_tag(store)
 
     if role_tag:
@@ -245,6 +250,30 @@ def taterfind_message(
     lines.extend(["", "_Posted via /taterfind · NeatBot_"])
 
     return "\n".join(lines)
+
+
+def clean_source_link(value: Optional[str]):
+    if not value:
+        return None
+
+    match = URL_PATTERN.search(value.strip())
+
+    if not match:
+        return None
+
+    return match.group(0).rstrip(").,]>")
+
+
+def extract_source_link_from_notes(notes: Optional[str]):
+    source_link = clean_source_link(notes)
+
+    if not notes or not source_link:
+        return notes, None
+
+    cleaned_notes = notes.replace(source_link, "").strip()
+    cleaned_notes = re.sub(r"\s{2,}", " ", cleaned_notes).strip(" -—:|")
+
+    return cleaned_notes or None, source_link
 
 
 def parse_tater_price(value: Optional[str]):
@@ -330,6 +359,7 @@ async def post_tater_find_alert(
     price: Optional[float],
     quantity: Optional[int],
     notes: Optional[str],
+    source_link: Optional[str],
     photo: Optional[discord.Attachment] = None
 ):
     if price is not None and price < 0:
@@ -353,6 +383,8 @@ async def post_tater_find_alert(
         bottle_name, _ = find_bottle(bottle)
         display_bottle = bottle_name or canonical_bottle_name(bottle)
         resolved_location = configured_tater_location(store, location)
+        notes, extracted_source_link = extract_source_link_from_notes(notes)
+        display_source_link = clean_source_link(source_link) or extracted_source_link
         content = taterfind_message(
             bottle=display_bottle,
             store=store,
@@ -361,6 +393,7 @@ async def post_tater_find_alert(
             price=price,
             quantity=quantity,
             notes=notes,
+            source_link=display_source_link,
         )
         embed = None
 
@@ -1942,7 +1975,7 @@ class TaterFindModal(discord.ui.Modal, title="Tater Find Alert"):
     )
     notes = discord.ui.TextInput(
         label="Notes / qty",
-        placeholder="Qty 2, behind customer service, limit 1...",
+        placeholder="Qty 2, behind customer service, limit 1, or paste source link...",
         required=False,
         max_length=400,
         style=discord.TextStyle.paragraph
@@ -1961,7 +1994,8 @@ class TaterFindModal(discord.ui.Modal, title="Tater Find Alert"):
             find_type=parse_tater_find_type(str(self.find_type)),
             price=parse_tater_price(str(self.price)),
             quantity=None,
-            notes=str(self.notes).strip() or None
+            notes=str(self.notes).strip() or None,
+            source_link=None
         )
 
 
@@ -2222,6 +2256,7 @@ async def utility(interaction: discord.Interaction):
     price="Retail price seen on shelf",
     quantity="Number of bottles spotted",
     notes="Shelf location, limits, timing, or other useful details",
+    source_link="Link to the original Discord post or forwarded source",
     photo="Photo of the find"
 )
 @app_commands.choices(store=TATER_STORE_CHOICES)
@@ -2235,6 +2270,7 @@ async def taterfind(
     price: Optional[float] = None,
     quantity: Optional[int] = None,
     notes: Optional[str] = None,
+    source_link: Optional[str] = None,
     photo: Optional[discord.Attachment] = None
 ):
     await interaction.response.defer(ephemeral=True, thinking=True)
@@ -2248,6 +2284,7 @@ async def taterfind(
         price=price,
         quantity=quantity,
         notes=notes,
+        source_link=source_link,
         photo=photo
     )
 

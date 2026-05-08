@@ -365,6 +365,36 @@
     "verdict_notes": "Great gift bottle and pretty reliable pour, but it gets overpriced quickly.",
     "community_score": 84
   },
+  "Blanton's Straight From The Barrel": {
+    "aliases": [
+      "blantons sftb",
+      "blanton's sftb",
+      "sftb",
+      "blantons straight from the barrel",
+      "blanton's straight from the barrel",
+      "blanton straight from the barrel",
+      "blantons straight from barrel",
+      "blanton's straight from barrel",
+      "blanton barrel proof",
+      "blantons barrel proof"
+    ],
+    "proof": "Varies, usually 125-132",
+    "style": "Barrel proof single barrel bourbon",
+    "msrp": 150,
+    "fair_price_low": 175,
+    "fair_price_high": 250,
+    "secondary_low": 275,
+    "secondary_high": 425,
+    "profile": "Dark caramel, vanilla, cherry, oak, baking spice, honey, leather, and barrel proof heat.",
+    "similar": [
+      "Blanton's Gold",
+      "Stagg",
+      "E.H. Taylor Barrel Proof"
+    ],
+    "description": "A barrel proof version of Blanton's Single Barrel, bottled uncut and unfiltered with proof varying by barrel.",
+    "verdict_notes": "A premium Blanton's bottle. Strong buy near MSRP, but pricing runs away quickly once collector hype kicks in.",
+    "community_score": 91
+  },
   "Blue Note Juke Joint": {
     "aliases": [
       "blue note",
