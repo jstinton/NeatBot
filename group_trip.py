@@ -1,4 +1,5 @@
 import asyncio
+import os
 from datetime import datetime, time, timezone
 from pathlib import Path
 from typing import Optional
@@ -11,6 +12,7 @@ from discord.ext import commands
 
 DB_PATH = Path(__file__).parent / "trips.db"
 JUICED_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
+DEFAULT_MOD_CHANNEL_ID = os.getenv("JUICETRIP_MOD_CHANNEL_ID")
 STATUS_LABELS = {
     "confirmed": "✅ Confirmed",
     "maybe": "🤔 Maybe",
@@ -318,6 +320,8 @@ class GroupTripCog(commands.Cog):
                     estimated_cost TEXT NOT NULL,
                     tours TEXT,
                     deadline TEXT,
+                    mod_channel_id INTEGER,
+                    mod_message_id INTEGER,
                     active INTEGER NOT NULL DEFAULT 1
                 )
                 """
@@ -338,8 +342,22 @@ class GroupTripCog(commands.Cog):
                 )
                 """
             )
+            await self.migrate_trip_columns(db)
             await self.migrate_rsvp_columns(db)
             await db.commit()
+
+    async def migrate_trip_columns(self, db):
+        async with db.execute("PRAGMA table_info(trips)") as cursor:
+            existing_columns = {row[1] for row in await cursor.fetchall()}
+
+        migrations = {
+            "mod_channel_id": "ALTER TABLE trips ADD COLUMN mod_channel_id INTEGER",
+            "mod_message_id": "ALTER TABLE trips ADD COLUMN mod_message_id INTEGER",
+        }
+
+        for column, statement in migrations.items():
+            if column not in existing_columns:
+                await db.execute(statement)
 
     async def migrate_rsvp_columns(self, db):
         async with db.execute("PRAGMA table_info(rsvps)") as cursor:
@@ -454,6 +472,90 @@ class GroupTripCog(commands.Cog):
                 row = await cursor.fetchone()
 
         return int(row[0])
+
+    async def resolve_mod_channel(self, channel: Optional[discord.abc.GuildChannel]):
+        if channel and hasattr(channel, "send"):
+            return channel
+
+        if not DEFAULT_MOD_CHANNEL_ID:
+            return None
+
+        try:
+            channel_id = int(DEFAULT_MOD_CHANNEL_ID)
+        except ValueError:
+            return None
+
+        return self.bot.get_channel(channel_id) or await self.bot.fetch_channel(channel_id)
+
+    async def set_mod_summary_target(self, trip_id: int, channel_id: int, message_id: int):
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute(
+                "UPDATE trips SET mod_channel_id = ?, mod_message_id = ? WHERE trip_id = ?",
+                (channel_id, message_id, trip_id),
+            )
+            await db.commit()
+
+    async def trip_status_embed(self, trip_id: int):
+        trip = await self.trip_by_id(trip_id)
+        grouped = await self.rsvps_by_status(trip_id)
+        confirmed = grouped.get("confirmed", [])
+        capacity = trip["airbnb_capacity"]
+        remaining = max(0, capacity - len(confirmed))
+        fill_rate = f"{len(confirmed)}/{capacity}"
+        embed = discord.Embed(
+            title=f"JuiceTrip Mod Summary: {trip['destination']}",
+            description=(
+                f"**Dates:** {trip['dates']}\n"
+                f"**Airbnb Fill:** {fill_rate} spots filled · **{remaining}** remaining\n"
+                f"**Public Channel:** <#{trip['channel_id']}>"
+            ),
+            color=discord.Color.blurple(),
+        )
+
+        for status in ("confirmed", "maybe", "daytrip", "out", "waitlist"):
+            rows = grouped.get(status, [])
+            embed.add_field(
+                name=f"{STATUS_LABELS[status]} ({len(rows)})",
+                value=rsvp_detail_rows(rows, limit=950),
+                inline=False,
+            )
+
+        maybes = grouped.get("maybe", [])
+        embed.add_field(
+            name="Needs Follow-Up",
+            value=truncate_names([row["username"] for row in maybes], limit=950),
+            inline=False,
+        )
+        embed.set_footer(text="Live JuiceTrip planning summary. Keep this channel mod-only.")
+        return embed
+
+    async def sync_mod_summary(self, trip_id: int):
+        trip = await self.trip_by_id(trip_id)
+
+        if not trip or not trip["mod_channel_id"]:
+            return None
+
+        try:
+            channel = self.bot.get_channel(trip["mod_channel_id"]) or await self.bot.fetch_channel(trip["mod_channel_id"])
+
+            if not hasattr(channel, "send"):
+                return None
+
+            embed = await self.trip_status_embed(trip_id)
+
+            if trip["mod_message_id"]:
+                try:
+                    message = await channel.fetch_message(trip["mod_message_id"])
+                    await message.edit(embed=embed)
+                    return message
+                except discord.HTTPException:
+                    pass
+
+            message = await channel.send(embed=embed)
+            await self.set_mod_summary_target(trip_id, channel.id, message.id)
+            return message
+        except discord.HTTPException:
+            return None
 
     async def send_juiced_dm(self, user: discord.abc.User, label: str, destination: str, dates: str):
         content = (
@@ -660,6 +762,7 @@ class GroupTripCog(commands.Cog):
             notes=notes,
         )
         await self.refresh_trip_message(trip_id, source_message)
+        await self.sync_mod_summary(trip_id)
 
         label = STATUS_LABELS[final_status]
         await interaction.response.send_message(
@@ -681,6 +784,7 @@ class GroupTripCog(commands.Cog):
         estimated_cost='Estimated per-person cost, e.g. "$150-$200"',
         tours="Comma-separated tour/distillery stops",
         deadline='RSVP deadline, e.g. "Sept 30"',
+        mod_channel="Optional mod-only channel for the live planning summary",
     )
     async def juicetrip(
         self,
@@ -691,12 +795,14 @@ class GroupTripCog(commands.Cog):
         estimated_cost: str,
         tours: Optional[str] = None,
         deadline: Optional[str] = None,
+        mod_channel: Optional[discord.TextChannel] = None,
     ):
         if airbnb_capacity < 1:
             await interaction.response.send_message("Airbnb capacity must be at least 1.", ephemeral=True)
             return
 
         await interaction.response.defer()
+        resolved_mod_channel = await self.resolve_mod_channel(mod_channel)
 
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute(
@@ -707,9 +813,9 @@ class GroupTripCog(commands.Cog):
                 """
                 INSERT INTO trips (
                     channel_id, message_id, destination, dates, airbnb_capacity,
-                    estimated_cost, tours, deadline, active
+                    estimated_cost, tours, deadline, mod_channel_id, active
                 )
-                VALUES (?, 0, ?, ?, ?, ?, ?, ?, 1)
+                VALUES (?, 0, ?, ?, ?, ?, ?, ?, ?, 1)
                 """,
                 (
                     interaction.channel_id,
@@ -719,6 +825,7 @@ class GroupTripCog(commands.Cog):
                     estimated_cost,
                     tours,
                     deadline,
+                    resolved_mod_channel.id if resolved_mod_channel else None,
                 ),
             )
             trip_id = cursor.lastrowid
@@ -734,6 +841,14 @@ class GroupTripCog(commands.Cog):
                 (message.id, trip_id),
             )
             await db.commit()
+
+        mod_message = await self.sync_mod_summary(trip_id)
+
+        if resolved_mod_channel and not mod_message:
+            await interaction.followup.send(
+                "JuiceTrip was posted, but I could not post the mod summary. Check my permissions in the mod channel.",
+                ephemeral=True,
+            )
 
     @juicetrip.error
     async def juicetrip_error(self, interaction: discord.Interaction, error: app_commands.AppCommandError):
@@ -753,35 +868,9 @@ class GroupTripCog(commands.Cog):
             return
 
         grouped = await self.rsvps_by_status(trip["trip_id"])
-        confirmed = grouped.get("confirmed", [])
-        capacity = trip["airbnb_capacity"]
-        remaining = max(0, capacity - len(confirmed))
-        fill_rate = f"{len(confirmed)}/{capacity}"
-        embed = discord.Embed(
-            title=f"JuiceTrip Status: {trip['destination']}",
-            description=(
-                f"**Dates:** {trip['dates']}\n"
-                f"**Airbnb Fill:** {fill_rate} spots filled · **{remaining}** remaining"
-            ),
-            color=discord.Color.blurple(),
-        )
-
-        for status in ("confirmed", "maybe", "daytrip", "out", "waitlist"):
-            rows = grouped.get(status, [])
-            embed.add_field(
-                name=f"{STATUS_LABELS[status]} ({len(rows)})",
-                value=rsvp_detail_rows(rows, limit=950),
-                inline=False,
-            )
-
         maybes = grouped.get("maybe", [])
-        embed.add_field(
-            name="Needs Follow-Up",
-            value=truncate_names([row["username"] for row in maybes], limit=950),
-            inline=False,
-        )
-
         view = FollowUpMaybeView(self, trip["trip_id"]) if maybes else None
+        embed = await self.trip_status_embed(trip["trip_id"])
         await interaction.response.send_message(embed=embed, view=view, ephemeral=True)
 
     @tripstatus.error
