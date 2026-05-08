@@ -112,6 +112,55 @@ def truncate_names(names: list[str], limit: int = 900):
     return "\n".join(lines)
 
 
+def answer_or_dash(value: Optional[str]):
+    if value is None:
+        return "—"
+
+    value = str(value).strip()
+    return value or "—"
+
+
+def rsvp_detail_rows(rows, limit: int = 950):
+    if not rows:
+        return "None yet"
+
+    lines = []
+
+    for row in rows:
+        details = [
+            f"nights: {answer_or_dash(row['nights'])}",
+            f"max/night: {answer_or_dash(row['max_cost_per_night'])}",
+            f"share bed: {answer_or_dash(row['share_bed'])}",
+        ]
+
+        notes = answer_or_dash(row["notes"])
+
+        if notes != "—":
+            details.append(f"notes: {notes}")
+
+        lines.append(f"• {row['username']} — {' · '.join(details)}")
+
+    value = "\n".join(lines)
+
+    if len(value) <= limit:
+        return value
+
+    clipped = []
+    remaining = len(lines)
+
+    for line in lines:
+        candidate = "\n".join(clipped + [line])
+
+        if len(candidate) > limit - 40:
+            break
+
+        clipped.append(line)
+        remaining -= 1
+
+    clipped.append(f"…and {remaining} more")
+    return "\n".join(clipped)
+
+
 class GroupTripView(discord.ui.View):
     def __init__(self, cog: "GroupTripCog", trip_id: int, *, disabled: bool = False):
         super().__init__(timeout=None)
@@ -147,6 +196,57 @@ class GroupTripButton(discord.ui.Button):
 
     async def callback(self, interaction: discord.Interaction):
         await self.cog.handle_rsvp(interaction, self.trip_id, self.status)
+
+
+class GroupTripRSVPModal(discord.ui.Modal):
+    def __init__(self, cog: "GroupTripCog", trip_id: int, requested_status: str, source_message: discord.Message):
+        label = STATUS_LABELS[requested_status].split(" ", 1)[1]
+        super().__init__(title=f"JuiceTrip RSVP: {label}")
+        self.cog = cog
+        self.trip_id = trip_id
+        self.requested_status = requested_status
+        self.source_message = source_message
+        self.nights = discord.ui.TextInput(
+            label="How many nights would you stay?",
+            placeholder="Example: 2, 3, day trip only, not sure",
+            required=False,
+            max_length=40,
+        )
+        self.max_cost_per_night = discord.ui.TextInput(
+            label="Max cost per night?",
+            placeholder="Example: 150, 200, flexible",
+            required=False,
+            max_length=60,
+        )
+        self.share_bed = discord.ui.TextInput(
+            label="Comfortable sharing a bed?",
+            placeholder="Yes / No / Only with someone I know",
+            required=False,
+            max_length=80,
+        )
+        self.notes = discord.ui.TextInput(
+            label="Anything else mods should know?",
+            placeholder="Tours you want, arrival timing, roommate preferences...",
+            required=False,
+            max_length=300,
+            style=discord.TextStyle.paragraph,
+        )
+        self.add_item(self.nights)
+        self.add_item(self.max_cost_per_night)
+        self.add_item(self.share_bed)
+        self.add_item(self.notes)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        await self.cog.record_rsvp_from_form(
+            interaction,
+            self.trip_id,
+            self.requested_status,
+            source_message=self.source_message,
+            nights=self.nights.value.strip() or None,
+            max_cost_per_night=self.max_cost_per_night.value.strip() or None,
+            share_bed=self.share_bed.value.strip() or None,
+            notes=self.notes.value.strip() or None,
+        )
 
 
 class FollowUpMaybeView(discord.ui.View):
@@ -228,12 +328,32 @@ class GroupTripCog(commands.Cog):
                     user_id INTEGER NOT NULL,
                     username TEXT NOT NULL,
                     status TEXT NOT NULL,
+                    nights TEXT,
+                    max_cost_per_night TEXT,
+                    share_bed TEXT,
+                    notes TEXT,
                     timestamp TEXT NOT NULL,
                     PRIMARY KEY (trip_id, user_id)
                 )
                 """
             )
+            await self.migrate_rsvp_columns(db)
             await db.commit()
+
+    async def migrate_rsvp_columns(self, db):
+        async with db.execute("PRAGMA table_info(rsvps)") as cursor:
+            existing_columns = {row[1] for row in await cursor.fetchall()}
+
+        migrations = {
+            "nights": "ALTER TABLE rsvps ADD COLUMN nights TEXT",
+            "max_cost_per_night": "ALTER TABLE rsvps ADD COLUMN max_cost_per_night TEXT",
+            "share_bed": "ALTER TABLE rsvps ADD COLUMN share_bed TEXT",
+            "notes": "ALTER TABLE rsvps ADD COLUMN notes TEXT",
+        }
+
+        for column, statement in migrations.items():
+            if column not in existing_columns:
+                await db.execute(statement)
 
     async def register_active_views(self):
         async with aiosqlite.connect(self.db_path) as db:
@@ -334,18 +454,45 @@ class GroupTripCog(commands.Cog):
 
         return int(row[0])
 
-    async def set_rsvp(self, trip_id: int, user: discord.abc.User, status: str):
+    async def set_rsvp(
+        self,
+        trip_id: int,
+        user: discord.abc.User,
+        status: str,
+        *,
+        nights: Optional[str],
+        max_cost_per_night: Optional[str],
+        share_bed: Optional[str],
+        notes: Optional[str],
+    ):
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute(
                 """
-                INSERT INTO rsvps (trip_id, user_id, username, status, timestamp)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO rsvps (
+                    trip_id, user_id, username, status, nights,
+                    max_cost_per_night, share_bed, notes, timestamp
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(trip_id, user_id) DO UPDATE SET
                     username = excluded.username,
                     status = excluded.status,
+                    nights = excluded.nights,
+                    max_cost_per_night = excluded.max_cost_per_night,
+                    share_bed = excluded.share_bed,
+                    notes = excluded.notes,
                     timestamp = excluded.timestamp
                 """,
-                (trip_id, user.id, user.display_name, status, utcnow_iso()),
+                (
+                    trip_id,
+                    user.id,
+                    user.display_name,
+                    status,
+                    nights,
+                    max_cost_per_night,
+                    share_bed,
+                    notes,
+                    utcnow_iso(),
+                ),
             )
             await db.commit()
 
@@ -439,6 +586,37 @@ class GroupTripCog(commands.Cog):
             await self.refresh_trip_message(trip_id, interaction.message)
             return
 
+        if not interaction.message:
+            await interaction.response.send_message("I can’t open the RSVP form from here. Try the button again.", ephemeral=True)
+            return
+
+        await interaction.response.send_modal(
+            GroupTripRSVPModal(self, trip_id, requested_status, interaction.message)
+        )
+
+    async def record_rsvp_from_form(
+        self,
+        interaction: discord.Interaction,
+        trip_id: int,
+        requested_status: str,
+        *,
+        source_message: discord.Message,
+        nights: Optional[str],
+        max_cost_per_night: Optional[str],
+        share_bed: Optional[str],
+        notes: Optional[str],
+    ):
+        trip = await self.trip_by_id(trip_id)
+
+        if not trip or not trip["active"]:
+            await interaction.response.send_message("That trip is no longer active.", ephemeral=True)
+            return
+
+        if deadline_is_past(trip["deadline"]):
+            await interaction.response.send_message("RSVPs are closed for this trip.", ephemeral=True)
+            await self.refresh_trip_message(trip_id, source_message)
+            return
+
         final_status = requested_status
 
         if requested_status == "confirmed":
@@ -456,11 +634,22 @@ class GroupTripCog(commands.Cog):
             if confirmed_count >= trip["airbnb_capacity"] and not already_confirmed:
                 final_status = "waitlist"
 
-        await self.set_rsvp(trip_id, interaction.user, final_status)
-        await self.refresh_trip_message(trip_id, interaction.message)
+        await self.set_rsvp(
+            trip_id,
+            interaction.user,
+            final_status,
+            nights=nights,
+            max_cost_per_night=max_cost_per_night,
+            share_bed=share_bed,
+            notes=notes,
+        )
+        await self.refresh_trip_message(trip_id, source_message)
 
         label = STATUS_LABELS[final_status]
-        await interaction.response.send_message(f"You're marked as **{label}** for **{trip['destination']}**.", ephemeral=True)
+        await interaction.response.send_message(
+            f"You're marked as **{label}** for **{trip['destination']}**. The barrel bunk details are saved for mods.",
+            ephemeral=True
+        )
 
         try:
             await interaction.user.send(f"You're marked as {label} for {trip['destination']} ({trip['dates']})!")
@@ -565,7 +754,7 @@ class GroupTripCog(commands.Cog):
             rows = grouped.get(status, [])
             embed.add_field(
                 name=f"{STATUS_LABELS[status]} ({len(rows)})",
-                value=truncate_names([row["username"] for row in rows], limit=950),
+                value=rsvp_detail_rows(rows, limit=950),
                 inline=False,
             )
 
