@@ -10,7 +10,7 @@ from discord.ext import commands
 
 
 DB_PATH = Path(__file__).parent / "trips.db"
-JUICED_IMAGE_PATH = Path(__file__).parent / "assets" / "youve-been-juiced.png"
+JUICED_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
 STATUS_LABELS = {
     "confirmed": "✅ Confirmed",
     "maybe": "🤔 Maybe",
@@ -464,7 +464,7 @@ class GroupTripCog(commands.Cog):
         if JUICED_IMAGE_PATH.exists():
             await user.send(
                 content,
-                file=discord.File(JUICED_IMAGE_PATH, filename="youve-been-juiced.png"),
+                file=discord.File(JUICED_IMAGE_PATH, filename="youve-been-juiced.jpg"),
             )
             return
 

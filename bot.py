@@ -22,7 +22,7 @@ DATA_PATH = Path(__file__).parent / "bottles.json"
 BOTY_VOTES_PATH = Path(__file__).parent / "boty_votes.json"
 BATTLE_VOTES_PATH = Path(__file__).parent / "battle_votes.json"
 WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
-NERD_IMAGE_PATH = Path(__file__).parent / "assets" / "youve-been-juiced.png"
+NERD_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
 ZIP_CODE_PATTERN = re.compile(r"^\d{5}$")
 USER_MENTION_PATTERN = re.compile(r"<@!?(?P<user_id>\d+)>")
 VINTAGE_YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
@@ -2329,8 +2329,14 @@ async def nerd(interaction: discord.Interaction):
         )
         return
 
-    file = discord.File(NERD_IMAGE_PATH, filename="nerd.png")
-    await interaction.response.send_message(file=file)
+    try:
+        file = discord.File(NERD_IMAGE_PATH, filename="nerd.jpg")
+        await interaction.response.send_message(file=file)
+    except discord.HTTPException:
+        await interaction.response.send_message(
+            "Discord wouldn’t let me post that image here. A mod may need to give NeatBot Attach Files permission.",
+            ephemeral=True
+        )
 
 
 @bot.tree.command(name="messageneat", description="Start a DM with NeatBot to format a /flip post.")
