@@ -2,11 +2,14 @@ import os
 import json
 import difflib
 import re
+import uuid
+from datetime import timedelta
 from urllib.parse import quote_plus
 from pathlib import Path
 from typing import Optional
 
 import aiohttp
+import aiosqlite
 import discord
 from discord import app_commands
 from discord.ext import commands
@@ -23,6 +26,14 @@ BOTY_VOTES_PATH = Path(__file__).parent / "boty_votes.json"
 BATTLE_VOTES_PATH = Path(__file__).parent / "battle_votes.json"
 WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
 NERD_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
+ALLOCATION_DB_PATH = Path(
+    os.getenv(
+        "ALLOCATION_DB_PATH",
+        "/data/allocations.db" if Path("/data").exists() else Path(__file__).parent / "allocations.db"
+    )
+)
+ALLOCATION_TRACKER_CHANNEL_NAME = os.getenv("ALLOCATION_TRACKER_CHANNEL_NAME", "🔢allocation-tracker")
+ALLOCATION_DUPLICATE_HOURS = int(os.getenv("ALLOCATION_DUPLICATE_HOURS", "6"))
 ZIP_CODE_PATTERN = re.compile(r"^\d{5}$")
 USER_MENTION_PATTERN = re.compile(r"<@!?(?P<user_id>\d+)>")
 VINTAGE_YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
@@ -776,6 +787,459 @@ def canonical_bottle_list(value: str):
         return value.strip()
 
     return " + ".join(canonical_bottle_name(item) for item in items)
+
+
+ALLOCATION_EXTRA_ALIASES = {
+    "RR15": "Russell’s Reserve 15 Year Bourbon (2024)",
+    "GTS": "George T. Stagg 2024",
+    "WLW": "William Larue Weller 2025",
+    "ER17": "Eagle Rare 17-Year Bourbon 2025",
+    "THH": "Thomas H. Handy Sazerac Rye 2025",
+    "HANDY": "Thomas H. Handy Sazerac Rye 2025",
+    "SAZ18": "Sazerac 18-Year Rye 2025",
+    "EHT BP": "EH Taylor Barrel Proof",
+    "EH TAYLOR BP": "EH Taylor Barrel Proof",
+    "EHT": "E.H. Taylor Bottled-in-Bond 2025",
+    "EH TAYLOR": "E.H. Taylor Bottled-in-Bond 2025",
+    "E.H. TAYLOR": "E.H. Taylor Bottled-in-Bond 2025",
+    "EHT SINGLE BARREL": "E.H. Taylor Single Barrel",
+    "EH TAYLOR SINGLE BARREL": "E.H. Taylor Single Barrel",
+    "E.H. TAYLOR SINGLE BARREL": "E.H. Taylor Single Barrel",
+    "ELMER LEE": "Elmer T. Lee",
+    "JD12": "Jack Daniel’s 12-Year-Old Tennessee Whiskey Batch 4",
+    "JD14": "Jack Daniel’s 14-Year-Old Tennessee Whiskey Batch 2",
+    "KOK": "King of Kentucky Small Batch Bourbon",
+    "OWA": "Old Weller Antique 107",
+    "W12": "Weller 12 Year",
+    "CYPB": "Weller CYPB",
+    "FP": "Weller Full Proof",
+    "WFP": "Weller Full Proof",
+}
+ALLOCATION_POSITIVE_PATTERNS = [
+    r"\bgot\b",
+    r"\bgrabbed\b",
+    r"\bsecured\b",
+    r"\bfound\b",
+    r"\bscored\b",
+    r"\bpicked\s+up\b",
+    r"\bacquired\b",
+    r"\blanded\b",
+]
+ALLOCATION_NEGATIVE_PATTERNS = [
+    r"\bmissed\b",
+    r"\blooking\s+for\b",
+    r"\banyone\s+(seen|see|spot|spotted)\b",
+    r"\biso\b",
+    r"\btrade\b",
+    r"\btrading\b",
+    r"\bselling\b",
+    r"\bfor\s+sale\b",
+    r"\bfs\b",
+    r"\bft\b",
+    r"\bwish\s+i\s+(got|had|found)\b",
+    r"\bwhere\b",
+]
+
+
+def compact_alias_text(value: str):
+    return re.sub(r"[^a-z0-9]", "", normalize(value))
+
+
+def allocation_alias_entries():
+    entries = []
+
+    for alias, bottle_name in ALLOCATION_EXTRA_ALIASES.items():
+        entries.append((alias, bottle_name))
+
+    for bottle_name, data in BOTTLES.items():
+        entries.append((bottle_name, bottle_name))
+
+        for alias in bottle_aliases(data):
+            entries.append((alias, bottle_name))
+
+    unique = {}
+
+    for alias, bottle_name in entries:
+        if alias:
+            unique[compact_alias_text(alias)] = (alias, bottle_name)
+
+    return sorted(unique.values(), key=lambda item: len(compact_alias_text(item[0])), reverse=True)
+
+
+def detect_allocation_bottle(content: str):
+    compact_content = compact_alias_text(content)
+
+    for alias, bottle_name in allocation_alias_entries():
+        compact_alias = compact_alias_text(alias)
+
+        if len(compact_alias) >= 2 and compact_alias in compact_content:
+            canonical_name, _ = find_exact_bottle(bottle_name)
+            return canonical_name or bottle_name, alias
+
+    return None, None
+
+
+def analyze_allocation_message(content: str):
+    if not content or content.strip().startswith(("/", "!")):
+        return None
+
+    bottle_name, matched_alias = detect_allocation_bottle(content)
+
+    if not bottle_name:
+        return None
+
+    normalized = normalize(content)
+    positive = sum(1 for pattern in ALLOCATION_POSITIVE_PATTERNS if re.search(pattern, normalized))
+    negative = sum(1 for pattern in ALLOCATION_NEGATIVE_PATTERNS if re.search(pattern, normalized))
+    score = positive * 2 - negative * 3
+
+    if "?" in content:
+        score -= 2
+
+    if re.search(r"\bat\b|\bfrom\b", normalized):
+        score += 2
+
+    if re.search(r"\btoday\b|\bin\b", normalized):
+        score += 1
+
+    # In the dedicated tracker channel, a clean bare bottle mention like "jd12 batch 4"
+    # should still prompt, but obvious questions/trades should not.
+    if positive == 0 and negative == 0 and "?" not in content:
+        score = max(score, 2)
+
+    if score < 2:
+        return None
+
+    return {
+        "bottle_name": bottle_name,
+        "matched_alias": matched_alias,
+        "score": score,
+    }
+
+
+def allocation_year(dt=None):
+    return (dt or discord.utils.utcnow()).year
+
+
+async def init_allocation_db():
+    ALLOCATION_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS allocations (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                guild_id TEXT NOT NULL,
+                channel_id TEXT NOT NULL,
+                user_id TEXT NOT NULL,
+                username TEXT NOT NULL,
+                bottle_name TEXT NOT NULL,
+                original_message TEXT NOT NULL,
+                message_id TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                year INTEGER NOT NULL
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS allocation_tracker_state (
+                guild_id TEXT NOT NULL,
+                channel_id TEXT NOT NULL,
+                year INTEGER NOT NULL,
+                leaderboard_message_id TEXT,
+                updated_at TEXT NOT NULL,
+                PRIMARY KEY (guild_id, channel_id, year)
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS pending_allocations (
+                pending_id TEXT PRIMARY KEY,
+                guild_id TEXT NOT NULL,
+                channel_id TEXT NOT NULL,
+                user_id TEXT NOT NULL,
+                username TEXT NOT NULL,
+                bottle_name TEXT NOT NULL,
+                original_message TEXT NOT NULL,
+                message_id TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                expires_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.commit()
+
+
+async def create_pending_allocation(message: discord.Message, bottle_name: str):
+    pending_id = str(uuid.uuid4())
+    created_at = discord.utils.utcnow()
+    expires_at = created_at + timedelta(minutes=15)
+
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO pending_allocations (
+                pending_id, guild_id, channel_id, user_id, username,
+                bottle_name, original_message, message_id, created_at, expires_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                pending_id,
+                str(message.guild.id),
+                str(message.channel.id),
+                str(message.author.id),
+                message.author.display_name,
+                bottle_name,
+                message.content,
+                str(message.id),
+                created_at.isoformat(),
+                expires_at.isoformat(),
+            ),
+        )
+        await db.commit()
+
+    return pending_id
+
+
+async def get_pending_allocation(pending_id: str):
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            "SELECT * FROM pending_allocations WHERE pending_id = ?",
+            (pending_id,),
+        ) as cursor:
+            return await cursor.fetchone()
+
+
+async def delete_pending_allocation(pending_id: str):
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        await db.execute("DELETE FROM pending_allocations WHERE pending_id = ?", (pending_id,))
+        await db.commit()
+
+
+async def has_recent_allocation_duplicate(pending):
+    cutoff = discord.utils.utcnow() - timedelta(hours=ALLOCATION_DUPLICATE_HOURS)
+
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        async with db.execute(
+            """
+            SELECT id FROM allocations
+            WHERE guild_id = ? AND user_id = ? AND bottle_name = ? AND created_at >= ?
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (pending["guild_id"], pending["user_id"], pending["bottle_name"], cutoff.isoformat()),
+        ) as cursor:
+            return await cursor.fetchone() is not None
+
+
+async def save_confirmed_allocation(pending):
+    created_at = discord.utils.utcnow()
+
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO allocations (
+                guild_id, channel_id, user_id, username, bottle_name,
+                original_message, message_id, created_at, year
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            (
+                pending["guild_id"],
+                pending["channel_id"],
+                pending["user_id"],
+                pending["username"],
+                pending["bottle_name"],
+                pending["original_message"],
+                pending["message_id"],
+                created_at.isoformat(),
+                allocation_year(created_at),
+            ),
+        )
+        await db.commit()
+
+
+async def allocation_leaderboard_data(guild_id: int, year: int):
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            "SELECT COUNT(*) AS total FROM allocations WHERE guild_id = ? AND year = ?",
+            (str(guild_id), year),
+        ) as cursor:
+            total = (await cursor.fetchone())["total"]
+
+        async with db.execute(
+            """
+            SELECT username, COUNT(*) AS total
+            FROM allocations
+            WHERE guild_id = ? AND year = ?
+            GROUP BY user_id, username
+            ORDER BY total DESC, username COLLATE NOCASE ASC
+            LIMIT 5
+            """,
+            (str(guild_id), year),
+        ) as cursor:
+            hunters = await cursor.fetchall()
+
+        async with db.execute(
+            """
+            SELECT username, bottle_name
+            FROM allocations
+            WHERE guild_id = ? AND year = ?
+            ORDER BY created_at DESC, id DESC
+            LIMIT 5
+            """,
+            (str(guild_id), year),
+        ) as cursor:
+            latest = await cursor.fetchall()
+
+        async with db.execute(
+            """
+            SELECT bottle_name, COUNT(*) AS total
+            FROM allocations
+            WHERE guild_id = ? AND year = ?
+            GROUP BY bottle_name
+            ORDER BY total DESC, bottle_name COLLATE NOCASE ASC
+            LIMIT 5
+            """,
+            (str(guild_id), year),
+        ) as cursor:
+            bottles = await cursor.fetchall()
+
+    return total, hunters, latest, bottles
+
+
+def allocation_rows(rows, *, latest=False):
+    if not rows:
+        return "None yet"
+
+    if latest:
+        return "\n".join(f"• {row['username']} — {row['bottle_name']}" for row in rows)
+
+    return "\n".join(f"{index}. {row['username']} — {row['total']}" for index, row in enumerate(rows, start=1))
+
+
+def allocation_bottle_rows(rows):
+    if not rows:
+        return "None yet"
+
+    return "\n".join(f"{index}. {row['bottle_name']} — {row['total']}" for index, row in enumerate(rows, start=1))
+
+
+async def allocation_leaderboard_embed(guild_id: int, year: int):
+    total, hunters, latest, bottles = await allocation_leaderboard_data(guild_id, year)
+    embed = discord.Embed(
+        title=f"🥃 {year} Allocation Tracker",
+        description=f"**Server Total:** {total} bottle{'s' if total != 1 else ''}",
+        color=discord.Color.from_str("#C9973A"),
+    )
+    embed.add_field(name="Top Hunters", value=allocation_rows(hunters), inline=False)
+    embed.add_field(name="Latest Allocations", value=allocation_rows(latest, latest=True), inline=False)
+    embed.add_field(name="Top Bottles", value=allocation_bottle_rows(bottles), inline=False)
+    embed.set_footer(text="Historical allocation data is preserved by year.")
+    return embed
+
+
+async def tracker_message_id(guild_id: int, channel_id: int, year: int):
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        async with db.execute(
+            """
+            SELECT leaderboard_message_id FROM allocation_tracker_state
+            WHERE guild_id = ? AND channel_id = ? AND year = ?
+            """,
+            (str(guild_id), str(channel_id), year),
+        ) as cursor:
+            row = await cursor.fetchone()
+
+    return row[0] if row else None
+
+
+async def save_tracker_message_id(guild_id: int, channel_id: int, year: int, message_id: int):
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        await db.execute(
+            """
+            INSERT INTO allocation_tracker_state (guild_id, channel_id, year, leaderboard_message_id, updated_at)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(guild_id, channel_id, year) DO UPDATE SET
+                leaderboard_message_id = excluded.leaderboard_message_id,
+                updated_at = excluded.updated_at
+            """,
+            (str(guild_id), str(channel_id), year, str(message_id), discord.utils.utcnow().isoformat()),
+        )
+        await db.commit()
+
+
+async def update_allocation_leaderboard(channel: discord.TextChannel, year: Optional[int] = None):
+    if not channel.guild:
+        return
+
+    year = year or allocation_year()
+    embed = await allocation_leaderboard_embed(channel.guild.id, year)
+    message_id = await tracker_message_id(channel.guild.id, channel.id, year)
+
+    if message_id:
+        try:
+            message = await channel.fetch_message(int(message_id))
+            await message.edit(embed=embed)
+            return
+        except discord.HTTPException:
+            pass
+
+    message = await channel.send(embed=embed)
+    await save_tracker_message_id(channel.guild.id, channel.id, year, message.id)
+
+
+async def allocation_user_stats(guild_id: int, user_id: int, year: int):
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            "SELECT COUNT(*) AS total FROM allocations WHERE guild_id = ? AND user_id = ? AND year = ?",
+            (str(guild_id), str(user_id), year),
+        ) as cursor:
+            total = (await cursor.fetchone())["total"]
+
+        async with db.execute(
+            """
+            SELECT bottle_name, COUNT(*) AS total
+            FROM allocations
+            WHERE guild_id = ? AND user_id = ? AND year = ?
+            GROUP BY bottle_name
+            ORDER BY total DESC, bottle_name COLLATE NOCASE ASC
+            LIMIT 1
+            """,
+            (str(guild_id), str(user_id), year),
+        ) as cursor:
+            favorite = await cursor.fetchone()
+
+        async with db.execute(
+            """
+            SELECT bottle_name FROM allocations
+            WHERE guild_id = ? AND user_id = ? AND year = ?
+            ORDER BY created_at DESC, id DESC
+            LIMIT 5
+            """,
+            (str(guild_id), str(user_id), year),
+        ) as cursor:
+            recent = await cursor.fetchall()
+
+        async with db.execute(
+            """
+            SELECT user_id, COUNT(*) AS total
+            FROM allocations
+            WHERE guild_id = ? AND year = ?
+            GROUP BY user_id
+            ORDER BY total DESC, user_id ASC
+            """,
+            (str(guild_id), year),
+        ) as cursor:
+            rankings = await cursor.fetchall()
+
+    rank = next((index for index, row in enumerate(rankings, start=1) if row["user_id"] == str(user_id)), None)
+    return total, favorite, recent, rank
 
 
 def parse_plain_int(value: str):
@@ -1895,6 +2359,88 @@ class FlipBinView(discord.ui.View):
         self.add_item(FlipCloseButton(original_message_id, disabled=disabled))
 
 
+class AllocationConfirmButton(discord.ui.DynamicItem[discord.ui.Button], template=r"alloc_confirm:(?P<pending_id>[a-f0-9-]+)"):
+    def __init__(self, pending_id: str):
+        super().__init__(
+            discord.ui.Button(
+                label="Confirm",
+                emoji="✅",
+                style=discord.ButtonStyle.success,
+                custom_id=f"alloc_confirm:{pending_id}"
+            )
+        )
+        self.pending_id = pending_id
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(match.group("pending_id"))
+
+    async def callback(self, interaction: discord.Interaction):
+        pending = await get_pending_allocation(self.pending_id)
+
+        if not pending:
+            await interaction.response.send_message("That allocation confirmation expired. Post it again if needed.", ephemeral=True)
+            return
+
+        if str(interaction.user.id) != pending["user_id"]:
+            await interaction.response.send_message("Only the original poster can confirm this allocation.", ephemeral=True)
+            return
+
+        if await has_recent_allocation_duplicate(pending):
+            await delete_pending_allocation(self.pending_id)
+            await interaction.response.edit_message(
+                content="Duplicate protection kicked in. This bottle was already logged for you recently.",
+                embed=None,
+                view=None,
+            )
+            return
+
+        await save_confirmed_allocation(pending)
+        await delete_pending_allocation(self.pending_id)
+        await interaction.response.edit_message(
+            content=f"Logged **{pending['bottle_name']}** for {interaction.user.mention}.",
+            embed=None,
+            view=None,
+        )
+
+        if isinstance(interaction.channel, discord.TextChannel):
+            await update_allocation_leaderboard(interaction.channel)
+
+
+class AllocationCancelButton(discord.ui.DynamicItem[discord.ui.Button], template=r"alloc_cancel:(?P<pending_id>[a-f0-9-]+)"):
+    def __init__(self, pending_id: str):
+        super().__init__(
+            discord.ui.Button(
+                label="Cancel",
+                emoji="❌",
+                style=discord.ButtonStyle.secondary,
+                custom_id=f"alloc_cancel:{pending_id}"
+            )
+        )
+        self.pending_id = pending_id
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(match.group("pending_id"))
+
+    async def callback(self, interaction: discord.Interaction):
+        pending = await get_pending_allocation(self.pending_id)
+
+        if pending and str(interaction.user.id) != pending["user_id"]:
+            await interaction.response.send_message("Only the original poster can cancel this allocation.", ephemeral=True)
+            return
+
+        await delete_pending_allocation(self.pending_id)
+        await interaction.response.edit_message(content="Allocation log canceled.", embed=None, view=None)
+
+
+class AllocationConfirmView(discord.ui.View):
+    def __init__(self, pending_id: str):
+        super().__init__(timeout=None)
+        self.add_item(AllocationConfirmButton(pending_id))
+        self.add_item(AllocationCancelButton(pending_id))
+
+
 UTILITY_ACTIONS = {
     "messageneat": {
         "label": "Message Neat",
@@ -2131,17 +2677,60 @@ class UtilityView(discord.ui.View):
         self.add_item(UtilityButton("whadd", row=2))
 
 
+def is_allocation_tracker_channel(channel):
+    return isinstance(channel, discord.TextChannel) and (
+        channel.name == ALLOCATION_TRACKER_CHANNEL_NAME
+        or channel.name.endswith("allocation-tracker")
+    )
+
+
+async def handle_allocation_tracker_message(message: discord.Message):
+    if not message.guild or not is_allocation_tracker_channel(message.channel):
+        return
+
+    if not message.content.strip() or message.content.strip().startswith(("/", "!")):
+        return
+
+    if message.reference:
+        return
+
+    analysis = analyze_allocation_message(message.content)
+
+    if not analysis:
+        return
+
+    pending_id = await create_pending_allocation(message, analysis["bottle_name"])
+    embed = discord.Embed(
+        title="🥃 Log this allocation?",
+        description=f"I think you acquired **{analysis['bottle_name']}**.",
+        color=discord.Color.from_str("#C9973A"),
+    )
+    embed.add_field(name="Matched", value=analysis["matched_alias"], inline=True)
+    embed.add_field(name="Confidence", value=str(analysis["score"]), inline=True)
+    embed.set_footer(text="Confirm to add this to the annual allocation tracker.")
+
+    await message.reply(
+        embed=embed,
+        view=AllocationConfirmView(pending_id),
+        mention_author=True,
+    )
+
+
 intents = discord.Intents.default()
+intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
 @bot.event
 async def setup_hook():
     await bot.load_extension("group_trip")
+    await init_allocation_db()
     bot.add_dynamic_items(BOTYScoreButton)
     bot.add_dynamic_items(BattleVoteButton)
     bot.add_dynamic_items(FlipBinButton)
     bot.add_dynamic_items(FlipCloseButton)
+    bot.add_dynamic_items(AllocationConfirmButton)
+    bot.add_dynamic_items(AllocationCancelButton)
     bot.add_view(UtilityView())
     configure_guild_commands()
 
@@ -2177,6 +2766,7 @@ async def on_message(message: discord.Message):
         await handle_flip_helper_message(message)
         return
 
+    await handle_allocation_tracker_message(message)
     await bot.process_commands(message)
 
 
@@ -2238,6 +2828,47 @@ async def worth(interaction: discord.Interaction, name: str, price: float):
     embed.set_footer(text="Pricing varies by state, store, timing, and chaos.")
 
     await interaction.response.send_message(embed=embed)
+
+
+@bot.tree.command(name="alloc-leaderboard", description="Show allocation tracker rankings.")
+@app_commands.describe(year="Optional year, e.g. 2025")
+async def alloc_leaderboard(interaction: discord.Interaction, year: Optional[int] = None):
+    if not interaction.guild:
+        await interaction.response.send_message("This command only works in a server.", ephemeral=True)
+        return
+
+    year = year or allocation_year()
+    embed = await allocation_leaderboard_embed(interaction.guild.id, year)
+    await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+@bot.tree.command(name="alloc-stats", description="Show your allocation tracker stats.")
+@app_commands.describe(year="Optional year, e.g. 2025")
+async def alloc_stats(interaction: discord.Interaction, year: Optional[int] = None):
+    if not interaction.guild:
+        await interaction.response.send_message("This command only works in a server.", ephemeral=True)
+        return
+
+    year = year or allocation_year()
+    total, favorite, recent, rank = await allocation_user_stats(interaction.guild.id, interaction.user.id, year)
+    embed = discord.Embed(
+        title=f"🥃 {year} Allocation Stats",
+        description=f"{interaction.user.mention} allocation report",
+        color=discord.Color.from_str("#C9973A"),
+    )
+    embed.add_field(name="Total Allocations", value=str(total), inline=True)
+    embed.add_field(name="Ranking", value=f"#{rank}" if rank else "Unranked", inline=True)
+    embed.add_field(
+        name="Favorite Bottle",
+        value=f"{favorite['bottle_name']} ({favorite['total']})" if favorite else "None yet",
+        inline=False,
+    )
+    embed.add_field(
+        name="Recent Pickups",
+        value="\n".join(f"• {row['bottle_name']}" for row in recent) if recent else "None yet",
+        inline=False,
+    )
+    await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
 @bot.tree.command(name="compare", description="Compare two bourbon bottles.")
