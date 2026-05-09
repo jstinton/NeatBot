@@ -3542,6 +3542,30 @@
     "verdict_notes": "Excellent if you land it fairly; quickly becomes collector-priced.",
     "community_score": 92
   },
+  "Weller Single Barrel": {
+    "aliases": [
+      "wsib",
+      "weller sib",
+      "weller single",
+      "weller single barrel bourbon"
+    ],
+    "proof": 97,
+    "style": "Wheated bourbon",
+    "msrp": 50,
+    "fair_price_low": 250,
+    "fair_price_high": 400,
+    "secondary_low": 450,
+    "secondary_high": 700,
+    "profile": "Soft caramel, honey, vanilla, red fruit, oak, and gentle baking spice.",
+    "similar": [
+      "Weller 12 Year",
+      "Weller Antique 107",
+      "Weller Full Proof"
+    ],
+    "description": "A single barrel wheated bourbon from Buffalo Trace bottled at 97 proof.",
+    "verdict_notes": "A rare Weller variant where allocation scarcity usually drives the conversation more than drinker value.",
+    "community_score": 89
+  },
   "Wild Turkey 101": {
     "aliases": [
       "wt101",
