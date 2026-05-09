@@ -10,7 +10,7 @@ from discord import app_commands
 from discord.ext import commands
 
 
-DB_PATH = Path(__file__).parent / "trips.db"
+DB_PATH = Path(os.getenv("JUICETRIP_DB_PATH", Path(__file__).parent / "trips.db"))
 JUICED_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
 DEFAULT_MOD_CHANNEL_ID = os.getenv("JUICETRIP_MOD_CHANNEL_ID") or "1502458379875127346"
 STATUS_LABELS = {
@@ -307,6 +307,8 @@ class GroupTripCog(commands.Cog):
             self.deadline_task.cancel()
 
     async def init_db(self):
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute(
                 """
