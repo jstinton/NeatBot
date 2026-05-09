@@ -1,0 +1,21 @@
+{
+  "name": "neatbot-allocation-tracker",
+  "version": "1.0.0",
+  "description": "NeatBot allocation tracker for bourbon community Discord servers.",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "deploy": "node src/deploy-commands.js",
+    "smoke": "node src/index.js --smoke"
+  },
+  "dependencies": {
+    "discord.js": "^14.16.3",
+    "dotenv": "^16.4.7",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
