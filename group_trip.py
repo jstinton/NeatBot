@@ -708,9 +708,54 @@ class GroupTripCog(commands.Cog):
             await interaction.response.send_message("I can’t open the RSVP form from here. Try the button again.", ephemeral=True)
             return
 
+        if requested_status != "confirmed":
+            await self.record_simple_rsvp(interaction, trip_id, requested_status, interaction.message)
+            return
+
         await interaction.response.send_modal(
             GroupTripRSVPModal(self, trip_id, requested_status, interaction.message)
         )
+
+    async def record_simple_rsvp(
+        self,
+        interaction: discord.Interaction,
+        trip_id: int,
+        requested_status: str,
+        source_message: discord.Message,
+    ):
+        trip = await self.trip_by_id(trip_id)
+
+        if not trip or not trip["active"]:
+            await interaction.response.send_message("That trip is no longer active.", ephemeral=True)
+            return
+
+        if deadline_is_past(trip["deadline"]):
+            await interaction.response.send_message("RSVPs are closed for this trip.", ephemeral=True)
+            await self.refresh_trip_message(trip_id, source_message)
+            return
+
+        await self.set_rsvp(
+            trip_id,
+            interaction.user,
+            requested_status,
+            nights=None,
+            max_cost_per_night=None,
+            share_bed=None,
+            notes=None,
+        )
+        await self.refresh_trip_message(trip_id, source_message)
+        await self.sync_mod_summary(trip_id)
+
+        label = STATUS_LABELS[requested_status]
+        await interaction.response.send_message(
+            f"You're marked as **{label}** for **{trip['destination']}**.",
+            ephemeral=True,
+        )
+
+        try:
+            await interaction.user.send(f"You're marked as {label} for {trip['destination']} ({trip['dates']})!")
+        except discord.HTTPException:
+            pass
 
     async def record_rsvp_from_form(
         self,
