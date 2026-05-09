@@ -34,6 +34,10 @@ ALLOCATION_DB_PATH = Path(
 )
 ALLOCATION_TRACKER_CHANNEL_NAME = os.getenv("ALLOCATION_TRACKER_CHANNEL_NAME", "🔢allocation-tracker")
 ALLOCATION_DUPLICATE_HOURS = int(os.getenv("ALLOCATION_DUPLICATE_HOURS", "6"))
+ALLOCATION_BATCH_PATTERN = re.compile(
+    r"\bbatch\s*(?:#|number|no\.?)?\s*(?P<batch>[a-z0-9][a-z0-9.\-]*)",
+    re.IGNORECASE
+)
 ZIP_CODE_PATTERN = re.compile(r"^\d{5}$")
 USER_MENTION_PATTERN = re.compile(r"<@!?(?P<user_id>\d+)>")
 VINTAGE_YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
@@ -866,7 +870,54 @@ def allocation_alias_entries():
     return sorted(unique.values(), key=lambda item: len(compact_alias_text(item[0])), reverse=True)
 
 
+def allocation_batch_context(content: str):
+    match = ALLOCATION_BATCH_PATTERN.search(content)
+
+    if not match:
+        return None
+
+    prefix = content[:match.start()].strip(" -:|")
+    batch = match.group("batch").strip(" .,-")
+
+    if not prefix or not batch:
+        return None
+
+    return prefix, batch
+
+
+def batch_label_matches(bottle_name: str, batch: str):
+    normalized_name = normalize(bottle_name)
+    normalized_batch = normalize(batch)
+    return (
+        re.search(rf"\bbatch\s*{re.escape(normalized_batch)}\b", normalized_name) is not None
+        or re.search(rf"\b{re.escape(normalized_batch)}\b", normalized_name) is not None
+    )
+
+
+def allocation_bottle_display_name(bottle_name: str, batch: Optional[str] = None):
+    if not batch or batch_label_matches(bottle_name, batch):
+        return bottle_name
+
+    return f"{bottle_name} Batch {batch}"
+
+
 def detect_allocation_bottle(content: str):
+    batch_context = allocation_batch_context(content)
+
+    if batch_context:
+        prefix, batch = batch_context
+        compact_prefix = compact_alias_text(prefix)
+
+        # When someone writes "JD12 batch 4", the real bottle signal is before
+        # "batch"; use that alias first, then preserve the batch value.
+        for alias, bottle_name in allocation_alias_entries():
+            compact_alias = compact_alias_text(alias)
+
+            if len(compact_alias) >= 2 and compact_alias in compact_prefix:
+                canonical_name, _ = find_exact_bottle(bottle_name)
+                display_name = allocation_bottle_display_name(canonical_name or bottle_name, batch)
+                return display_name, f"{alias} Batch {batch}"
+
     compact_content = compact_alias_text(content)
 
     for alias, bottle_name in allocation_alias_entries():
@@ -925,6 +976,8 @@ async def init_allocation_db():
     ALLOCATION_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
     async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        # History safety: deploys/restarts must never erase allocation data.
+        # These migrations only create missing tables and preserve existing rows.
         await db.execute(
             """
             CREATE TABLE IF NOT EXISTS allocations (
