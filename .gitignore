@@ -8,5 +8,6 @@ npm-debug.log*
 __pycache__/
 *.pyc
 outputs/
+backups/
 trips.db
 *.db
