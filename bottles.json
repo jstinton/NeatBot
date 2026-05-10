@@ -48,7 +48,10 @@
     "aliases": [
       "1792",
       "barton 1792",
-      "1792 sb"
+      "1792 sb",
+      "1792 Small Batch",
+      "1792 2021",
+      "1792 Small"
     ],
     "proof": 93.7,
     "style": "High-rye bourbon",
@@ -1205,7 +1208,9 @@
       "four roses sib",
       "4 roses single barrel",
       "fr single barrel",
-      "Four Roses Single Barrel"
+      "Four Roses Single Barrel",
+      "Four Roses 2016",
+      "Four Single"
     ],
     "proof": 100,
     "style": "High-rye single barrel bourbon",
@@ -1228,7 +1233,9 @@
     "aliases": [
       "four roses small batch",
       "4 roses small batch",
-      "fr small batch"
+      "fr small batch",
+      "Four Roses 2021",
+      "Four Small"
     ],
     "proof": 90,
     "style": "Small batch bourbon",
@@ -2398,7 +2405,9 @@
       "knob creek",
       "kc 9",
       "knob creek small batch",
-      "Knob Creek Kentucky Straight"
+      "Knob Creek Kentucky Straight",
+      "Knob Creek 2021",
+      "Knob Small"
     ],
     "proof": 100,
     "style": "Small batch bourbon",
@@ -2422,7 +2431,9 @@
       "knob creek single barrel",
       "kc single barrel",
       "kc sib",
-      "knob creek 120"
+      "knob creek 120",
+      "Knob Creek 2016",
+      "Knob Single"
     ],
     "proof": 120,
     "style": "Single barrel bourbon",
@@ -2647,7 +2658,8 @@
       "makers cask",
       "maker's cask",
       "makers mark cask strength",
-      "mmcs"
+      "mmcs",
+      "Maker's Mark 2017"
     ],
     "proof": "Varies by batch, usually 108-114",
     "style": "Cask strength wheated bourbon",
@@ -3355,7 +3367,9 @@
       "russells single barrel",
       "rr sib",
       "russell's single barrel",
-      "Russell's Reserve Single Barrel"
+      "Russell's Reserve Single Barrel",
+      "Russell's Reserve 2016",
+      "Russell's Single"
     ],
     "proof": 110,
     "style": "Single barrel bourbon",
@@ -4133,7 +4147,10 @@
   "1792 Single Barrel": {
     "name": "1792 Single Barrel",
     "aliases": [
-      "1792 SiB"
+      "1792 SiB",
+      "1792 Single Barrel",
+      "1792 2016",
+      "1792 Single"
     ]
   },
   "1792 Sweet Wheat": {
@@ -4984,25 +5001,33 @@
   "Wild Turkey Small Batch Bourbon": {
     "name": "Wild Turkey Small Batch Bourbon",
     "aliases": [
-      "Wild Turkey Small Batch"
+      "Wild Turkey Small Batch",
+      "Wild Turkey 2021",
+      "Wild Small"
     ]
   },
   "Wild Turkey Single Barrel Bourbon": {
     "name": "Wild Turkey Single Barrel Bourbon",
     "aliases": [
-      "Wild Turkey Single Barrel"
+      "Wild Turkey Single Barrel",
+      "Wild Turkey 2016",
+      "Wild Single"
     ]
   },
   "Wild Turkey Barrel Proof Bourbon": {
     "name": "Wild Turkey Barrel Proof Bourbon",
     "aliases": [
-      "Wild Turkey Barrel Proof"
+      "Wild Turkey Barrel Proof",
+      "Wild Turkey 2020",
+      "Wild Barrel"
     ]
   },
   "Wild Turkey Cask Strength Bourbon": {
     "name": "Wild Turkey Cask Strength Bourbon",
     "aliases": [
-      "Wild Turkey Cask Strength"
+      "Wild Turkey Cask Strength",
+      "Wild Turkey 2017",
+      "Wild Cask"
     ]
   },
   "Wild Turkey Bottled in Bond Bourbon": {
@@ -5014,13 +5039,17 @@
   "Wild Turkey Toasted Barrel Bourbon": {
     "name": "Wild Turkey Toasted Barrel Bourbon",
     "aliases": [
-      "Wild Turkey Toasted Barrel"
+      "Wild Turkey Toasted Barrel",
+      "Wild Turkey 2022",
+      "Wild Toasted"
     ]
   },
   "Wild Turkey Double Oaked Bourbon": {
     "name": "Wild Turkey Double Oaked Bourbon",
     "aliases": [
-      "Wild Turkey Double Oaked"
+      "Wild Turkey Double Oaked",
+      "Wild Turkey 2023",
+      "Wild Double"
     ]
   },
   "Wild Turkey Wheated Bourbon": {
@@ -5050,7 +5079,9 @@
   "Wild Turkey Private Selection Bourbon": {
     "name": "Wild Turkey Private Selection Bourbon",
     "aliases": [
-      "Wild Turkey Private Selection"
+      "Wild Turkey Private Selection",
+      "Wild Turkey 2024",
+      "Wild Private"
     ]
   },
   "Wild Turkey Store Pick Bourbon": {
@@ -5068,7 +5099,9 @@
   "Wild Turkey Reserve Bourbon": {
     "name": "Wild Turkey Reserve Bourbon",
     "aliases": [
-      "Wild Turkey Reserve"
+      "Wild Turkey Reserve",
+      "Wild Turkey 2018",
+      "Wild Reserve"
     ]
   },
   "Wild Turkey Single Barrel Select Bourbon": {
@@ -5249,25 +5282,33 @@
   "Wild Turkey Limited Release Bourbon": {
     "name": "Wild Turkey Limited Release Bourbon",
     "aliases": [
-      "Wild Turkey Limited Release"
+      "Wild Turkey Limited Release",
+      "Wild Turkey 2019",
+      "Wild Limited"
     ]
   },
   "Russell's Reserve Small Batch Bourbon": {
     "name": "Russell's Reserve Small Batch Bourbon",
     "aliases": [
-      "Russell's Reserve Small Batch"
+      "Russell's Reserve Small Batch",
+      "Russell's Reserve 2021",
+      "Russell's Small"
     ]
   },
   "Russell's Reserve Barrel Proof Bourbon": {
     "name": "Russell's Reserve Barrel Proof Bourbon",
     "aliases": [
-      "Russell's Reserve Barrel Proof"
+      "Russell's Reserve Barrel Proof",
+      "Russell's Reserve 2020",
+      "Russell's Barrel"
     ]
   },
   "Russell's Reserve Cask Strength Bourbon": {
     "name": "Russell's Reserve Cask Strength Bourbon",
     "aliases": [
-      "Russell's Reserve Cask Strength"
+      "Russell's Reserve Cask Strength",
+      "Russell's Reserve 2017",
+      "Russell's Cask"
     ]
   },
   "Russell's Reserve Bottled in Bond Bourbon": {
@@ -5279,13 +5320,17 @@
   "Russell's Reserve Toasted Barrel Bourbon": {
     "name": "Russell's Reserve Toasted Barrel Bourbon",
     "aliases": [
-      "Russell's Reserve Toasted Barrel"
+      "Russell's Reserve Toasted Barrel",
+      "Russell's Reserve 2022",
+      "Russell's Toasted"
     ]
   },
   "Russell's Reserve Double Oaked Bourbon": {
     "name": "Russell's Reserve Double Oaked Bourbon",
     "aliases": [
-      "Russell's Reserve Double Oaked"
+      "Russell's Reserve Double Oaked",
+      "Russell's Reserve 2023",
+      "Russell's Double"
     ]
   },
   "Russell's Reserve Wheated Bourbon": {
@@ -5315,7 +5360,9 @@
   "Russell's Reserve Private Selection Bourbon": {
     "name": "Russell's Reserve Private Selection Bourbon",
     "aliases": [
-      "Russell's Reserve Private Selection"
+      "Russell's Reserve Private Selection",
+      "Russell's Reserve 2024",
+      "Russell's Private"
     ]
   },
   "Russell's Reserve Store Pick Bourbon": {
@@ -5521,25 +5568,33 @@
   "Russell's Reserve Limited Release Bourbon": {
     "name": "Russell's Reserve Limited Release Bourbon",
     "aliases": [
-      "Russell's Reserve Limited Release"
+      "Russell's Reserve Limited Release",
+      "Russell's Reserve 2019",
+      "Russell's Limited"
     ]
   },
   "Maker's Mark Small Batch Bourbon": {
     "name": "Maker's Mark Small Batch Bourbon",
     "aliases": [
-      "Maker's Mark Small Batch"
+      "Maker's Mark Small Batch",
+      "Maker's Mark 2021",
+      "Maker's Small"
     ]
   },
   "Maker's Mark Single Barrel Bourbon": {
     "name": "Maker's Mark Single Barrel Bourbon",
     "aliases": [
-      "Maker's Mark Single Barrel"
+      "Maker's Mark Single Barrel",
+      "Maker's Mark 2016",
+      "Maker's Single"
     ]
   },
   "Maker's Mark Barrel Proof Bourbon": {
     "name": "Maker's Mark Barrel Proof Bourbon",
     "aliases": [
-      "Maker's Mark Barrel Proof"
+      "Maker's Mark Barrel Proof",
+      "Maker's Mark 2020",
+      "Maker's Barrel"
     ]
   },
   "Maker's Mark Bottled in Bond Bourbon": {
@@ -5551,13 +5606,17 @@
   "Maker's Mark Toasted Barrel Bourbon": {
     "name": "Maker's Mark Toasted Barrel Bourbon",
     "aliases": [
-      "Maker's Mark Toasted Barrel"
+      "Maker's Mark Toasted Barrel",
+      "Maker's Mark 2022",
+      "Maker's Toasted"
     ]
   },
   "Maker's Mark Double Oaked Bourbon": {
     "name": "Maker's Mark Double Oaked Bourbon",
     "aliases": [
-      "Maker's Mark Double Oaked"
+      "Maker's Mark Double Oaked",
+      "Maker's Mark 2023",
+      "Maker's Double"
     ]
   },
   "Maker's Mark Wheated Bourbon": {
@@ -5587,7 +5646,9 @@
   "Maker's Mark Private Selection Bourbon": {
     "name": "Maker's Mark Private Selection Bourbon",
     "aliases": [
-      "Maker's Mark Private Selection"
+      "Maker's Mark Private Selection",
+      "Maker's Mark 2024",
+      "Maker's Private"
     ]
   },
   "Maker's Mark Store Pick Bourbon": {
@@ -5605,7 +5666,9 @@
   "Maker's Mark Reserve Bourbon": {
     "name": "Maker's Mark Reserve Bourbon",
     "aliases": [
-      "Maker's Mark Reserve"
+      "Maker's Mark Reserve",
+      "Maker's Mark 2018",
+      "Maker's Reserve"
     ]
   },
   "Maker's Mark Single Barrel Select Bourbon": {
@@ -5786,7 +5849,9 @@
   "Maker's Mark Limited Release Bourbon": {
     "name": "Maker's Mark Limited Release Bourbon",
     "aliases": [
-      "Maker's Mark Limited Release"
+      "Maker's Mark Limited Release",
+      "Maker's Mark 2019",
+      "Maker's Limited"
     ]
   },
   "Woodford Reserve Small Batch Bourbon": {
@@ -6057,13 +6122,17 @@
   "Four Roses Barrel Proof Bourbon": {
     "name": "Four Roses Barrel Proof Bourbon",
     "aliases": [
-      "Four Roses Barrel Proof"
+      "Four Roses Barrel Proof",
+      "Four Roses 2020",
+      "Four Barrel"
     ]
   },
   "Four Roses Cask Strength Bourbon": {
     "name": "Four Roses Cask Strength Bourbon",
     "aliases": [
-      "Four Roses Cask Strength"
+      "Four Roses Cask Strength",
+      "Four Roses 2017",
+      "Four Cask"
     ]
   },
   "Four Roses Bottled in Bond Bourbon": {
@@ -6075,13 +6144,17 @@
   "Four Roses Toasted Barrel Bourbon": {
     "name": "Four Roses Toasted Barrel Bourbon",
     "aliases": [
-      "Four Roses Toasted Barrel"
+      "Four Roses Toasted Barrel",
+      "Four Roses 2022",
+      "Four Toasted"
     ]
   },
   "Four Roses Double Oaked Bourbon": {
     "name": "Four Roses Double Oaked Bourbon",
     "aliases": [
-      "Four Roses Double Oaked"
+      "Four Roses Double Oaked",
+      "Four Roses 2023",
+      "Four Double"
     ]
   },
   "Four Roses Wheated Bourbon": {
@@ -6111,7 +6184,9 @@
   "Four Roses Private Selection Bourbon": {
     "name": "Four Roses Private Selection Bourbon",
     "aliases": [
-      "Four Roses Private Selection"
+      "Four Roses Private Selection",
+      "Four Roses 2024",
+      "Four Private"
     ]
   },
   "Four Roses Store Pick Bourbon": {
@@ -6129,7 +6204,9 @@
   "Four Roses Reserve Bourbon": {
     "name": "Four Roses Reserve Bourbon",
     "aliases": [
-      "Four Roses Reserve"
+      "Four Roses Reserve",
+      "Four Roses 2018",
+      "Four Reserve"
     ]
   },
   "Four Roses Single Barrel Select Bourbon": {
@@ -6311,19 +6388,25 @@
   "Four Roses Limited Release Bourbon": {
     "name": "Four Roses Limited Release Bourbon",
     "aliases": [
-      "Four Roses Limited Release"
+      "Four Roses Limited Release",
+      "Four Roses 2019",
+      "Four Limited"
     ]
   },
   "Knob Creek Barrel Proof Bourbon": {
     "name": "Knob Creek Barrel Proof Bourbon",
     "aliases": [
-      "Knob Creek Barrel Proof"
+      "Knob Creek Barrel Proof",
+      "Knob Creek 2020",
+      "Knob Barrel"
     ]
   },
   "Knob Creek Cask Strength Bourbon": {
     "name": "Knob Creek Cask Strength Bourbon",
     "aliases": [
-      "Knob Creek Cask Strength"
+      "Knob Creek Cask Strength",
+      "Knob Creek 2017",
+      "Knob Cask"
     ]
   },
   "Knob Creek Bottled in Bond Bourbon": {
@@ -6335,13 +6418,17 @@
   "Knob Creek Toasted Barrel Bourbon": {
     "name": "Knob Creek Toasted Barrel Bourbon",
     "aliases": [
-      "Knob Creek Toasted Barrel"
+      "Knob Creek Toasted Barrel",
+      "Knob Creek 2022",
+      "Knob Toasted"
     ]
   },
   "Knob Creek Double Oaked Bourbon": {
     "name": "Knob Creek Double Oaked Bourbon",
     "aliases": [
-      "Knob Creek Double Oaked"
+      "Knob Creek Double Oaked",
+      "Knob Creek 2023",
+      "Knob Double"
     ]
   },
   "Knob Creek Wheated Bourbon": {
@@ -6371,7 +6458,9 @@
   "Knob Creek Private Selection Bourbon": {
     "name": "Knob Creek Private Selection Bourbon",
     "aliases": [
-      "Knob Creek Private Selection"
+      "Knob Creek Private Selection",
+      "Knob Creek 2024",
+      "Knob Private"
     ]
   },
   "Knob Creek Store Pick Bourbon": {
@@ -6389,7 +6478,9 @@
   "Knob Creek Reserve Bourbon": {
     "name": "Knob Creek Reserve Bourbon",
     "aliases": [
-      "Knob Creek Reserve"
+      "Knob Creek Reserve",
+      "Knob Creek 2018",
+      "Knob Reserve"
     ]
   },
   "Knob Creek Single Barrel Select Bourbon": {
@@ -6570,7 +6661,9 @@
   "Knob Creek Limited Release Bourbon": {
     "name": "Knob Creek Limited Release Bourbon",
     "aliases": [
-      "Knob Creek Limited Release"
+      "Knob Creek Limited Release",
+      "Knob Creek 2019",
+      "Knob Limited"
     ]
   },
   "Jim Beam Small Batch Bourbon": {
@@ -6854,25 +6947,33 @@
   "Old Forester Small Batch Bourbon": {
     "name": "Old Forester Small Batch Bourbon",
     "aliases": [
-      "Old Forester Small Batch"
+      "Old Forester Small Batch",
+      "Old Forester 2021",
+      "Old Small"
     ]
   },
   "Old Forester Single Barrel Bourbon": {
     "name": "Old Forester Single Barrel Bourbon",
     "aliases": [
-      "Old Forester Single Barrel"
+      "Old Forester Single Barrel",
+      "Old Forester 2016",
+      "Old Single"
     ]
   },
   "Old Forester Barrel Proof Bourbon": {
     "name": "Old Forester Barrel Proof Bourbon",
     "aliases": [
-      "Old Forester Barrel Proof"
+      "Old Forester Barrel Proof",
+      "Old Forester 2020",
+      "Old Barrel"
     ]
   },
   "Old Forester Cask Strength Bourbon": {
     "name": "Old Forester Cask Strength Bourbon",
     "aliases": [
-      "Old Forester Cask Strength"
+      "Old Forester Cask Strength",
+      "Old Forester 2017",
+      "Old Cask"
     ]
   },
   "Old Forester Bottled in Bond Bourbon": {
@@ -6884,13 +6985,17 @@
   "Old Forester Toasted Barrel Bourbon": {
     "name": "Old Forester Toasted Barrel Bourbon",
     "aliases": [
-      "Old Forester Toasted Barrel"
+      "Old Forester Toasted Barrel",
+      "Old Forester 2022",
+      "Old Toasted"
     ]
   },
   "Old Forester Double Oaked Bourbon": {
     "name": "Old Forester Double Oaked Bourbon",
     "aliases": [
-      "Old Forester Double Oaked"
+      "Old Forester Double Oaked",
+      "Old Forester 2023",
+      "Old Double"
     ]
   },
   "Old Forester Wheated Bourbon": {
@@ -6920,7 +7025,9 @@
   "Old Forester Private Selection Bourbon": {
     "name": "Old Forester Private Selection Bourbon",
     "aliases": [
-      "Old Forester Private Selection"
+      "Old Forester Private Selection",
+      "Old Forester 2024",
+      "Old Private"
     ]
   },
   "Old Forester Store Pick Bourbon": {
@@ -6938,7 +7045,9 @@
   "Old Forester Reserve Bourbon": {
     "name": "Old Forester Reserve Bourbon",
     "aliases": [
-      "Old Forester Reserve"
+      "Old Forester Reserve",
+      "Old Forester 2018",
+      "Old Reserve"
     ]
   },
   "Old Forester Single Barrel Select Bourbon": {
@@ -7119,7 +7228,9 @@
   "Old Forester Limited Release Bourbon": {
     "name": "Old Forester Limited Release Bourbon",
     "aliases": [
-      "Old Forester Limited Release"
+      "Old Forester Limited Release",
+      "Old Forester 2019",
+      "Old Limited"
     ]
   },
   "Elijah Craig Single Barrel Bourbon": {
@@ -7921,25 +8032,33 @@
   "Heaven Hill Small Batch Bourbon": {
     "name": "Heaven Hill Small Batch Bourbon",
     "aliases": [
-      "Heaven Hill Small Batch"
+      "Heaven Hill Small Batch",
+      "Heaven Hill 2021",
+      "Heaven Small"
     ]
   },
   "Heaven Hill Single Barrel Bourbon": {
     "name": "Heaven Hill Single Barrel Bourbon",
     "aliases": [
-      "Heaven Hill Single Barrel"
+      "Heaven Hill Single Barrel",
+      "Heaven Hill 2016",
+      "Heaven Single"
     ]
   },
   "Heaven Hill Barrel Proof Bourbon": {
     "name": "Heaven Hill Barrel Proof Bourbon",
     "aliases": [
-      "Heaven Hill Barrel Proof"
+      "Heaven Hill Barrel Proof",
+      "Heaven Hill 2020",
+      "Heaven Barrel"
     ]
   },
   "Heaven Hill Cask Strength Bourbon": {
     "name": "Heaven Hill Cask Strength Bourbon",
     "aliases": [
-      "Heaven Hill Cask Strength"
+      "Heaven Hill Cask Strength",
+      "Heaven Hill 2017",
+      "Heaven Cask"
     ]
   },
   "Heaven Hill Bottled in Bond Bourbon": {
@@ -7951,13 +8070,17 @@
   "Heaven Hill Toasted Barrel Bourbon": {
     "name": "Heaven Hill Toasted Barrel Bourbon",
     "aliases": [
-      "Heaven Hill Toasted Barrel"
+      "Heaven Hill Toasted Barrel",
+      "Heaven Hill 2022",
+      "Heaven Toasted"
     ]
   },
   "Heaven Hill Double Oaked Bourbon": {
     "name": "Heaven Hill Double Oaked Bourbon",
     "aliases": [
-      "Heaven Hill Double Oaked"
+      "Heaven Hill Double Oaked",
+      "Heaven Hill 2023",
+      "Heaven Double"
     ]
   },
   "Heaven Hill Wheated Bourbon": {
@@ -7987,7 +8110,9 @@
   "Heaven Hill Private Selection Bourbon": {
     "name": "Heaven Hill Private Selection Bourbon",
     "aliases": [
-      "Heaven Hill Private Selection"
+      "Heaven Hill Private Selection",
+      "Heaven Hill 2024",
+      "Heaven Private"
     ]
   },
   "Heaven Hill Store Pick Bourbon": {
@@ -8005,7 +8130,9 @@
   "Heaven Hill Reserve Bourbon": {
     "name": "Heaven Hill Reserve Bourbon",
     "aliases": [
-      "Heaven Hill Reserve"
+      "Heaven Hill Reserve",
+      "Heaven Hill 2018",
+      "Heaven Reserve"
     ]
   },
   "Heaven Hill Single Barrel Select Bourbon": {
@@ -8193,7 +8320,9 @@
   "Heaven Hill Limited Release Bourbon": {
     "name": "Heaven Hill Limited Release Bourbon",
     "aliases": [
-      "Heaven Hill Limited Release"
+      "Heaven Hill Limited Release",
+      "Heaven Hill 2019",
+      "Heaven Limited"
     ]
   },
   "Evan Williams Small Batch Bourbon": {
@@ -10140,6 +10269,2429 @@
       "Michter's Toasted Rye 2024",
       "Michter's Toasted Barrel Rye 2024",
       "Michter's Toasted Barrel Finish Rye 2024"
+    ]
+  },
+  "Fortaleza Blanco Tequila": {
+    "name": "Fortaleza Blanco Tequila",
+    "aliases": [
+      "Fortaleza Blanco",
+      "Fort Blanco",
+      "Fortaleza"
+    ]
+  },
+  "Fortaleza Still Strength Blanco Tequila": {
+    "name": "Fortaleza Still Strength Blanco Tequila",
+    "aliases": [
+      "Fortaleza Still Strength",
+      "Fortaleza SS",
+      "Fort SS"
+    ]
+  },
+  "Fortaleza Reposado Tequila": {
+    "name": "Fortaleza Reposado Tequila",
+    "aliases": [
+      "Fortaleza Repo",
+      "Fort Repo"
+    ]
+  },
+  "Fortaleza Añejo Tequila": {
+    "name": "Fortaleza Añejo Tequila",
+    "aliases": [
+      "Fortaleza Anejo",
+      "Fortaleza Añejo",
+      "Fort Anejo"
+    ]
+  },
+  "Fortaleza Winter Blend 2019": {
+    "name": "Fortaleza Winter Blend 2019",
+    "aliases": [
+      "Fortaleza WB 2019",
+      "WB 2019",
+      "Winter Blend 2019"
+    ]
+  },
+  "Fortaleza Winter Blend 2020": {
+    "name": "Fortaleza Winter Blend 2020",
+    "aliases": [
+      "Fortaleza WB 2020",
+      "WB 2020",
+      "Winter Blend 2020"
+    ]
+  },
+  "Fortaleza Winter Blend 2021": {
+    "name": "Fortaleza Winter Blend 2021",
+    "aliases": [
+      "Fortaleza WB 2021",
+      "WB 2021",
+      "Winter Blend 2021"
+    ]
+  },
+  "Fortaleza Winter Blend 2022": {
+    "name": "Fortaleza Winter Blend 2022",
+    "aliases": [
+      "Fortaleza WB 2022",
+      "WB 2022",
+      "Winter Blend 2022"
+    ]
+  },
+  "Fortaleza Winter Blend 2023": {
+    "name": "Fortaleza Winter Blend 2023",
+    "aliases": [
+      "Fortaleza WB 2023",
+      "WB 2023",
+      "Winter Blend 2023"
+    ]
+  },
+  "Fortaleza Winter Blend 2024": {
+    "name": "Fortaleza Winter Blend 2024",
+    "aliases": [
+      "Fortaleza WB 2024",
+      "WB 2024",
+      "Winter Blend 2024"
+    ]
+  },
+  "Fortaleza Winter Blend 2025": {
+    "name": "Fortaleza Winter Blend 2025",
+    "aliases": [
+      "Fortaleza WB 2025",
+      "WB 2025",
+      "Winter Blend 2025"
+    ]
+  },
+  "Thomas H. Handy Sazerac Rye": {
+    "name": "Thomas H. Handy Sazerac Rye",
+    "aliases": [
+      "THH",
+      "Thomas Handy"
+    ]
+  },
+  "Michter's 10 Year Rye": {
+    "name": "Michter's 10 Year Rye",
+    "aliases": [
+      "M10R",
+      "M10 Rye"
+    ]
+  },
+  "Wild Turkey Rare Breed Rye": {
+    "name": "Wild Turkey Rare Breed Rye",
+    "aliases": [
+      "Rare Breed Rye",
+      "RBR"
+    ]
+  },
+  "Sagamore Spirit Double Oak Rye": {
+    "name": "Sagamore Spirit Double Oak Rye",
+    "aliases": [
+      "Sagamore DO Rye"
+    ]
+  },
+  "Found North Hell Diver Rye": {
+    "name": "Found North Hell Diver Rye",
+    "aliases": [
+      "Hell Diver Rye"
+    ]
+  },
+  "Jack Daniel's Single Barrel Barrel Proof Rye": {
+    "name": "Jack Daniel's Single Barrel Barrel Proof Rye",
+    "aliases": [
+      "JDSBBPR",
+      "JD BP Rye"
+    ]
+  },
+  "Appleton Estate 21 Year Rum": {
+    "name": "Appleton Estate 21 Year Rum",
+    "aliases": [
+      "Appleton 21"
+    ]
+  },
+  "Foursquare Exceptional Cask Selection": {
+    "name": "Foursquare Exceptional Cask Selection",
+    "aliases": [
+      "Foursquare ECS"
+    ]
+  },
+  "Hampden Estate Great House Rum": {
+    "name": "Hampden Estate Great House Rum",
+    "aliases": [
+      "Great House Rum"
+    ]
+  },
+  "Plantation XO 20th Anniversary Rum": {
+    "name": "Plantation XO 20th Anniversary Rum",
+    "aliases": [
+      "Plantation XO"
+    ]
+  },
+  "El Tesoro Extra Añejo Tequila": {
+    "name": "El Tesoro Extra Añejo Tequila",
+    "aliases": [
+      "El Tesoro XA"
+    ]
+  },
+  "G4 Blanco Tequila": {
+    "name": "G4 Blanco Tequila",
+    "aliases": [
+      "G4 Blanco"
+    ]
+  },
+  "Buffalo Trace Single Barrel 2016": {
+    "name": "Buffalo Trace Single Barrel 2016",
+    "aliases": [
+      "Buffalo Trace Single Barrel",
+      "Buffalo Trace 2016",
+      "Buffalo Single"
+    ]
+  },
+  "Buffalo Trace Cask Strength 2017": {
+    "name": "Buffalo Trace Cask Strength 2017",
+    "aliases": [
+      "Buffalo Trace Cask Strength",
+      "Buffalo Trace 2017",
+      "Buffalo Cask"
+    ]
+  },
+  "Buffalo Trace Reserve 2018": {
+    "name": "Buffalo Trace Reserve 2018",
+    "aliases": [
+      "Buffalo Trace Reserve",
+      "Buffalo Trace 2018",
+      "Buffalo Reserve"
+    ]
+  },
+  "Buffalo Trace Limited Release 2019": {
+    "name": "Buffalo Trace Limited Release 2019",
+    "aliases": [
+      "Buffalo Trace Limited Release",
+      "Buffalo Trace 2019",
+      "Buffalo Limited"
+    ]
+  },
+  "Buffalo Trace Barrel Proof 2020": {
+    "name": "Buffalo Trace Barrel Proof 2020",
+    "aliases": [
+      "Buffalo Trace Barrel Proof",
+      "Buffalo Trace 2020",
+      "Buffalo Barrel"
+    ]
+  },
+  "Buffalo Trace Small Batch 2021": {
+    "name": "Buffalo Trace Small Batch 2021",
+    "aliases": [
+      "Buffalo Trace Small Batch",
+      "Buffalo Trace 2021",
+      "Buffalo Small"
+    ]
+  },
+  "Buffalo Trace Toasted Barrel 2022": {
+    "name": "Buffalo Trace Toasted Barrel 2022",
+    "aliases": [
+      "Buffalo Trace Toasted Barrel",
+      "Buffalo Trace 2022",
+      "Buffalo Toasted"
+    ]
+  },
+  "Buffalo Trace Double Oaked 2023": {
+    "name": "Buffalo Trace Double Oaked 2023",
+    "aliases": [
+      "Buffalo Trace Double Oaked",
+      "Buffalo Trace 2023",
+      "Buffalo Double"
+    ]
+  },
+  "Buffalo Trace Private Selection 2024": {
+    "name": "Buffalo Trace Private Selection 2024",
+    "aliases": [
+      "Buffalo Trace Private Selection",
+      "Buffalo Trace 2024",
+      "Buffalo Private"
+    ]
+  },
+  "Buffalo Trace Estate Release 2025": {
+    "name": "Buffalo Trace Estate Release 2025",
+    "aliases": [
+      "Buffalo Trace Estate Release",
+      "Buffalo Trace 2025",
+      "Buffalo Estate"
+    ]
+  },
+  "Old Forester Estate Release 2025": {
+    "name": "Old Forester Estate Release 2025",
+    "aliases": [
+      "Old Forester Estate Release",
+      "Old Forester 2025",
+      "Old Estate"
+    ]
+  },
+  "Four Roses Estate Release 2025": {
+    "name": "Four Roses Estate Release 2025",
+    "aliases": [
+      "Four Roses Estate Release",
+      "Four Roses 2025",
+      "Four Estate"
+    ]
+  },
+  "Heaven Hill Estate Release 2025": {
+    "name": "Heaven Hill Estate Release 2025",
+    "aliases": [
+      "Heaven Hill Estate Release",
+      "Heaven Hill 2025",
+      "Heaven Estate"
+    ]
+  },
+  "Wild Turkey Estate Release 2025": {
+    "name": "Wild Turkey Estate Release 2025",
+    "aliases": [
+      "Wild Turkey Estate Release",
+      "Wild Turkey 2025",
+      "Wild Estate"
+    ]
+  },
+  "Maker's Mark Estate Release 2025": {
+    "name": "Maker's Mark Estate Release 2025",
+    "aliases": [
+      "Maker's Mark Estate Release",
+      "Maker's Mark 2025",
+      "Maker's Estate"
+    ]
+  },
+  "Knob Creek Estate Release 2025": {
+    "name": "Knob Creek Estate Release 2025",
+    "aliases": [
+      "Knob Creek Estate Release",
+      "Knob Creek 2025",
+      "Knob Estate"
+    ]
+  },
+  "Stagg Single Barrel 2016": {
+    "name": "Stagg Single Barrel 2016",
+    "aliases": [
+      "Stagg Single Barrel",
+      "Stagg 2016",
+      "Stagg Single"
+    ]
+  },
+  "Stagg Cask Strength 2017": {
+    "name": "Stagg Cask Strength 2017",
+    "aliases": [
+      "Stagg Cask Strength",
+      "Stagg 2017",
+      "Stagg Cask"
+    ]
+  },
+  "Stagg Reserve 2018": {
+    "name": "Stagg Reserve 2018",
+    "aliases": [
+      "Stagg Reserve",
+      "Stagg 2018"
+    ]
+  },
+  "Stagg Limited Release 2019": {
+    "name": "Stagg Limited Release 2019",
+    "aliases": [
+      "Stagg Limited Release",
+      "Stagg 2019",
+      "Stagg Limited"
+    ]
+  },
+  "Stagg Barrel Proof 2020": {
+    "name": "Stagg Barrel Proof 2020",
+    "aliases": [
+      "Stagg Barrel Proof",
+      "Stagg 2020",
+      "Stagg Barrel"
+    ]
+  },
+  "Stagg Small Batch 2021": {
+    "name": "Stagg Small Batch 2021",
+    "aliases": [
+      "Stagg Small Batch",
+      "Stagg 2021",
+      "Stagg Small"
+    ]
+  },
+  "Stagg Toasted Barrel 2022": {
+    "name": "Stagg Toasted Barrel 2022",
+    "aliases": [
+      "Stagg Toasted Barrel",
+      "Stagg 2022",
+      "Stagg Toasted"
+    ]
+  },
+  "Stagg Double Oaked 2023": {
+    "name": "Stagg Double Oaked 2023",
+    "aliases": [
+      "Stagg Double Oaked",
+      "Stagg 2023",
+      "Stagg Double"
+    ]
+  },
+  "Stagg Private Selection 2024": {
+    "name": "Stagg Private Selection 2024",
+    "aliases": [
+      "Stagg Private Selection",
+      "Stagg 2024",
+      "Stagg Private"
+    ]
+  },
+  "Stagg Estate Release 2025": {
+    "name": "Stagg Estate Release 2025",
+    "aliases": [
+      "Stagg Estate Release",
+      "Stagg 2025",
+      "Stagg Estate"
+    ]
+  },
+  "Russell's Reserve Estate Release 2025": {
+    "name": "Russell's Reserve Estate Release 2025",
+    "aliases": [
+      "Russell's Reserve Estate Release",
+      "Russell's Reserve 2025",
+      "Russell's Estate"
+    ]
+  },
+  "Bardstown Single Barrel 2016": {
+    "name": "Bardstown Single Barrel 2016",
+    "aliases": [
+      "Bardstown Single Barrel",
+      "Bardstown 2016",
+      "Bardstown Single"
+    ]
+  },
+  "Bardstown Cask Strength 2017": {
+    "name": "Bardstown Cask Strength 2017",
+    "aliases": [
+      "Bardstown Cask Strength",
+      "Bardstown 2017",
+      "Bardstown Cask"
+    ]
+  },
+  "Bardstown Reserve 2018": {
+    "name": "Bardstown Reserve 2018",
+    "aliases": [
+      "Bardstown Reserve",
+      "Bardstown 2018"
+    ]
+  },
+  "Bardstown Limited Release 2019": {
+    "name": "Bardstown Limited Release 2019",
+    "aliases": [
+      "Bardstown Limited Release",
+      "Bardstown 2019",
+      "Bardstown Limited"
+    ]
+  },
+  "Bardstown Barrel Proof 2020": {
+    "name": "Bardstown Barrel Proof 2020",
+    "aliases": [
+      "Bardstown Barrel Proof",
+      "Bardstown 2020",
+      "Bardstown Barrel"
+    ]
+  },
+  "Bardstown Small Batch 2021": {
+    "name": "Bardstown Small Batch 2021",
+    "aliases": [
+      "Bardstown Small Batch",
+      "Bardstown 2021",
+      "Bardstown Small"
+    ]
+  },
+  "Bardstown Toasted Barrel 2022": {
+    "name": "Bardstown Toasted Barrel 2022",
+    "aliases": [
+      "Bardstown Toasted Barrel",
+      "Bardstown 2022",
+      "Bardstown Toasted"
+    ]
+  },
+  "Bardstown Double Oaked 2023": {
+    "name": "Bardstown Double Oaked 2023",
+    "aliases": [
+      "Bardstown Double Oaked",
+      "Bardstown 2023",
+      "Bardstown Double"
+    ]
+  },
+  "Bardstown Private Selection 2024": {
+    "name": "Bardstown Private Selection 2024",
+    "aliases": [
+      "Bardstown Private Selection",
+      "Bardstown 2024",
+      "Bardstown Private"
+    ]
+  },
+  "Bardstown Estate Release 2025": {
+    "name": "Bardstown Estate Release 2025",
+    "aliases": [
+      "Bardstown Estate Release",
+      "Bardstown 2025",
+      "Bardstown Estate"
+    ]
+  },
+  "1792 Cask Strength 2017": {
+    "name": "1792 Cask Strength 2017",
+    "aliases": [
+      "1792 Cask Strength",
+      "1792 2017",
+      "1792 Cask"
+    ]
+  },
+  "1792 Reserve 2018": {
+    "name": "1792 Reserve 2018",
+    "aliases": [
+      "1792 Reserve",
+      "1792 2018"
+    ]
+  },
+  "1792 Limited Release 2019": {
+    "name": "1792 Limited Release 2019",
+    "aliases": [
+      "1792 Limited Release",
+      "1792 2019",
+      "1792 Limited"
+    ]
+  },
+  "1792 Barrel Proof 2020": {
+    "name": "1792 Barrel Proof 2020",
+    "aliases": [
+      "1792 Barrel Proof",
+      "1792 2020",
+      "1792 Barrel"
+    ]
+  },
+  "1792 Toasted Barrel 2022": {
+    "name": "1792 Toasted Barrel 2022",
+    "aliases": [
+      "1792 Toasted Barrel",
+      "1792 2022",
+      "1792 Toasted"
+    ]
+  },
+  "1792 Double Oaked 2023": {
+    "name": "1792 Double Oaked 2023",
+    "aliases": [
+      "1792 Double Oaked",
+      "1792 2023",
+      "1792 Double"
+    ]
+  },
+  "1792 Private Selection 2024": {
+    "name": "1792 Private Selection 2024",
+    "aliases": [
+      "1792 Private Selection",
+      "1792 2024",
+      "1792 Private"
+    ]
+  },
+  "1792 Estate Release 2025": {
+    "name": "1792 Estate Release 2025",
+    "aliases": [
+      "1792 Estate Release",
+      "1792 2025",
+      "1792 Estate"
+    ]
+  },
+  "Michter's Single Barrel 2016": {
+    "name": "Michter's Single Barrel 2016",
+    "aliases": [
+      "Michter's Single Barrel",
+      "Michter's 2016",
+      "Michter's Single"
+    ]
+  },
+  "Michter's Cask Strength 2017": {
+    "name": "Michter's Cask Strength 2017",
+    "aliases": [
+      "Michter's Cask Strength",
+      "Michter's 2017",
+      "Michter's Cask"
+    ]
+  },
+  "Michter's Reserve 2018": {
+    "name": "Michter's Reserve 2018",
+    "aliases": [
+      "Michter's Reserve",
+      "Michter's 2018"
+    ]
+  },
+  "Michter's Limited Release 2019": {
+    "name": "Michter's Limited Release 2019",
+    "aliases": [
+      "Michter's Limited Release",
+      "Michter's 2019",
+      "Michter's Limited"
+    ]
+  },
+  "Michter's Barrel Proof 2020": {
+    "name": "Michter's Barrel Proof 2020",
+    "aliases": [
+      "Michter's Barrel Proof",
+      "Michter's 2020",
+      "Michter's Barrel"
+    ]
+  },
+  "Michter's Small Batch 2021": {
+    "name": "Michter's Small Batch 2021",
+    "aliases": [
+      "Michter's Small Batch",
+      "Michter's 2021",
+      "Michter's Small"
+    ]
+  },
+  "Michter's Toasted Barrel 2022": {
+    "name": "Michter's Toasted Barrel 2022",
+    "aliases": [
+      "Michter's Toasted Barrel",
+      "Michter's 2022",
+      "Michter's Toasted"
+    ]
+  },
+  "Michter's Double Oaked 2023": {
+    "name": "Michter's Double Oaked 2023",
+    "aliases": [
+      "Michter's Double Oaked",
+      "Michter's 2023",
+      "Michter's Double"
+    ]
+  },
+  "Michter's Private Selection 2024": {
+    "name": "Michter's Private Selection 2024",
+    "aliases": [
+      "Michter's Private Selection",
+      "Michter's 2024",
+      "Michter's Private"
+    ]
+  },
+  "Michter's Estate Release 2025": {
+    "name": "Michter's Estate Release 2025",
+    "aliases": [
+      "Michter's Estate Release",
+      "Michter's 2025",
+      "Michter's Estate"
+    ]
+  },
+  "Sagamore Single Barrel 2016": {
+    "name": "Sagamore Single Barrel 2016",
+    "aliases": [
+      "Sagamore Single Barrel",
+      "Sagamore 2016",
+      "Sagamore Single"
+    ]
+  },
+  "Sagamore Cask Strength 2017": {
+    "name": "Sagamore Cask Strength 2017",
+    "aliases": [
+      "Sagamore Cask Strength",
+      "Sagamore 2017",
+      "Sagamore Cask"
+    ]
+  },
+  "Sagamore Reserve 2018": {
+    "name": "Sagamore Reserve 2018",
+    "aliases": [
+      "Sagamore Reserve",
+      "Sagamore 2018"
+    ]
+  },
+  "Sagamore Limited Release 2019": {
+    "name": "Sagamore Limited Release 2019",
+    "aliases": [
+      "Sagamore Limited Release",
+      "Sagamore 2019",
+      "Sagamore Limited"
+    ]
+  },
+  "Sagamore Barrel Proof 2020": {
+    "name": "Sagamore Barrel Proof 2020",
+    "aliases": [
+      "Sagamore Barrel Proof",
+      "Sagamore 2020",
+      "Sagamore Barrel"
+    ]
+  },
+  "Sagamore Small Batch 2021": {
+    "name": "Sagamore Small Batch 2021",
+    "aliases": [
+      "Sagamore Small Batch",
+      "Sagamore 2021",
+      "Sagamore Small"
+    ]
+  },
+  "Sagamore Toasted Barrel 2022": {
+    "name": "Sagamore Toasted Barrel 2022",
+    "aliases": [
+      "Sagamore Toasted Barrel",
+      "Sagamore 2022",
+      "Sagamore Toasted"
+    ]
+  },
+  "Sagamore Double Oaked 2023": {
+    "name": "Sagamore Double Oaked 2023",
+    "aliases": [
+      "Sagamore Double Oaked",
+      "Sagamore 2023",
+      "Sagamore Double"
+    ]
+  },
+  "Sagamore Private Selection 2024": {
+    "name": "Sagamore Private Selection 2024",
+    "aliases": [
+      "Sagamore Private Selection",
+      "Sagamore 2024",
+      "Sagamore Private"
+    ]
+  },
+  "Sagamore Estate Release 2025": {
+    "name": "Sagamore Estate Release 2025",
+    "aliases": [
+      "Sagamore Estate Release",
+      "Sagamore 2025",
+      "Sagamore Estate"
+    ]
+  },
+  "WhistlePig Single Barrel 2016": {
+    "name": "WhistlePig Single Barrel 2016",
+    "aliases": [
+      "WhistlePig Single Barrel",
+      "WhistlePig 2016",
+      "WhistlePig Single"
+    ]
+  },
+  "WhistlePig Cask Strength 2017": {
+    "name": "WhistlePig Cask Strength 2017",
+    "aliases": [
+      "WhistlePig Cask Strength",
+      "WhistlePig 2017",
+      "WhistlePig Cask"
+    ]
+  },
+  "WhistlePig Reserve 2018": {
+    "name": "WhistlePig Reserve 2018",
+    "aliases": [
+      "WhistlePig Reserve",
+      "WhistlePig 2018"
+    ]
+  },
+  "WhistlePig Limited Release 2019": {
+    "name": "WhistlePig Limited Release 2019",
+    "aliases": [
+      "WhistlePig Limited Release",
+      "WhistlePig 2019",
+      "WhistlePig Limited"
+    ]
+  },
+  "WhistlePig Barrel Proof 2020": {
+    "name": "WhistlePig Barrel Proof 2020",
+    "aliases": [
+      "WhistlePig Barrel Proof",
+      "WhistlePig 2020",
+      "WhistlePig Barrel"
+    ]
+  },
+  "WhistlePig Small Batch 2021": {
+    "name": "WhistlePig Small Batch 2021",
+    "aliases": [
+      "WhistlePig Small Batch",
+      "WhistlePig 2021",
+      "WhistlePig Small"
+    ]
+  },
+  "WhistlePig Toasted Barrel 2022": {
+    "name": "WhistlePig Toasted Barrel 2022",
+    "aliases": [
+      "WhistlePig Toasted Barrel",
+      "WhistlePig 2022",
+      "WhistlePig Toasted"
+    ]
+  },
+  "WhistlePig Double Oaked 2023": {
+    "name": "WhistlePig Double Oaked 2023",
+    "aliases": [
+      "WhistlePig Double Oaked",
+      "WhistlePig 2023",
+      "WhistlePig Double"
+    ]
+  },
+  "WhistlePig Private Selection 2024": {
+    "name": "WhistlePig Private Selection 2024",
+    "aliases": [
+      "WhistlePig Private Selection",
+      "WhistlePig 2024",
+      "WhistlePig Private"
+    ]
+  },
+  "WhistlePig Estate Release 2025": {
+    "name": "WhistlePig Estate Release 2025",
+    "aliases": [
+      "WhistlePig Estate Release",
+      "WhistlePig 2025",
+      "WhistlePig Estate"
+    ]
+  },
+  "Pikesville Single Barrel 2016": {
+    "name": "Pikesville Single Barrel 2016",
+    "aliases": [
+      "Pikesville Single Barrel",
+      "Pikesville 2016",
+      "Pikesville Single"
+    ]
+  },
+  "Pikesville Cask Strength 2017": {
+    "name": "Pikesville Cask Strength 2017",
+    "aliases": [
+      "Pikesville Cask Strength",
+      "Pikesville 2017",
+      "Pikesville Cask"
+    ]
+  },
+  "Pikesville Reserve 2018": {
+    "name": "Pikesville Reserve 2018",
+    "aliases": [
+      "Pikesville Reserve",
+      "Pikesville 2018"
+    ]
+  },
+  "Pikesville Limited Release 2019": {
+    "name": "Pikesville Limited Release 2019",
+    "aliases": [
+      "Pikesville Limited Release",
+      "Pikesville 2019",
+      "Pikesville Limited"
+    ]
+  },
+  "Pikesville Barrel Proof 2020": {
+    "name": "Pikesville Barrel Proof 2020",
+    "aliases": [
+      "Pikesville Barrel Proof",
+      "Pikesville 2020",
+      "Pikesville Barrel"
+    ]
+  },
+  "Pikesville Small Batch 2021": {
+    "name": "Pikesville Small Batch 2021",
+    "aliases": [
+      "Pikesville Small Batch",
+      "Pikesville 2021",
+      "Pikesville Small"
+    ]
+  },
+  "Pikesville Toasted Barrel 2022": {
+    "name": "Pikesville Toasted Barrel 2022",
+    "aliases": [
+      "Pikesville Toasted Barrel",
+      "Pikesville 2022",
+      "Pikesville Toasted"
+    ]
+  },
+  "Pikesville Double Oaked 2023": {
+    "name": "Pikesville Double Oaked 2023",
+    "aliases": [
+      "Pikesville Double Oaked",
+      "Pikesville 2023",
+      "Pikesville Double"
+    ]
+  },
+  "Pikesville Private Selection 2024": {
+    "name": "Pikesville Private Selection 2024",
+    "aliases": [
+      "Pikesville Private Selection",
+      "Pikesville 2024",
+      "Pikesville Private"
+    ]
+  },
+  "Pikesville Estate Release 2025": {
+    "name": "Pikesville Estate Release 2025",
+    "aliases": [
+      "Pikesville Estate Release",
+      "Pikesville 2025",
+      "Pikesville Estate"
+    ]
+  },
+  "Alberta Premium Single Barrel 2016": {
+    "name": "Alberta Premium Single Barrel 2016",
+    "aliases": [
+      "Alberta Premium Single Barrel",
+      "Alberta Premium 2016",
+      "Alberta Single"
+    ]
+  },
+  "Alberta Premium Cask Strength 2017": {
+    "name": "Alberta Premium Cask Strength 2017",
+    "aliases": [
+      "Alberta Premium Cask Strength",
+      "Alberta Premium 2017",
+      "Alberta Cask"
+    ]
+  },
+  "Alberta Premium Reserve 2018": {
+    "name": "Alberta Premium Reserve 2018",
+    "aliases": [
+      "Alberta Premium Reserve",
+      "Alberta Premium 2018",
+      "Alberta Reserve"
+    ]
+  },
+  "Alberta Premium Limited Release 2019": {
+    "name": "Alberta Premium Limited Release 2019",
+    "aliases": [
+      "Alberta Premium Limited Release",
+      "Alberta Premium 2019",
+      "Alberta Limited"
+    ]
+  },
+  "Alberta Premium Barrel Proof 2020": {
+    "name": "Alberta Premium Barrel Proof 2020",
+    "aliases": [
+      "Alberta Premium Barrel Proof",
+      "Alberta Premium 2020",
+      "Alberta Barrel"
+    ]
+  },
+  "Alberta Premium Small Batch 2021": {
+    "name": "Alberta Premium Small Batch 2021",
+    "aliases": [
+      "Alberta Premium Small Batch",
+      "Alberta Premium 2021",
+      "Alberta Small"
+    ]
+  },
+  "Alberta Premium Toasted Barrel 2022": {
+    "name": "Alberta Premium Toasted Barrel 2022",
+    "aliases": [
+      "Alberta Premium Toasted Barrel",
+      "Alberta Premium 2022",
+      "Alberta Toasted"
+    ]
+  },
+  "Alberta Premium Double Oaked 2023": {
+    "name": "Alberta Premium Double Oaked 2023",
+    "aliases": [
+      "Alberta Premium Double Oaked",
+      "Alberta Premium 2023",
+      "Alberta Double"
+    ]
+  },
+  "Alberta Premium Private Selection 2024": {
+    "name": "Alberta Premium Private Selection 2024",
+    "aliases": [
+      "Alberta Premium Private Selection",
+      "Alberta Premium 2024",
+      "Alberta Private"
+    ]
+  },
+  "Alberta Premium Estate Release 2025": {
+    "name": "Alberta Premium Estate Release 2025",
+    "aliases": [
+      "Alberta Premium Estate Release",
+      "Alberta Premium 2025",
+      "Alberta Estate"
+    ]
+  },
+  "Found North Single Barrel 2016": {
+    "name": "Found North Single Barrel 2016",
+    "aliases": [
+      "Found North Single Barrel",
+      "Found North 2016",
+      "Found Single"
+    ]
+  },
+  "Found North Cask Strength 2017": {
+    "name": "Found North Cask Strength 2017",
+    "aliases": [
+      "Found North Cask Strength",
+      "Found North 2017",
+      "Found Cask"
+    ]
+  },
+  "Found North Reserve 2018": {
+    "name": "Found North Reserve 2018",
+    "aliases": [
+      "Found North Reserve",
+      "Found North 2018",
+      "Found Reserve"
+    ]
+  },
+  "Found North Limited Release 2019": {
+    "name": "Found North Limited Release 2019",
+    "aliases": [
+      "Found North Limited Release",
+      "Found North 2019",
+      "Found Limited"
+    ]
+  },
+  "Found North Barrel Proof 2020": {
+    "name": "Found North Barrel Proof 2020",
+    "aliases": [
+      "Found North Barrel Proof",
+      "Found North 2020",
+      "Found Barrel"
+    ]
+  },
+  "Found North Small Batch 2021": {
+    "name": "Found North Small Batch 2021",
+    "aliases": [
+      "Found North Small Batch",
+      "Found North 2021",
+      "Found Small"
+    ]
+  },
+  "Found North Toasted Barrel 2022": {
+    "name": "Found North Toasted Barrel 2022",
+    "aliases": [
+      "Found North Toasted Barrel",
+      "Found North 2022",
+      "Found Toasted"
+    ]
+  },
+  "Found North Double Oaked 2023": {
+    "name": "Found North Double Oaked 2023",
+    "aliases": [
+      "Found North Double Oaked",
+      "Found North 2023",
+      "Found Double"
+    ]
+  },
+  "Found North Private Selection 2024": {
+    "name": "Found North Private Selection 2024",
+    "aliases": [
+      "Found North Private Selection",
+      "Found North 2024",
+      "Found Private"
+    ]
+  },
+  "Found North Estate Release 2025": {
+    "name": "Found North Estate Release 2025",
+    "aliases": [
+      "Found North Estate Release",
+      "Found North 2025",
+      "Found Estate"
+    ]
+  },
+  "Barrell Single Barrel 2016": {
+    "name": "Barrell Single Barrel 2016",
+    "aliases": [
+      "Barrell Single Barrel",
+      "Barrell 2016",
+      "Barrell Single"
+    ]
+  },
+  "Barrell Cask Strength 2017": {
+    "name": "Barrell Cask Strength 2017",
+    "aliases": [
+      "Barrell Cask Strength",
+      "Barrell 2017",
+      "Barrell Cask"
+    ]
+  },
+  "Barrell Reserve 2018": {
+    "name": "Barrell Reserve 2018",
+    "aliases": [
+      "Barrell Reserve",
+      "Barrell 2018"
+    ]
+  },
+  "Barrell Limited Release 2019": {
+    "name": "Barrell Limited Release 2019",
+    "aliases": [
+      "Barrell Limited Release",
+      "Barrell 2019",
+      "Barrell Limited"
+    ]
+  },
+  "Barrell Barrel Proof 2020": {
+    "name": "Barrell Barrel Proof 2020",
+    "aliases": [
+      "Barrell Barrel Proof",
+      "Barrell 2020",
+      "Barrell Barrel"
+    ]
+  },
+  "Barrell Small Batch 2021": {
+    "name": "Barrell Small Batch 2021",
+    "aliases": [
+      "Barrell Small Batch",
+      "Barrell 2021",
+      "Barrell Small"
+    ]
+  },
+  "Barrell Toasted Barrel 2022": {
+    "name": "Barrell Toasted Barrel 2022",
+    "aliases": [
+      "Barrell Toasted Barrel",
+      "Barrell 2022",
+      "Barrell Toasted"
+    ]
+  },
+  "Barrell Double Oaked 2023": {
+    "name": "Barrell Double Oaked 2023",
+    "aliases": [
+      "Barrell Double Oaked",
+      "Barrell 2023",
+      "Barrell Double"
+    ]
+  },
+  "Barrell Private Selection 2024": {
+    "name": "Barrell Private Selection 2024",
+    "aliases": [
+      "Barrell Private Selection",
+      "Barrell 2024",
+      "Barrell Private"
+    ]
+  },
+  "Barrell Estate Release 2025": {
+    "name": "Barrell Estate Release 2025",
+    "aliases": [
+      "Barrell Estate Release",
+      "Barrell 2025",
+      "Barrell Estate"
+    ]
+  },
+  "Willett Single Barrel 2016": {
+    "name": "Willett Single Barrel 2016",
+    "aliases": [
+      "Willett Single Barrel",
+      "Willett 2016",
+      "Willett Single"
+    ]
+  },
+  "Willett Cask Strength 2017": {
+    "name": "Willett Cask Strength 2017",
+    "aliases": [
+      "Willett Cask Strength",
+      "Willett 2017",
+      "Willett Cask"
+    ]
+  },
+  "Willett Reserve 2018": {
+    "name": "Willett Reserve 2018",
+    "aliases": [
+      "Willett Reserve",
+      "Willett 2018"
+    ]
+  },
+  "Willett Limited Release 2019": {
+    "name": "Willett Limited Release 2019",
+    "aliases": [
+      "Willett Limited Release",
+      "Willett 2019",
+      "Willett Limited"
+    ]
+  },
+  "Willett Barrel Proof 2020": {
+    "name": "Willett Barrel Proof 2020",
+    "aliases": [
+      "Willett Barrel Proof",
+      "Willett 2020",
+      "Willett Barrel"
+    ]
+  },
+  "Willett Small Batch 2021": {
+    "name": "Willett Small Batch 2021",
+    "aliases": [
+      "Willett Small Batch",
+      "Willett 2021",
+      "Willett Small"
+    ]
+  },
+  "Willett Toasted Barrel 2022": {
+    "name": "Willett Toasted Barrel 2022",
+    "aliases": [
+      "Willett Toasted Barrel",
+      "Willett 2022",
+      "Willett Toasted"
+    ]
+  },
+  "Willett Double Oaked 2023": {
+    "name": "Willett Double Oaked 2023",
+    "aliases": [
+      "Willett Double Oaked",
+      "Willett 2023",
+      "Willett Double"
+    ]
+  },
+  "Willett Private Selection 2024": {
+    "name": "Willett Private Selection 2024",
+    "aliases": [
+      "Willett Private Selection",
+      "Willett 2024",
+      "Willett Private"
+    ]
+  },
+  "Willett Estate Release 2025": {
+    "name": "Willett Estate Release 2025",
+    "aliases": [
+      "Willett Estate Release",
+      "Willett 2025",
+      "Willett Estate"
+    ]
+  },
+  "Foursquare Single Barrel 2016": {
+    "name": "Foursquare Single Barrel 2016",
+    "aliases": [
+      "Foursquare Single Barrel",
+      "Foursquare 2016",
+      "Foursquare Single"
+    ]
+  },
+  "Foursquare Cask Strength 2017": {
+    "name": "Foursquare Cask Strength 2017",
+    "aliases": [
+      "Foursquare Cask Strength",
+      "Foursquare 2017",
+      "Foursquare Cask"
+    ]
+  },
+  "Foursquare Reserve 2018": {
+    "name": "Foursquare Reserve 2018",
+    "aliases": [
+      "Foursquare Reserve",
+      "Foursquare 2018"
+    ]
+  },
+  "Foursquare Limited Release 2019": {
+    "name": "Foursquare Limited Release 2019",
+    "aliases": [
+      "Foursquare Limited Release",
+      "Foursquare 2019",
+      "Foursquare Limited"
+    ]
+  },
+  "Foursquare Barrel Proof 2020": {
+    "name": "Foursquare Barrel Proof 2020",
+    "aliases": [
+      "Foursquare Barrel Proof",
+      "Foursquare 2020",
+      "Foursquare Barrel"
+    ]
+  },
+  "Foursquare Small Batch 2021": {
+    "name": "Foursquare Small Batch 2021",
+    "aliases": [
+      "Foursquare Small Batch",
+      "Foursquare 2021",
+      "Foursquare Small"
+    ]
+  },
+  "Foursquare Toasted Barrel 2022": {
+    "name": "Foursquare Toasted Barrel 2022",
+    "aliases": [
+      "Foursquare Toasted Barrel",
+      "Foursquare 2022",
+      "Foursquare Toasted"
+    ]
+  },
+  "Foursquare Double Oaked 2023": {
+    "name": "Foursquare Double Oaked 2023",
+    "aliases": [
+      "Foursquare Double Oaked",
+      "Foursquare 2023",
+      "Foursquare Double"
+    ]
+  },
+  "Foursquare Private Selection 2024": {
+    "name": "Foursquare Private Selection 2024",
+    "aliases": [
+      "Foursquare Private Selection",
+      "Foursquare 2024",
+      "Foursquare Private"
+    ]
+  },
+  "Foursquare Estate Release 2025": {
+    "name": "Foursquare Estate Release 2025",
+    "aliases": [
+      "Foursquare Estate Release",
+      "Foursquare 2025",
+      "Foursquare Estate"
+    ]
+  },
+  "Hampden Single Barrel 2016": {
+    "name": "Hampden Single Barrel 2016",
+    "aliases": [
+      "Hampden Single Barrel",
+      "Hampden 2016",
+      "Hampden Single"
+    ]
+  },
+  "Hampden Cask Strength 2017": {
+    "name": "Hampden Cask Strength 2017",
+    "aliases": [
+      "Hampden Cask Strength",
+      "Hampden 2017",
+      "Hampden Cask"
+    ]
+  },
+  "Hampden Reserve 2018": {
+    "name": "Hampden Reserve 2018",
+    "aliases": [
+      "Hampden Reserve",
+      "Hampden 2018"
+    ]
+  },
+  "Hampden Limited Release 2019": {
+    "name": "Hampden Limited Release 2019",
+    "aliases": [
+      "Hampden Limited Release",
+      "Hampden 2019",
+      "Hampden Limited"
+    ]
+  },
+  "Hampden Barrel Proof 2020": {
+    "name": "Hampden Barrel Proof 2020",
+    "aliases": [
+      "Hampden Barrel Proof",
+      "Hampden 2020",
+      "Hampden Barrel"
+    ]
+  },
+  "Hampden Small Batch 2021": {
+    "name": "Hampden Small Batch 2021",
+    "aliases": [
+      "Hampden Small Batch",
+      "Hampden 2021",
+      "Hampden Small"
+    ]
+  },
+  "Hampden Toasted Barrel 2022": {
+    "name": "Hampden Toasted Barrel 2022",
+    "aliases": [
+      "Hampden Toasted Barrel",
+      "Hampden 2022",
+      "Hampden Toasted"
+    ]
+  },
+  "Hampden Double Oaked 2023": {
+    "name": "Hampden Double Oaked 2023",
+    "aliases": [
+      "Hampden Double Oaked",
+      "Hampden 2023",
+      "Hampden Double"
+    ]
+  },
+  "Hampden Private Selection 2024": {
+    "name": "Hampden Private Selection 2024",
+    "aliases": [
+      "Hampden Private Selection",
+      "Hampden 2024",
+      "Hampden Private"
+    ]
+  },
+  "Hampden Estate Release 2025": {
+    "name": "Hampden Estate Release 2025",
+    "aliases": [
+      "Hampden Estate Release",
+      "Hampden 2025",
+      "Hampden Estate"
+    ]
+  },
+  "Appleton Single Barrel 2016": {
+    "name": "Appleton Single Barrel 2016",
+    "aliases": [
+      "Appleton Single Barrel",
+      "Appleton 2016",
+      "Appleton Single"
+    ]
+  },
+  "Appleton Cask Strength 2017": {
+    "name": "Appleton Cask Strength 2017",
+    "aliases": [
+      "Appleton Cask Strength",
+      "Appleton 2017",
+      "Appleton Cask"
+    ]
+  },
+  "Appleton Reserve 2018": {
+    "name": "Appleton Reserve 2018",
+    "aliases": [
+      "Appleton Reserve",
+      "Appleton 2018"
+    ]
+  },
+  "Appleton Limited Release 2019": {
+    "name": "Appleton Limited Release 2019",
+    "aliases": [
+      "Appleton Limited Release",
+      "Appleton 2019",
+      "Appleton Limited"
+    ]
+  },
+  "Appleton Barrel Proof 2020": {
+    "name": "Appleton Barrel Proof 2020",
+    "aliases": [
+      "Appleton Barrel Proof",
+      "Appleton 2020",
+      "Appleton Barrel"
+    ]
+  },
+  "Appleton Small Batch 2021": {
+    "name": "Appleton Small Batch 2021",
+    "aliases": [
+      "Appleton Small Batch",
+      "Appleton 2021",
+      "Appleton Small"
+    ]
+  },
+  "Appleton Toasted Barrel 2022": {
+    "name": "Appleton Toasted Barrel 2022",
+    "aliases": [
+      "Appleton Toasted Barrel",
+      "Appleton 2022",
+      "Appleton Toasted"
+    ]
+  },
+  "Appleton Double Oaked 2023": {
+    "name": "Appleton Double Oaked 2023",
+    "aliases": [
+      "Appleton Double Oaked",
+      "Appleton 2023",
+      "Appleton Double"
+    ]
+  },
+  "Appleton Private Selection 2024": {
+    "name": "Appleton Private Selection 2024",
+    "aliases": [
+      "Appleton Private Selection",
+      "Appleton 2024",
+      "Appleton Private"
+    ]
+  },
+  "Appleton Estate Release 2025": {
+    "name": "Appleton Estate Release 2025",
+    "aliases": [
+      "Appleton Estate Release",
+      "Appleton 2025",
+      "Appleton Estate"
+    ]
+  },
+  "Plantation Single Barrel 2016": {
+    "name": "Plantation Single Barrel 2016",
+    "aliases": [
+      "Plantation Single Barrel",
+      "Plantation 2016",
+      "Plantation Single"
+    ]
+  },
+  "Plantation Cask Strength 2017": {
+    "name": "Plantation Cask Strength 2017",
+    "aliases": [
+      "Plantation Cask Strength",
+      "Plantation 2017",
+      "Plantation Cask"
+    ]
+  },
+  "Plantation Reserve 2018": {
+    "name": "Plantation Reserve 2018",
+    "aliases": [
+      "Plantation Reserve",
+      "Plantation 2018"
+    ]
+  },
+  "Plantation Limited Release 2019": {
+    "name": "Plantation Limited Release 2019",
+    "aliases": [
+      "Plantation Limited Release",
+      "Plantation 2019",
+      "Plantation Limited"
+    ]
+  },
+  "Plantation Barrel Proof 2020": {
+    "name": "Plantation Barrel Proof 2020",
+    "aliases": [
+      "Plantation Barrel Proof",
+      "Plantation 2020",
+      "Plantation Barrel"
+    ]
+  },
+  "Plantation Small Batch 2021": {
+    "name": "Plantation Small Batch 2021",
+    "aliases": [
+      "Plantation Small Batch",
+      "Plantation 2021",
+      "Plantation Small"
+    ]
+  },
+  "Plantation Toasted Barrel 2022": {
+    "name": "Plantation Toasted Barrel 2022",
+    "aliases": [
+      "Plantation Toasted Barrel",
+      "Plantation 2022",
+      "Plantation Toasted"
+    ]
+  },
+  "Plantation Double Oaked 2023": {
+    "name": "Plantation Double Oaked 2023",
+    "aliases": [
+      "Plantation Double Oaked",
+      "Plantation 2023",
+      "Plantation Double"
+    ]
+  },
+  "Plantation Private Selection 2024": {
+    "name": "Plantation Private Selection 2024",
+    "aliases": [
+      "Plantation Private Selection",
+      "Plantation 2024",
+      "Plantation Private"
+    ]
+  },
+  "Plantation Estate Release 2025": {
+    "name": "Plantation Estate Release 2025",
+    "aliases": [
+      "Plantation Estate Release",
+      "Plantation 2025",
+      "Plantation Estate"
+    ]
+  },
+  "Worthy Park Single Barrel 2016": {
+    "name": "Worthy Park Single Barrel 2016",
+    "aliases": [
+      "Worthy Park Single Barrel",
+      "Worthy Park 2016",
+      "Worthy Single"
+    ]
+  },
+  "Worthy Park Cask Strength 2017": {
+    "name": "Worthy Park Cask Strength 2017",
+    "aliases": [
+      "Worthy Park Cask Strength",
+      "Worthy Park 2017",
+      "Worthy Cask"
+    ]
+  },
+  "Worthy Park Reserve 2018": {
+    "name": "Worthy Park Reserve 2018",
+    "aliases": [
+      "Worthy Park Reserve",
+      "Worthy Park 2018",
+      "Worthy Reserve"
+    ]
+  },
+  "Worthy Park Limited Release 2019": {
+    "name": "Worthy Park Limited Release 2019",
+    "aliases": [
+      "Worthy Park Limited Release",
+      "Worthy Park 2019",
+      "Worthy Limited"
+    ]
+  },
+  "Worthy Park Barrel Proof 2020": {
+    "name": "Worthy Park Barrel Proof 2020",
+    "aliases": [
+      "Worthy Park Barrel Proof",
+      "Worthy Park 2020",
+      "Worthy Barrel"
+    ]
+  },
+  "Worthy Park Small Batch 2021": {
+    "name": "Worthy Park Small Batch 2021",
+    "aliases": [
+      "Worthy Park Small Batch",
+      "Worthy Park 2021",
+      "Worthy Small"
+    ]
+  },
+  "Worthy Park Toasted Barrel 2022": {
+    "name": "Worthy Park Toasted Barrel 2022",
+    "aliases": [
+      "Worthy Park Toasted Barrel",
+      "Worthy Park 2022",
+      "Worthy Toasted"
+    ]
+  },
+  "Worthy Park Double Oaked 2023": {
+    "name": "Worthy Park Double Oaked 2023",
+    "aliases": [
+      "Worthy Park Double Oaked",
+      "Worthy Park 2023",
+      "Worthy Double"
+    ]
+  },
+  "Worthy Park Private Selection 2024": {
+    "name": "Worthy Park Private Selection 2024",
+    "aliases": [
+      "Worthy Park Private Selection",
+      "Worthy Park 2024",
+      "Worthy Private"
+    ]
+  },
+  "Worthy Park Estate Release 2025": {
+    "name": "Worthy Park Estate Release 2025",
+    "aliases": [
+      "Worthy Park Estate Release",
+      "Worthy Park 2025",
+      "Worthy Estate"
+    ]
+  },
+  "Holmes Cay Single Barrel 2016": {
+    "name": "Holmes Cay Single Barrel 2016",
+    "aliases": [
+      "Holmes Cay Single Barrel",
+      "Holmes Cay 2016",
+      "Holmes Single"
+    ]
+  },
+  "Holmes Cay Cask Strength 2017": {
+    "name": "Holmes Cay Cask Strength 2017",
+    "aliases": [
+      "Holmes Cay Cask Strength",
+      "Holmes Cay 2017",
+      "Holmes Cask"
+    ]
+  },
+  "Holmes Cay Reserve 2018": {
+    "name": "Holmes Cay Reserve 2018",
+    "aliases": [
+      "Holmes Cay Reserve",
+      "Holmes Cay 2018",
+      "Holmes Reserve"
+    ]
+  },
+  "Holmes Cay Limited Release 2019": {
+    "name": "Holmes Cay Limited Release 2019",
+    "aliases": [
+      "Holmes Cay Limited Release",
+      "Holmes Cay 2019",
+      "Holmes Limited"
+    ]
+  },
+  "Holmes Cay Barrel Proof 2020": {
+    "name": "Holmes Cay Barrel Proof 2020",
+    "aliases": [
+      "Holmes Cay Barrel Proof",
+      "Holmes Cay 2020",
+      "Holmes Barrel"
+    ]
+  },
+  "Holmes Cay Small Batch 2021": {
+    "name": "Holmes Cay Small Batch 2021",
+    "aliases": [
+      "Holmes Cay Small Batch",
+      "Holmes Cay 2021",
+      "Holmes Small"
+    ]
+  },
+  "Holmes Cay Toasted Barrel 2022": {
+    "name": "Holmes Cay Toasted Barrel 2022",
+    "aliases": [
+      "Holmes Cay Toasted Barrel",
+      "Holmes Cay 2022",
+      "Holmes Toasted"
+    ]
+  },
+  "Holmes Cay Double Oaked 2023": {
+    "name": "Holmes Cay Double Oaked 2023",
+    "aliases": [
+      "Holmes Cay Double Oaked",
+      "Holmes Cay 2023",
+      "Holmes Double"
+    ]
+  },
+  "Holmes Cay Private Selection 2024": {
+    "name": "Holmes Cay Private Selection 2024",
+    "aliases": [
+      "Holmes Cay Private Selection",
+      "Holmes Cay 2024",
+      "Holmes Private"
+    ]
+  },
+  "Holmes Cay Estate Release 2025": {
+    "name": "Holmes Cay Estate Release 2025",
+    "aliases": [
+      "Holmes Cay Estate Release",
+      "Holmes Cay 2025",
+      "Holmes Estate"
+    ]
+  },
+  "Doorlys Single Barrel 2016": {
+    "name": "Doorlys Single Barrel 2016",
+    "aliases": [
+      "Doorlys Single Barrel",
+      "Doorlys 2016",
+      "Doorlys Single"
+    ]
+  },
+  "Doorlys Cask Strength 2017": {
+    "name": "Doorlys Cask Strength 2017",
+    "aliases": [
+      "Doorlys Cask Strength",
+      "Doorlys 2017",
+      "Doorlys Cask"
+    ]
+  },
+  "Doorlys Reserve 2018": {
+    "name": "Doorlys Reserve 2018",
+    "aliases": [
+      "Doorlys Reserve",
+      "Doorlys 2018"
+    ]
+  },
+  "Doorlys Limited Release 2019": {
+    "name": "Doorlys Limited Release 2019",
+    "aliases": [
+      "Doorlys Limited Release",
+      "Doorlys 2019",
+      "Doorlys Limited"
+    ]
+  },
+  "Doorlys Barrel Proof 2020": {
+    "name": "Doorlys Barrel Proof 2020",
+    "aliases": [
+      "Doorlys Barrel Proof",
+      "Doorlys 2020",
+      "Doorlys Barrel"
+    ]
+  },
+  "Doorlys Small Batch 2021": {
+    "name": "Doorlys Small Batch 2021",
+    "aliases": [
+      "Doorlys Small Batch",
+      "Doorlys 2021",
+      "Doorlys Small"
+    ]
+  },
+  "Doorlys Toasted Barrel 2022": {
+    "name": "Doorlys Toasted Barrel 2022",
+    "aliases": [
+      "Doorlys Toasted Barrel",
+      "Doorlys 2022",
+      "Doorlys Toasted"
+    ]
+  },
+  "Doorlys Double Oaked 2023": {
+    "name": "Doorlys Double Oaked 2023",
+    "aliases": [
+      "Doorlys Double Oaked",
+      "Doorlys 2023",
+      "Doorlys Double"
+    ]
+  },
+  "Doorlys Private Selection 2024": {
+    "name": "Doorlys Private Selection 2024",
+    "aliases": [
+      "Doorlys Private Selection",
+      "Doorlys 2024",
+      "Doorlys Private"
+    ]
+  },
+  "Doorlys Estate Release 2025": {
+    "name": "Doorlys Estate Release 2025",
+    "aliases": [
+      "Doorlys Estate Release",
+      "Doorlys 2025",
+      "Doorlys Estate"
+    ]
+  },
+  "Mount Gay Single Barrel 2016": {
+    "name": "Mount Gay Single Barrel 2016",
+    "aliases": [
+      "Mount Gay Single Barrel",
+      "Mount Gay 2016",
+      "Mount Single"
+    ]
+  },
+  "Mount Gay Cask Strength 2017": {
+    "name": "Mount Gay Cask Strength 2017",
+    "aliases": [
+      "Mount Gay Cask Strength",
+      "Mount Gay 2017",
+      "Mount Cask"
+    ]
+  },
+  "Mount Gay Reserve 2018": {
+    "name": "Mount Gay Reserve 2018",
+    "aliases": [
+      "Mount Gay Reserve",
+      "Mount Gay 2018",
+      "Mount Reserve"
+    ]
+  },
+  "Mount Gay Limited Release 2019": {
+    "name": "Mount Gay Limited Release 2019",
+    "aliases": [
+      "Mount Gay Limited Release",
+      "Mount Gay 2019",
+      "Mount Limited"
+    ]
+  },
+  "Mount Gay Barrel Proof 2020": {
+    "name": "Mount Gay Barrel Proof 2020",
+    "aliases": [
+      "Mount Gay Barrel Proof",
+      "Mount Gay 2020",
+      "Mount Barrel"
+    ]
+  },
+  "Mount Gay Small Batch 2021": {
+    "name": "Mount Gay Small Batch 2021",
+    "aliases": [
+      "Mount Gay Small Batch",
+      "Mount Gay 2021",
+      "Mount Small"
+    ]
+  },
+  "Mount Gay Toasted Barrel 2022": {
+    "name": "Mount Gay Toasted Barrel 2022",
+    "aliases": [
+      "Mount Gay Toasted Barrel",
+      "Mount Gay 2022",
+      "Mount Toasted"
+    ]
+  },
+  "Mount Gay Double Oaked 2023": {
+    "name": "Mount Gay Double Oaked 2023",
+    "aliases": [
+      "Mount Gay Double Oaked",
+      "Mount Gay 2023",
+      "Mount Double"
+    ]
+  },
+  "Mount Gay Private Selection 2024": {
+    "name": "Mount Gay Private Selection 2024",
+    "aliases": [
+      "Mount Gay Private Selection",
+      "Mount Gay 2024",
+      "Mount Private"
+    ]
+  },
+  "Mount Gay Estate Release 2025": {
+    "name": "Mount Gay Estate Release 2025",
+    "aliases": [
+      "Mount Gay Estate Release",
+      "Mount Gay 2025",
+      "Mount Estate"
+    ]
+  },
+  "Fortaleza Single Barrel 2016": {
+    "name": "Fortaleza Single Barrel 2016",
+    "aliases": [
+      "Fortaleza Single Barrel",
+      "Fortaleza 2016",
+      "Fortaleza Single"
+    ]
+  },
+  "Fortaleza Cask Strength 2017": {
+    "name": "Fortaleza Cask Strength 2017",
+    "aliases": [
+      "Fortaleza Cask Strength",
+      "Fortaleza 2017",
+      "Fortaleza Cask"
+    ]
+  },
+  "Fortaleza Reserve 2018": {
+    "name": "Fortaleza Reserve 2018",
+    "aliases": [
+      "Fortaleza Reserve",
+      "Fortaleza 2018"
+    ]
+  },
+  "Fortaleza Limited Release 2019": {
+    "name": "Fortaleza Limited Release 2019",
+    "aliases": [
+      "Fortaleza Limited Release",
+      "Fortaleza 2019",
+      "Fortaleza Limited"
+    ]
+  },
+  "Fortaleza Barrel Proof 2020": {
+    "name": "Fortaleza Barrel Proof 2020",
+    "aliases": [
+      "Fortaleza Barrel Proof",
+      "Fortaleza 2020",
+      "Fortaleza Barrel"
+    ]
+  },
+  "Fortaleza Small Batch 2021": {
+    "name": "Fortaleza Small Batch 2021",
+    "aliases": [
+      "Fortaleza Small Batch",
+      "Fortaleza 2021",
+      "Fortaleza Small"
+    ]
+  },
+  "Fortaleza Toasted Barrel 2022": {
+    "name": "Fortaleza Toasted Barrel 2022",
+    "aliases": [
+      "Fortaleza Toasted Barrel",
+      "Fortaleza 2022",
+      "Fortaleza Toasted"
+    ]
+  },
+  "Fortaleza Double Oaked 2023": {
+    "name": "Fortaleza Double Oaked 2023",
+    "aliases": [
+      "Fortaleza Double Oaked",
+      "Fortaleza 2023",
+      "Fortaleza Double"
+    ]
+  },
+  "Fortaleza Private Selection 2024": {
+    "name": "Fortaleza Private Selection 2024",
+    "aliases": [
+      "Fortaleza Private Selection",
+      "Fortaleza 2024",
+      "Fortaleza Private"
+    ]
+  },
+  "Fortaleza Estate Release 2025": {
+    "name": "Fortaleza Estate Release 2025",
+    "aliases": [
+      "Fortaleza Estate Release",
+      "Fortaleza 2025",
+      "Fortaleza Estate"
+    ]
+  },
+  "G4 Single Barrel 2016": {
+    "name": "G4 Single Barrel 2016",
+    "aliases": [
+      "G4 Single Barrel",
+      "G4 2016",
+      "G4 Single"
+    ]
+  },
+  "G4 Cask Strength 2017": {
+    "name": "G4 Cask Strength 2017",
+    "aliases": [
+      "G4 Cask Strength",
+      "G4 2017",
+      "G4 Cask"
+    ]
+  },
+  "G4 Reserve 2018": {
+    "name": "G4 Reserve 2018",
+    "aliases": [
+      "G4 Reserve",
+      "G4 2018"
+    ]
+  },
+  "G4 Limited Release 2019": {
+    "name": "G4 Limited Release 2019",
+    "aliases": [
+      "G4 Limited Release",
+      "G4 2019",
+      "G4 Limited"
+    ]
+  },
+  "G4 Barrel Proof 2020": {
+    "name": "G4 Barrel Proof 2020",
+    "aliases": [
+      "G4 Barrel Proof",
+      "G4 2020",
+      "G4 Barrel"
+    ]
+  },
+  "G4 Small Batch 2021": {
+    "name": "G4 Small Batch 2021",
+    "aliases": [
+      "G4 Small Batch",
+      "G4 2021",
+      "G4 Small"
+    ]
+  },
+  "G4 Toasted Barrel 2022": {
+    "name": "G4 Toasted Barrel 2022",
+    "aliases": [
+      "G4 Toasted Barrel",
+      "G4 2022",
+      "G4 Toasted"
+    ]
+  },
+  "G4 Double Oaked 2023": {
+    "name": "G4 Double Oaked 2023",
+    "aliases": [
+      "G4 Double Oaked",
+      "G4 2023",
+      "G4 Double"
+    ]
+  },
+  "G4 Private Selection 2024": {
+    "name": "G4 Private Selection 2024",
+    "aliases": [
+      "G4 Private Selection",
+      "G4 2024",
+      "G4 Private"
+    ]
+  },
+  "G4 Estate Release 2025": {
+    "name": "G4 Estate Release 2025",
+    "aliases": [
+      "G4 Estate Release",
+      "G4 2025",
+      "G4 Estate"
+    ]
+  },
+  "El Tesoro Single Barrel 2016": {
+    "name": "El Tesoro Single Barrel 2016",
+    "aliases": [
+      "El Tesoro Single Barrel",
+      "El Tesoro 2016",
+      "El Single"
+    ]
+  },
+  "El Tesoro Cask Strength 2017": {
+    "name": "El Tesoro Cask Strength 2017",
+    "aliases": [
+      "El Tesoro Cask Strength",
+      "El Tesoro 2017",
+      "El Cask"
+    ]
+  },
+  "El Tesoro Reserve 2018": {
+    "name": "El Tesoro Reserve 2018",
+    "aliases": [
+      "El Tesoro Reserve",
+      "El Tesoro 2018",
+      "El Reserve"
+    ]
+  },
+  "El Tesoro Limited Release 2019": {
+    "name": "El Tesoro Limited Release 2019",
+    "aliases": [
+      "El Tesoro Limited Release",
+      "El Tesoro 2019",
+      "El Limited"
+    ]
+  },
+  "El Tesoro Barrel Proof 2020": {
+    "name": "El Tesoro Barrel Proof 2020",
+    "aliases": [
+      "El Tesoro Barrel Proof",
+      "El Tesoro 2020",
+      "El Barrel"
+    ]
+  },
+  "El Tesoro Small Batch 2021": {
+    "name": "El Tesoro Small Batch 2021",
+    "aliases": [
+      "El Tesoro Small Batch",
+      "El Tesoro 2021",
+      "El Small"
+    ]
+  },
+  "El Tesoro Toasted Barrel 2022": {
+    "name": "El Tesoro Toasted Barrel 2022",
+    "aliases": [
+      "El Tesoro Toasted Barrel",
+      "El Tesoro 2022",
+      "El Toasted"
+    ]
+  },
+  "El Tesoro Double Oaked 2023": {
+    "name": "El Tesoro Double Oaked 2023",
+    "aliases": [
+      "El Tesoro Double Oaked",
+      "El Tesoro 2023",
+      "El Double"
+    ]
+  },
+  "El Tesoro Private Selection 2024": {
+    "name": "El Tesoro Private Selection 2024",
+    "aliases": [
+      "El Tesoro Private Selection",
+      "El Tesoro 2024",
+      "El Private"
+    ]
+  },
+  "El Tesoro Estate Release 2025": {
+    "name": "El Tesoro Estate Release 2025",
+    "aliases": [
+      "El Tesoro Estate Release",
+      "El Tesoro 2025",
+      "El Estate"
+    ]
+  },
+  "Don Fulano Single Barrel 2016": {
+    "name": "Don Fulano Single Barrel 2016",
+    "aliases": [
+      "Don Fulano Single Barrel",
+      "Don Fulano 2016",
+      "Don Single"
+    ]
+  },
+  "Don Fulano Cask Strength 2017": {
+    "name": "Don Fulano Cask Strength 2017",
+    "aliases": [
+      "Don Fulano Cask Strength",
+      "Don Fulano 2017",
+      "Don Cask"
+    ]
+  },
+  "Don Fulano Reserve 2018": {
+    "name": "Don Fulano Reserve 2018",
+    "aliases": [
+      "Don Fulano Reserve",
+      "Don Fulano 2018",
+      "Don Reserve"
+    ]
+  },
+  "Don Fulano Limited Release 2019": {
+    "name": "Don Fulano Limited Release 2019",
+    "aliases": [
+      "Don Fulano Limited Release",
+      "Don Fulano 2019",
+      "Don Limited"
+    ]
+  },
+  "Don Fulano Barrel Proof 2020": {
+    "name": "Don Fulano Barrel Proof 2020",
+    "aliases": [
+      "Don Fulano Barrel Proof",
+      "Don Fulano 2020",
+      "Don Barrel"
+    ]
+  },
+  "Don Fulano Small Batch 2021": {
+    "name": "Don Fulano Small Batch 2021",
+    "aliases": [
+      "Don Fulano Small Batch",
+      "Don Fulano 2021",
+      "Don Small"
+    ]
+  },
+  "Don Fulano Toasted Barrel 2022": {
+    "name": "Don Fulano Toasted Barrel 2022",
+    "aliases": [
+      "Don Fulano Toasted Barrel",
+      "Don Fulano 2022",
+      "Don Toasted"
+    ]
+  },
+  "Don Fulano Double Oaked 2023": {
+    "name": "Don Fulano Double Oaked 2023",
+    "aliases": [
+      "Don Fulano Double Oaked",
+      "Don Fulano 2023",
+      "Don Double"
+    ]
+  },
+  "Don Fulano Private Selection 2024": {
+    "name": "Don Fulano Private Selection 2024",
+    "aliases": [
+      "Don Fulano Private Selection",
+      "Don Fulano 2024",
+      "Don Private"
+    ]
+  },
+  "Don Fulano Estate Release 2025": {
+    "name": "Don Fulano Estate Release 2025",
+    "aliases": [
+      "Don Fulano Estate Release",
+      "Don Fulano 2025",
+      "Don Estate"
+    ]
+  },
+  "Tapatio Single Barrel 2016": {
+    "name": "Tapatio Single Barrel 2016",
+    "aliases": [
+      "Tapatio Single Barrel",
+      "Tapatio 2016",
+      "Tapatio Single"
+    ]
+  },
+  "Tapatio Cask Strength 2017": {
+    "name": "Tapatio Cask Strength 2017",
+    "aliases": [
+      "Tapatio Cask Strength",
+      "Tapatio 2017",
+      "Tapatio Cask"
+    ]
+  },
+  "Tapatio Reserve 2018": {
+    "name": "Tapatio Reserve 2018",
+    "aliases": [
+      "Tapatio Reserve",
+      "Tapatio 2018"
+    ]
+  },
+  "Tapatio Limited Release 2019": {
+    "name": "Tapatio Limited Release 2019",
+    "aliases": [
+      "Tapatio Limited Release",
+      "Tapatio 2019",
+      "Tapatio Limited"
+    ]
+  },
+  "Tapatio Barrel Proof 2020": {
+    "name": "Tapatio Barrel Proof 2020",
+    "aliases": [
+      "Tapatio Barrel Proof",
+      "Tapatio 2020",
+      "Tapatio Barrel"
+    ]
+  },
+  "Tapatio Small Batch 2021": {
+    "name": "Tapatio Small Batch 2021",
+    "aliases": [
+      "Tapatio Small Batch",
+      "Tapatio 2021",
+      "Tapatio Small"
+    ]
+  },
+  "Tapatio Toasted Barrel 2022": {
+    "name": "Tapatio Toasted Barrel 2022",
+    "aliases": [
+      "Tapatio Toasted Barrel",
+      "Tapatio 2022",
+      "Tapatio Toasted"
+    ]
+  },
+  "Tapatio Double Oaked 2023": {
+    "name": "Tapatio Double Oaked 2023",
+    "aliases": [
+      "Tapatio Double Oaked",
+      "Tapatio 2023",
+      "Tapatio Double"
+    ]
+  },
+  "Tapatio Private Selection 2024": {
+    "name": "Tapatio Private Selection 2024",
+    "aliases": [
+      "Tapatio Private Selection",
+      "Tapatio 2024",
+      "Tapatio Private"
+    ]
+  },
+  "Tapatio Estate Release 2025": {
+    "name": "Tapatio Estate Release 2025",
+    "aliases": [
+      "Tapatio Estate Release",
+      "Tapatio 2025",
+      "Tapatio Estate"
+    ]
+  },
+  "Ocho Single Barrel 2016": {
+    "name": "Ocho Single Barrel 2016",
+    "aliases": [
+      "Ocho Single Barrel",
+      "Ocho 2016",
+      "Ocho Single"
+    ]
+  },
+  "Ocho Cask Strength 2017": {
+    "name": "Ocho Cask Strength 2017",
+    "aliases": [
+      "Ocho Cask Strength",
+      "Ocho 2017",
+      "Ocho Cask"
+    ]
+  },
+  "Ocho Reserve 2018": {
+    "name": "Ocho Reserve 2018",
+    "aliases": [
+      "Ocho Reserve",
+      "Ocho 2018"
+    ]
+  },
+  "Ocho Limited Release 2019": {
+    "name": "Ocho Limited Release 2019",
+    "aliases": [
+      "Ocho Limited Release",
+      "Ocho 2019",
+      "Ocho Limited"
+    ]
+  },
+  "Ocho Barrel Proof 2020": {
+    "name": "Ocho Barrel Proof 2020",
+    "aliases": [
+      "Ocho Barrel Proof",
+      "Ocho 2020",
+      "Ocho Barrel"
+    ]
+  },
+  "Ocho Small Batch 2021": {
+    "name": "Ocho Small Batch 2021",
+    "aliases": [
+      "Ocho Small Batch",
+      "Ocho 2021",
+      "Ocho Small"
+    ]
+  },
+  "Ocho Toasted Barrel 2022": {
+    "name": "Ocho Toasted Barrel 2022",
+    "aliases": [
+      "Ocho Toasted Barrel",
+      "Ocho 2022",
+      "Ocho Toasted"
+    ]
+  },
+  "Ocho Double Oaked 2023": {
+    "name": "Ocho Double Oaked 2023",
+    "aliases": [
+      "Ocho Double Oaked",
+      "Ocho 2023",
+      "Ocho Double"
+    ]
+  },
+  "Ocho Private Selection 2024": {
+    "name": "Ocho Private Selection 2024",
+    "aliases": [
+      "Ocho Private Selection",
+      "Ocho 2024",
+      "Ocho Private"
+    ]
+  },
+  "Ocho Estate Release 2025": {
+    "name": "Ocho Estate Release 2025",
+    "aliases": [
+      "Ocho Estate Release",
+      "Ocho 2025",
+      "Ocho Estate"
+    ]
+  },
+  "Cascahuin Single Barrel 2016": {
+    "name": "Cascahuin Single Barrel 2016",
+    "aliases": [
+      "Cascahuin Single Barrel",
+      "Cascahuin 2016",
+      "Cascahuin Single"
+    ]
+  },
+  "Cascahuin Cask Strength 2017": {
+    "name": "Cascahuin Cask Strength 2017",
+    "aliases": [
+      "Cascahuin Cask Strength",
+      "Cascahuin 2017",
+      "Cascahuin Cask"
+    ]
+  },
+  "Cascahuin Reserve 2018": {
+    "name": "Cascahuin Reserve 2018",
+    "aliases": [
+      "Cascahuin Reserve",
+      "Cascahuin 2018"
+    ]
+  },
+  "Cascahuin Limited Release 2019": {
+    "name": "Cascahuin Limited Release 2019",
+    "aliases": [
+      "Cascahuin Limited Release",
+      "Cascahuin 2019",
+      "Cascahuin Limited"
+    ]
+  },
+  "Cascahuin Barrel Proof 2020": {
+    "name": "Cascahuin Barrel Proof 2020",
+    "aliases": [
+      "Cascahuin Barrel Proof",
+      "Cascahuin 2020",
+      "Cascahuin Barrel"
+    ]
+  },
+  "Cascahuin Small Batch 2021": {
+    "name": "Cascahuin Small Batch 2021",
+    "aliases": [
+      "Cascahuin Small Batch",
+      "Cascahuin 2021",
+      "Cascahuin Small"
+    ]
+  },
+  "Cascahuin Toasted Barrel 2022": {
+    "name": "Cascahuin Toasted Barrel 2022",
+    "aliases": [
+      "Cascahuin Toasted Barrel",
+      "Cascahuin 2022",
+      "Cascahuin Toasted"
+    ]
+  },
+  "Cascahuin Double Oaked 2023": {
+    "name": "Cascahuin Double Oaked 2023",
+    "aliases": [
+      "Cascahuin Double Oaked",
+      "Cascahuin 2023",
+      "Cascahuin Double"
+    ]
+  },
+  "Cascahuin Private Selection 2024": {
+    "name": "Cascahuin Private Selection 2024",
+    "aliases": [
+      "Cascahuin Private Selection",
+      "Cascahuin 2024",
+      "Cascahuin Private"
+    ]
+  },
+  "Cascahuin Estate Release 2025": {
+    "name": "Cascahuin Estate Release 2025",
+    "aliases": [
+      "Cascahuin Estate Release",
+      "Cascahuin 2025",
+      "Cascahuin Estate"
+    ]
+  },
+  "Volans Single Barrel 2016": {
+    "name": "Volans Single Barrel 2016",
+    "aliases": [
+      "Volans Single Barrel",
+      "Volans 2016",
+      "Volans Single"
+    ]
+  },
+  "Volans Cask Strength 2017": {
+    "name": "Volans Cask Strength 2017",
+    "aliases": [
+      "Volans Cask Strength",
+      "Volans 2017",
+      "Volans Cask"
+    ]
+  },
+  "Volans Reserve 2018": {
+    "name": "Volans Reserve 2018",
+    "aliases": [
+      "Volans Reserve",
+      "Volans 2018"
+    ]
+  },
+  "Volans Limited Release 2019": {
+    "name": "Volans Limited Release 2019",
+    "aliases": [
+      "Volans Limited Release",
+      "Volans 2019",
+      "Volans Limited"
+    ]
+  },
+  "Volans Barrel Proof 2020": {
+    "name": "Volans Barrel Proof 2020",
+    "aliases": [
+      "Volans Barrel Proof",
+      "Volans 2020",
+      "Volans Barrel"
+    ]
+  },
+  "Volans Small Batch 2021": {
+    "name": "Volans Small Batch 2021",
+    "aliases": [
+      "Volans Small Batch",
+      "Volans 2021",
+      "Volans Small"
+    ]
+  },
+  "Volans Toasted Barrel 2022": {
+    "name": "Volans Toasted Barrel 2022",
+    "aliases": [
+      "Volans Toasted Barrel",
+      "Volans 2022",
+      "Volans Toasted"
+    ]
+  },
+  "Volans Double Oaked 2023": {
+    "name": "Volans Double Oaked 2023",
+    "aliases": [
+      "Volans Double Oaked",
+      "Volans 2023",
+      "Volans Double"
+    ]
+  },
+  "Volans Private Selection 2024": {
+    "name": "Volans Private Selection 2024",
+    "aliases": [
+      "Volans Private Selection",
+      "Volans 2024",
+      "Volans Private"
+    ]
+  },
+  "Volans Estate Release 2025": {
+    "name": "Volans Estate Release 2025",
+    "aliases": [
+      "Volans Estate Release",
+      "Volans 2025",
+      "Volans Estate"
     ]
   }
 }
