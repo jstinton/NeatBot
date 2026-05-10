@@ -694,7 +694,7 @@ def sanitize_iso_text(value: Optional[str]):
     if not value:
         return None
 
-    if re.search(r"\bcash\b", value, flags=re.IGNORECASE):
+    if re.search(r"\bcash\b|\btacos?\s+only\b|^tacos?$", value.strip(), flags=re.IGNORECASE):
         return "🌮 Tacos"
 
     return value
@@ -764,10 +764,10 @@ def parse_flip_form_details(value: Optional[str]):
     def flag_for(label: str):
         match = re.search(rf"\b{label}\b\s*[:=\-]?\s*(yes|y|true|no|n|false)", normalized)
 
-        if not match:
-            return False
+        if match:
+            return match.group(1) in {"yes", "y", "true"}
 
-        return match.group(1) in {"yes", "y", "true"}
+        return bool(re.search(rf"\b{label}\b", normalized))
 
     return {
         "zip_code": zip_match.group(0) if zip_match else None,
@@ -2926,6 +2926,13 @@ class FlipFormModal(discord.ui.Modal):
             "details": str(self.details).strip(),
         }
 
+    async def retry_response(self, interaction: discord.Interaction, message: str, defaults: dict):
+        await interaction.response.send_message(
+            message,
+            view=FlipFormRetryView(defaults, message),
+            ephemeral=True
+        )
+
     async def on_submit(self, interaction: discord.Interaction):
         defaults = self.current_defaults()
         ft_value_text = str(self.ft_value).strip()
@@ -2934,27 +2941,20 @@ class FlipFormModal(discord.ui.Modal):
         iso_value = parse_plain_int(iso_value_text) if iso_value_text else None
 
         if ft_value_text and ft_value is None:
-            await interaction.response.send_modal(FlipFormModal(
-                defaults=defaults,
-                error="Fix FT value: use a number like 700."
-            ))
+            await self.retry_response(interaction, "Fix FT value: use a number like `700`.", defaults)
             return
 
         if iso_value_text and iso_value is None:
-            await interaction.response.send_modal(FlipFormModal(
-                defaults=defaults,
-                error="Fix ISO value: use a number like 750."
-            ))
+            await self.retry_response(interaction, "Fix ISO value: use a number like `750`.", defaults)
             return
 
         details = parse_flip_form_details(str(self.details))
 
         if not details["zip_code"]:
-            await interaction.response.send_modal(FlipFormModal(
-                defaults=defaults,
-                error="Add your 5-digit ZIP in this box."
-            ))
+            await self.retry_response(interaction, "Add your 5-digit ZIP in the details box.", defaults)
             return
+
+        await interaction.response.defer(ephemeral=True, thinking=True)
 
         await post_flip_from_inputs(
             interaction,
@@ -2966,8 +2966,29 @@ class FlipFormModal(discord.ui.Modal):
             ft_kicker=details["ft_kicker"],
             iso_kicker=details["iso_kicker"],
             rtr=details["rtr"],
-            x_posted=details["x_posted"]
+            x_posted=details["x_posted"],
+            send_via_channel=True
         )
+
+
+class FlipFormRetryButton(discord.ui.Button):
+    def __init__(self, defaults: dict, error: str):
+        super().__init__(
+            label="Fix Flip Form",
+            emoji="🛠️",
+            style=discord.ButtonStyle.primary
+        )
+        self.defaults = defaults
+        self.error = error
+
+    async def callback(self, interaction: discord.Interaction):
+        await interaction.response.send_modal(FlipFormModal(defaults=self.defaults, error=self.error))
+
+
+class FlipFormRetryView(discord.ui.View):
+    def __init__(self, defaults: dict, error: str):
+        super().__init__(timeout=900)
+        self.add_item(FlipFormRetryButton(defaults, error))
 
 
 class UtilityButton(discord.ui.Button):
@@ -3382,12 +3403,16 @@ async def post_flip_from_inputs(
     iso_kicker: Optional[bool] = False,
     rtr: Optional[bool] = False,
     x_posted: Optional[bool] = False,
+    send_via_channel: bool = False,
 ):
+    async def send_private_error(message: str):
+        if interaction.response.is_done():
+            await interaction.followup.send(message, ephemeral=True)
+        else:
+            await interaction.response.send_message(message, ephemeral=True)
+
     if not interaction.guild or not isinstance(interaction.channel, discord.abc.GuildChannel):
-        await interaction.response.send_message(
-            "`/flip` can only be used inside a server channel.",
-            ephemeral=True
-        )
+        await send_private_error("`/flip` can only be used inside a server channel.")
         return
 
     bot_member = interaction.guild.me
@@ -3396,29 +3421,22 @@ async def post_flip_from_inputs(
         missing_permissions = missing_flip_permissions(interaction.channel, bot_member)
 
         if missing_permissions:
-            await interaction.response.send_message(
+            await send_private_error(
                 "I need these channel permissions before I can create and close flip threads:\n"
-                f"{', '.join(missing_permissions)}",
-                ephemeral=True
+                f"{', '.join(missing_permissions)}"
             )
             return
 
     if not ft or not ft.strip():
-        await interaction.response.send_message("Tell me what bottle is FT/FS first.", ephemeral=True)
+        await send_private_error("Tell me what bottle is FT/FS first.")
         return
 
     if ft_value is not None and ft_value <= 0:
-        await interaction.response.send_message(
-            "Use a positive FT value, or leave it blank for a straight bottle-for-bottle trade.",
-            ephemeral=True
-        )
+        await send_private_error("Use a positive FT value, or leave it blank for a straight bottle-for-bottle trade.")
         return
 
     if iso_value is not None and iso_value <= 0:
-        await interaction.response.send_message(
-            "Use a positive value for the ISO bottle, or leave it blank for a straight bottle-for-bottle trade.",
-            ephemeral=True
-        )
+        await send_private_error("Use a positive value for the ISO bottle, or leave it blank for a straight bottle-for-bottle trade.")
         return
 
     ft, seller_text_kicker = strip_kicker_text(ft, False)
@@ -3434,10 +3452,7 @@ async def post_flip_from_inputs(
     location = await resolve_zip_location(zip_code)
 
     if location is None:
-        await interaction.response.send_message(
-            "Enter a 5-digit US ZIP so I can show City, State.",
-            ephemeral=True
-        )
+        await send_private_error("Enter a 5-digit US ZIP so I can show City, State.")
         return
 
     seller_kicker, buyer_kicker = flip_kicker_flags(ft_value, iso_value, iso_kicker, ft_kicker)
@@ -3469,8 +3484,11 @@ async def post_flip_from_inputs(
         color=discord.Color.from_str("#C9973A")
     )
 
-    await interaction.response.send_message(embed=announcement)
-    message = await interaction.original_response()
+    if send_via_channel:
+        message = await interaction.channel.send(embed=announcement)
+    else:
+        await interaction.response.send_message(embed=announcement)
+        message = await interaction.original_response()
 
     try:
         thread = await message.create_thread(name=thread_name)
@@ -3500,6 +3518,9 @@ async def post_flip_from_inputs(
         await detail_message.add_reaction("✅")
     except discord.HTTPException:
         pass
+
+    if send_via_channel:
+        await interaction.followup.send("Posted your flip and created the thread.", ephemeral=True)
 
     if value_warning:
         await interaction.followup.send(
