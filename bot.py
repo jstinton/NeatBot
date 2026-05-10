@@ -628,19 +628,19 @@ def flip_taco_value(value: int):
     return f"🌮 {value:,}"
 
 
-def has_value_mismatch(ft_value: int, iso_value: Optional[int]):
-    return iso_value is not None and iso_value * 100 > ft_value * 115
+def has_value_mismatch(ft_value: Optional[int], iso_value: Optional[int]):
+    return ft_value is not None and iso_value is not None and iso_value * 100 > ft_value * 115
 
 
-def seller_kicker_amount(ft_value: int, iso_value: Optional[int]):
-    if iso_value is None or iso_value <= ft_value:
+def seller_kicker_amount(ft_value: Optional[int], iso_value: Optional[int]):
+    if ft_value is None or iso_value is None or iso_value <= ft_value:
         return None
 
     return iso_value - ft_value
 
 
-def buyer_kicker_amount(ft_value: int, iso_value: Optional[int]):
-    if iso_value is None or ft_value <= iso_value:
+def buyer_kicker_amount(ft_value: Optional[int], iso_value: Optional[int]):
+    if ft_value is None or iso_value is None or ft_value <= iso_value:
         return None
 
     return ft_value - iso_value
@@ -660,23 +660,23 @@ def kicker_field_value(amount: Optional[int]):
     return f"Yes — {flip_taco_value(amount)}"
 
 
-def seller_kicker_label(ft_value: int, iso_value: Optional[int]):
+def seller_kicker_label(ft_value: Optional[int], iso_value: Optional[int]):
     return kicker_label(seller_kicker_amount(ft_value, iso_value))
 
 
-def buyer_kicker_label(ft_value: int, iso_value: Optional[int]):
+def buyer_kicker_label(ft_value: Optional[int], iso_value: Optional[int]):
     return kicker_label(buyer_kicker_amount(ft_value, iso_value))
 
 
-def seller_kicker_field_value(ft_value: int, iso_value: Optional[int]):
+def seller_kicker_field_value(ft_value: Optional[int], iso_value: Optional[int]):
     return kicker_field_value(seller_kicker_amount(ft_value, iso_value))
 
 
-def buyer_kicker_field_value(ft_value: int, iso_value: Optional[int]):
+def buyer_kicker_field_value(ft_value: Optional[int], iso_value: Optional[int]):
     return kicker_field_value(buyer_kicker_amount(ft_value, iso_value))
 
 
-def flip_kicker_flags(ft_value: int, iso_value: Optional[int], seller_requested: Optional[bool], buyer_requested: Optional[bool]):
+def flip_kicker_flags(ft_value: Optional[int], iso_value: Optional[int], seller_requested: Optional[bool], buyer_requested: Optional[bool]):
     if seller_kicker_amount(ft_value, iso_value) is not None:
         return True, False
 
@@ -754,6 +754,28 @@ def iso_thread_target(iso: Optional[str], iso_value: Optional[int], buyer_kicker
         parts.append(buyer_kicker)
 
     return " + ".join(parts)
+
+
+def parse_flip_form_details(value: Optional[str]):
+    details = value or ""
+    zip_match = ZIP_CODE_PATTERN.search(details)
+    normalized = normalize(details)
+
+    def flag_for(label: str):
+        match = re.search(rf"\b{label}\b\s*[:=\-]?\s*(yes|y|true|no|n|false)", normalized)
+
+        if not match:
+            return False
+
+        return match.group(1) in {"yes", "y", "true"}
+
+    return {
+        "zip_code": zip_match.group(0) if zip_match else None,
+        "rtr": flag_for("rtr"),
+        "x_posted": flag_for("xposted") or flag_for("xpost"),
+        "ft_kicker": bool(re.search(r"\b(buyer|their|them)\s+kicker\b|\bbuyer\s+adds\b", normalized)),
+        "iso_kicker": bool(re.search(r"\b(seller|my|me)\s+kicker\b|\bseller\s+adds\b", normalized)),
+    }
 
 
 def split_bottle_list(value: str):
@@ -1589,7 +1611,7 @@ def flip_offer_kind(iso: Optional[str]):
 def flip_embed(
     *,
     ft: str,
-    ft_value: int,
+    ft_value: Optional[int],
     iso: Optional[str],
     iso_value: Optional[int],
     ft_kicker: Optional[bool],
@@ -1609,7 +1631,14 @@ def flip_embed(
         color=discord.Color.from_str("#C9973A")
     )
     embed.add_field(name=f"📦 {offer_kind}:", value=format_bottle_list(ft), inline=False)
-    embed.add_field(name="💰 Est. Value (per seller):", value=flip_taco_value(ft_value), inline=True)
+
+    trade_only = bool(iso and ft_value is None and iso_value is None)
+
+    if ft_value is not None:
+        embed.add_field(name="💰 Est. Value (per seller):", value=flip_taco_value(ft_value), inline=True)
+
+    if trade_only:
+        embed.add_field(name="♻️ Trade Type:", value="Bottle-for-bottle trade only", inline=True)
 
     if iso_kicker:
         embed.add_field(name="🥾 Seller Kicker:", value=seller_kicker_field_value(ft_value, iso_value), inline=True)
@@ -2836,6 +2865,73 @@ class TaterFindModal(discord.ui.Modal, title="Tater Find Alert"):
         )
 
 
+class FlipFormModal(discord.ui.Modal, title="Create Flip Post"):
+    ft = discord.ui.TextInput(
+        label="FT or FS bottle(s)",
+        placeholder="RR15, HH22 + GTS 2025, or Kentucky Nectar",
+        required=True,
+        max_length=220
+    )
+    iso = discord.ui.TextInput(
+        label="ISO / looking for",
+        placeholder="RR15, Blanton's Gold, tacos only, or leave blank for tacos only",
+        required=False,
+        max_length=220
+    )
+    ft_value = discord.ui.TextInput(
+        label="FT/FS value",
+        placeholder="Optional. Example: 700",
+        required=False,
+        max_length=20
+    )
+    iso_value = discord.ui.TextInput(
+        label="ISO value",
+        placeholder="Optional. Example: 750",
+        required=False,
+        max_length=20
+    )
+    details = discord.ui.TextInput(
+        label="ZIP, RTR, x-posted, kicker notes",
+        placeholder="60657; RTR yes; x-posted no; buyer adds kicker or seller adds kicker",
+        required=True,
+        max_length=220,
+        style=discord.TextStyle.paragraph
+    )
+
+    async def on_submit(self, interaction: discord.Interaction):
+        ft_value_text = str(self.ft_value).strip()
+        iso_value_text = str(self.iso_value).strip()
+        ft_value = parse_plain_int(ft_value_text) if ft_value_text else None
+        iso_value = parse_plain_int(iso_value_text) if iso_value_text else None
+
+        if ft_value_text and ft_value is None:
+            await interaction.response.send_message("I could not read the FT value. Use a number like `700`.", ephemeral=True)
+            return
+
+        if iso_value_text and iso_value is None:
+            await interaction.response.send_message("I could not read the ISO value. Use a number like `750`.", ephemeral=True)
+            return
+
+        details = parse_flip_form_details(str(self.details))
+
+        if not details["zip_code"]:
+            await interaction.response.send_message("Add your 5-digit ZIP in the details box so I can show location.", ephemeral=True)
+            return
+
+        await post_flip_from_inputs(
+            interaction,
+            ft=str(self.ft),
+            ft_value=ft_value,
+            zip_code=details["zip_code"],
+            iso=str(self.iso).strip() or None,
+            iso_value=iso_value,
+            ft_kicker=details["ft_kicker"],
+            iso_kicker=details["iso_kicker"],
+            rtr=details["rtr"],
+            x_posted=details["x_posted"]
+        )
+
+
 class UtilityButton(discord.ui.Button):
     def __init__(self, action: str, *, row: int):
         config = UTILITY_ACTIONS[action]
@@ -2867,6 +2963,10 @@ class UtilityButton(discord.ui.Button):
 
         if self.action == "taterfind":
             await interaction.response.send_modal(TaterFindModal())
+            return
+
+        if self.action == "flip":
+            await interaction.response.send_modal(FlipFormModal())
             return
 
         await interaction.response.send_message(embed=utility_tip_embed(self.action), ephemeral=True)
@@ -3232,29 +3332,18 @@ async def taterfind(
     )
 
 
-@bot.tree.command(name="flip", description="Post a bottle flip with a BIN button and discussion thread.")
-@app_commands.describe(
-    ft="Bottle or bottles being offered, e.g. RR15 + Weller 12",
-    ft_value="Estimated FT value",
-    zip_code="Your 5-digit US ZIP for City, State display",
-    iso="Optional ISO bottle or bottles. Leave blank for tacos only.",
-    iso_value="Optional ISO value",
-    ft_kicker="Whether the buyer needs to add a kicker toward your FT",
-    iso_kicker="Whether you need to add a kicker toward your ISO",
-    rtr="Right to refuse",
-    x_posted="Whether this flip is x-posted"
-)
-async def flip(
+async def post_flip_from_inputs(
     interaction: discord.Interaction,
+    *,
     ft: str,
-    ft_value: int,
+    ft_value: Optional[int],
     zip_code: str,
     iso: Optional[str] = None,
     iso_value: Optional[int] = None,
     ft_kicker: Optional[bool] = False,
     iso_kicker: Optional[bool] = False,
     rtr: Optional[bool] = False,
-    x_posted: Optional[bool] = False
+    x_posted: Optional[bool] = False,
 ):
     if not interaction.guild or not isinstance(interaction.channel, discord.abc.GuildChannel):
         await interaction.response.send_message(
@@ -3276,22 +3365,26 @@ async def flip(
             )
             return
 
-    if ft_value <= 0:
+    if not ft or not ft.strip():
+        await interaction.response.send_message("Tell me what bottle is FT/FS first.", ephemeral=True)
+        return
+
+    if ft_value is not None and ft_value <= 0:
         await interaction.response.send_message(
-            "Use a positive FT value.",
+            "Use a positive FT value, or leave it blank for a straight bottle-for-bottle trade.",
             ephemeral=True
         )
         return
 
     if iso_value is not None and iso_value <= 0:
         await interaction.response.send_message(
-            "Use a positive value for the ISO bottle.",
+            "Use a positive value for the ISO bottle, or leave it blank for a straight bottle-for-bottle trade.",
             ephemeral=True
         )
         return
 
     ft, seller_text_kicker = strip_kicker_text(ft, False)
-    ft = canonical_bottle_list(ft)
+    ft = canonical_bottle_list(ft or "")
     iso, iso_value, iso_kicker = parse_iso_details(iso, iso_value, iso_kicker)
     iso_kicker = bool(iso_kicker or seller_text_kicker)
 
@@ -3315,14 +3408,16 @@ async def flip(
     ft_target = f"{ft} + {seller_kicker_text}" if seller_kicker_text else ft
     target = iso_thread_target(iso, iso_value, buyer_kicker_text)
     offer_kind = flip_offer_kind(iso)
+    trade_only = bool(iso and ft_value is None and iso_value is None)
     thread_name = thread_safe_name(f"🥃 {offer_kind}: {ft_target} ↔ {target}")
     seller_name = interaction.user.display_name
     announcement_ft = ft_target
 
     if iso:
+        trade_note = " Bottle-for-bottle trade only ♻️" if trade_only else ""
         announcement_description = (
             f"{seller_name} is offering **{announcement_ft}** — ISO **{target}**. "
-            "Drop a ✅ or hit BIN below 👇"
+            f"Drop a ✅ or hit BIN below 👇{trade_note}"
         )
     else:
         announcement_description = (
@@ -3381,6 +3476,49 @@ async def flip(
             'consider adding "any year" to your ISO description next time.',
             ephemeral=True
         )
+
+
+@bot.tree.command(name="flip", description="Post a bottle flip with a BIN button and discussion thread.")
+@app_commands.describe(
+    ft="Bottle or bottles being offered, e.g. RR15 + Weller 12",
+    ft_value="Estimated FT value",
+    zip_code="Your 5-digit US ZIP for City, State display",
+    iso="Optional ISO bottle or bottles. Leave blank for tacos only.",
+    iso_value="Optional ISO value",
+    ft_kicker="Whether the buyer needs to add a kicker toward your FT",
+    iso_kicker="Whether you need to add a kicker toward your ISO",
+    rtr="Right to refuse",
+    x_posted="Whether this flip is x-posted"
+)
+async def flip(
+    interaction: discord.Interaction,
+    ft: str,
+    ft_value: int,
+    zip_code: str,
+    iso: Optional[str] = None,
+    iso_value: Optional[int] = None,
+    ft_kicker: Optional[bool] = False,
+    iso_kicker: Optional[bool] = False,
+    rtr: Optional[bool] = False,
+    x_posted: Optional[bool] = False
+):
+    await post_flip_from_inputs(
+        interaction,
+        ft=ft,
+        ft_value=ft_value,
+        zip_code=zip_code,
+        iso=iso,
+        iso_value=iso_value,
+        ft_kicker=ft_kicker,
+        iso_kicker=iso_kicker,
+        rtr=rtr,
+        x_posted=x_posted
+    )
+
+
+@bot.tree.command(name="flipform", description="Open a private form that builds a bottle flip post.")
+async def flipform(interaction: discord.Interaction):
+    await interaction.response.send_modal(FlipFormModal())
 
 
 @bot.tree.command(name="boty", description="Start a Bottle of the Year rating with 1-10 buttons.")
