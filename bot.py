@@ -2865,57 +2865,95 @@ class TaterFindModal(discord.ui.Modal, title="Tater Find Alert"):
         )
 
 
-class FlipFormModal(discord.ui.Modal, title="Create Flip Post"):
-    ft = discord.ui.TextInput(
-        label="FT or FS bottle(s)",
-        placeholder="RR15, HH22 + GTS 2025, or Kentucky Nectar",
-        required=True,
-        max_length=220
-    )
-    iso = discord.ui.TextInput(
-        label="ISO / looking for",
-        placeholder="RR15, Blanton's Gold, tacos only, or leave blank for tacos only",
-        required=False,
-        max_length=220
-    )
-    ft_value = discord.ui.TextInput(
-        label="FT/FS value",
-        placeholder="Optional. Example: 700",
-        required=False,
-        max_length=20
-    )
-    iso_value = discord.ui.TextInput(
-        label="ISO value",
-        placeholder="Optional. Example: 750",
-        required=False,
-        max_length=20
-    )
-    details = discord.ui.TextInput(
-        label="ZIP, RTR, x-posted, kicker notes",
-        placeholder="60657; RTR yes; x-posted no; buyer adds kicker or seller adds kicker",
-        required=True,
-        max_length=220,
-        style=discord.TextStyle.paragraph
-    )
+class FlipFormModal(discord.ui.Modal):
+    def __init__(self, *, defaults: Optional[dict] = None, error: Optional[str] = None):
+        super().__init__(title="Fix Flip Post" if error else "Create Flip Post")
+        defaults = defaults or {}
+        details_placeholder = "ZIP 60657; RTR yes/no; x-posted yes/no; buyer/seller kicker"
+
+        if error:
+            details_placeholder = f"{error} {details_placeholder}"[:100]
+
+        self.ft = discord.ui.TextInput(
+            label="FT or FS bottle(s)",
+            placeholder="RR15, HH22 + GTS 2025, or Kentucky Nectar",
+            default=defaults.get("ft"),
+            required=True,
+            max_length=220
+        )
+        self.iso = discord.ui.TextInput(
+            label="ISO / looking for",
+            placeholder="RR15, Blanton's Gold, tacos only, or leave blank for tacos only",
+            default=defaults.get("iso"),
+            required=False,
+            max_length=220
+        )
+        self.ft_value = discord.ui.TextInput(
+            label="FT/FS value",
+            placeholder="Optional. Example: 700",
+            default=defaults.get("ft_value"),
+            required=False,
+            max_length=20
+        )
+        self.iso_value = discord.ui.TextInput(
+            label="ISO value",
+            placeholder="Optional. Example: 750",
+            default=defaults.get("iso_value"),
+            required=False,
+            max_length=20
+        )
+        self.details = discord.ui.TextInput(
+            label="ZIP, RTR, x-posted, kicker notes",
+            placeholder=details_placeholder,
+            default=defaults.get("details"),
+            required=True,
+            max_length=220,
+            style=discord.TextStyle.paragraph
+        )
+
+        self.add_item(self.ft)
+        self.add_item(self.iso)
+        self.add_item(self.ft_value)
+        self.add_item(self.iso_value)
+        self.add_item(self.details)
+
+    def current_defaults(self):
+        return {
+            "ft": str(self.ft).strip(),
+            "iso": str(self.iso).strip(),
+            "ft_value": str(self.ft_value).strip(),
+            "iso_value": str(self.iso_value).strip(),
+            "details": str(self.details).strip(),
+        }
 
     async def on_submit(self, interaction: discord.Interaction):
+        defaults = self.current_defaults()
         ft_value_text = str(self.ft_value).strip()
         iso_value_text = str(self.iso_value).strip()
         ft_value = parse_plain_int(ft_value_text) if ft_value_text else None
         iso_value = parse_plain_int(iso_value_text) if iso_value_text else None
 
         if ft_value_text and ft_value is None:
-            await interaction.response.send_message("I could not read the FT value. Use a number like `700`.", ephemeral=True)
+            await interaction.response.send_modal(FlipFormModal(
+                defaults=defaults,
+                error="Fix FT value: use a number like 700."
+            ))
             return
 
         if iso_value_text and iso_value is None:
-            await interaction.response.send_message("I could not read the ISO value. Use a number like `750`.", ephemeral=True)
+            await interaction.response.send_modal(FlipFormModal(
+                defaults=defaults,
+                error="Fix ISO value: use a number like 750."
+            ))
             return
 
         details = parse_flip_form_details(str(self.details))
 
         if not details["zip_code"]:
-            await interaction.response.send_message("Add your 5-digit ZIP in the details box so I can show location.", ephemeral=True)
+            await interaction.response.send_modal(FlipFormModal(
+                defaults=defaults,
+                error="Add your 5-digit ZIP in this box."
+            ))
             return
 
         await post_flip_from_inputs(
