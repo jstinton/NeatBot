@@ -11,7 +11,7 @@ from discord.ext import commands
 
 
 DB_PATH = Path(os.getenv("JUICETRIP_DB_PATH", Path(__file__).parent / "trips.db"))
-JUICED_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
+JUICED_IMAGE_PATH = Path(__file__).parent / "assets" / "youve-been-juiced.png"
 DEFAULT_MOD_CHANNEL_ID = os.getenv("JUICETRIP_MOD_CHANNEL_ID") or "1502458379875127346"
 STATUS_LABELS = {
     "confirmed": "✅ Confirmed",
@@ -568,7 +568,7 @@ class GroupTripCog(commands.Cog):
         if JUICED_IMAGE_PATH.exists():
             await user.send(
                 content,
-                file=discord.File(JUICED_IMAGE_PATH, filename="youve-been-juiced.jpg"),
+                file=discord.File(JUICED_IMAGE_PATH, filename="youve-been-juiced.png"),
             )
             return
 

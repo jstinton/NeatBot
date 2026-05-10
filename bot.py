@@ -3,7 +3,7 @@ import json
 import difflib
 import re
 import uuid
-from datetime import timedelta
+from datetime import datetime, timedelta
 from urllib.parse import quote_plus
 from pathlib import Path
 from typing import Optional
@@ -849,6 +849,34 @@ def compact_alias_text(value: str):
     return re.sub(r"[^a-z0-9]", "", normalize(value))
 
 
+def allocation_compact_tokens(value: str):
+    return [compact_alias_text(token) for token in re.findall(r"[a-z0-9]+", normalize(value))]
+
+
+def allocation_short_alias_match(value: str, compact_alias: str):
+    tokens = [token for token in allocation_compact_tokens(value) if token]
+
+    if compact_alias in tokens:
+        return True
+
+    return any(
+        compact_alias == f"{left}{right}"
+        for left, right in zip(tokens, tokens[1:])
+    )
+
+
+def allocation_alias_matches(value: str, alias: str):
+    compact_alias = compact_alias_text(alias)
+
+    if len(compact_alias) < 2:
+        return False
+
+    if len(compact_alias) <= 3:
+        return allocation_short_alias_match(value, compact_alias)
+
+    return compact_alias in compact_alias_text(value)
+
+
 def allocation_alias_entries():
     entries = []
 
@@ -906,24 +934,17 @@ def detect_allocation_bottle(content: str):
 
     if batch_context:
         prefix, batch = batch_context
-        compact_prefix = compact_alias_text(prefix)
 
         # When someone writes "JD12 batch 4", the real bottle signal is before
         # "batch"; use that alias first, then preserve the batch value.
         for alias, bottle_name in allocation_alias_entries():
-            compact_alias = compact_alias_text(alias)
-
-            if len(compact_alias) >= 2 and compact_alias in compact_prefix:
+            if allocation_alias_matches(prefix, alias):
                 canonical_name, _ = find_exact_bottle(bottle_name)
                 display_name = allocation_bottle_display_name(canonical_name or bottle_name, batch)
                 return display_name, f"{alias} Batch {batch}"
 
-    compact_content = compact_alias_text(content)
-
     for alias, bottle_name in allocation_alias_entries():
-        compact_alias = compact_alias_text(alias)
-
-        if len(compact_alias) >= 2 and compact_alias in compact_content:
+        if allocation_alias_matches(content, alias):
             canonical_name, _ = find_exact_bottle(bottle_name)
             return canonical_name or bottle_name, alias
 
@@ -943,6 +964,10 @@ def analyze_allocation_message(content: str):
     positive = sum(1 for pattern in ALLOCATION_POSITIVE_PATTERNS if re.search(pattern, normalized))
     negative = sum(1 for pattern in ALLOCATION_NEGATIVE_PATTERNS if re.search(pattern, normalized))
     score = positive * 2 - negative * 3
+    short_alias_match = len(compact_alias_text(matched_alias)) <= 3
+
+    if short_alias_match and positive == 0:
+        return None
 
     if "?" in content:
         score -= 2
@@ -1022,10 +1047,34 @@ async def init_allocation_db():
             )
             """
         )
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_allocations_guild_year ON allocations (guild_id, year)"
+        )
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_allocations_guild_year_user ON allocations (guild_id, year, user_id)"
+        )
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_allocations_guild_year_bottle ON allocations (guild_id, year, bottle_name)"
+        )
+        await db.execute(
+            """
+            CREATE INDEX IF NOT EXISTS idx_allocations_recent_duplicate
+            ON allocations (guild_id, user_id, bottle_name, created_at)
+            """
+        )
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_pending_allocations_expires_at ON pending_allocations (expires_at)"
+        )
+        await db.execute(
+            "DELETE FROM pending_allocations WHERE expires_at <= ?",
+            (discord.utils.utcnow().isoformat(),),
+        )
         await db.commit()
 
 
 async def create_pending_allocation(message: discord.Message, bottle_name: str):
+    await cleanup_expired_pending_allocations()
+
     pending_id = str(uuid.uuid4())
     created_at = discord.utils.utcnow()
     expires_at = created_at + timedelta(minutes=15)
@@ -1064,12 +1113,31 @@ async def get_pending_allocation(pending_id: str):
             "SELECT * FROM pending_allocations WHERE pending_id = ?",
             (pending_id,),
         ) as cursor:
-            return await cursor.fetchone()
+            pending = await cursor.fetchone()
+
+        if not pending:
+            return None
+
+        if datetime.fromisoformat(pending["expires_at"]) <= discord.utils.utcnow():
+            await db.execute("DELETE FROM pending_allocations WHERE pending_id = ?", (pending_id,))
+            await db.commit()
+            return None
+
+        return pending
 
 
 async def delete_pending_allocation(pending_id: str):
     async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
         await db.execute("DELETE FROM pending_allocations WHERE pending_id = ?", (pending_id,))
+        await db.commit()
+
+
+async def cleanup_expired_pending_allocations():
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        await db.execute(
+            "DELETE FROM pending_allocations WHERE expires_at <= ?",
+            (discord.utils.utcnow().isoformat(),),
+        )
         await db.commit()
 
 
@@ -1114,6 +1182,85 @@ async def save_confirmed_allocation(pending):
             ),
         )
         await db.commit()
+
+
+async def claim_and_save_allocation(pending_id: str, user_id: int):
+    now = discord.utils.utcnow()
+    cutoff = now - timedelta(hours=ALLOCATION_DUPLICATE_HOURS)
+
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        await db.execute("BEGIN IMMEDIATE")
+
+        try:
+            async with db.execute(
+                "SELECT * FROM pending_allocations WHERE pending_id = ?",
+                (pending_id,),
+            ) as cursor:
+                pending = await cursor.fetchone()
+
+            if not pending:
+                await db.commit()
+                return "missing", None
+
+            pending_data = dict(pending)
+
+            if datetime.fromisoformat(pending_data["expires_at"]) <= now:
+                await db.execute("DELETE FROM pending_allocations WHERE pending_id = ?", (pending_id,))
+                await db.commit()
+                return "expired", pending_data
+
+            if str(user_id) != pending_data["user_id"]:
+                await db.commit()
+                return "not_owner", pending_data
+
+            async with db.execute(
+                """
+                SELECT id FROM allocations
+                WHERE guild_id = ? AND user_id = ? AND bottle_name = ? AND created_at >= ?
+                ORDER BY created_at DESC
+                LIMIT 1
+                """,
+                (
+                    pending_data["guild_id"],
+                    pending_data["user_id"],
+                    pending_data["bottle_name"],
+                    cutoff.isoformat(),
+                ),
+            ) as cursor:
+                duplicate = await cursor.fetchone()
+
+            if duplicate:
+                await db.execute("DELETE FROM pending_allocations WHERE pending_id = ?", (pending_id,))
+                await db.commit()
+                return "duplicate", pending_data
+
+            await db.execute(
+                """
+                INSERT INTO allocations (
+                    guild_id, channel_id, user_id, username, bottle_name,
+                    original_message, message_id, created_at, year
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    pending_data["guild_id"],
+                    pending_data["channel_id"],
+                    pending_data["user_id"],
+                    pending_data["username"],
+                    pending_data["bottle_name"],
+                    pending_data["original_message"],
+                    pending_data["message_id"],
+                    now.isoformat(),
+                    allocation_year(now),
+                ),
+            )
+            await db.execute("DELETE FROM pending_allocations WHERE pending_id = ?", (pending_id,))
+            await db.commit()
+            return "saved", pending_data
+        except Exception:
+            await db.rollback()
+            raise
 
 
 async def allocation_leaderboard_data(guild_id: int, year: int):
@@ -2442,18 +2589,17 @@ class AllocationConfirmButton(discord.ui.DynamicItem[discord.ui.Button], templat
         return cls(match.group("pending_id"))
 
     async def callback(self, interaction: discord.Interaction):
-        pending = await get_pending_allocation(self.pending_id)
+        status, pending = await claim_and_save_allocation(self.pending_id, interaction.user.id)
 
-        if not pending:
+        if status in {"missing", "expired"}:
             await interaction.response.send_message("That allocation confirmation expired. Post it again if needed.", ephemeral=True)
             return
 
-        if str(interaction.user.id) != pending["user_id"]:
+        if status == "not_owner":
             await interaction.response.send_message("Only the original poster can confirm this allocation.", ephemeral=True)
             return
 
-        if await has_recent_allocation_duplicate(pending):
-            await delete_pending_allocation(self.pending_id)
+        if status == "duplicate":
             await interaction.response.edit_message(
                 content="Duplicate protection kicked in. This bottle was already logged for you recently.",
                 embed=None,
@@ -2461,8 +2607,6 @@ class AllocationConfirmButton(discord.ui.DynamicItem[discord.ui.Button], templat
             )
             return
 
-        await save_confirmed_allocation(pending)
-        await delete_pending_allocation(self.pending_id)
         await interaction.response.edit_message(
             content=f"Logged **{pending['bottle_name']}** for {interaction.user.mention}.",
             embed=None,
