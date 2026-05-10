@@ -1478,6 +1478,49 @@ async def allocation_user_stats(guild_id: int, user_id: int, year: int):
     return total, favorite, recent, rank
 
 
+async def allocation_rank_context(guild_id: int, user_id: int, year: int):
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            """
+            SELECT user_id, username, COUNT(*) AS total
+            FROM allocations
+            WHERE guild_id = ? AND year = ?
+            GROUP BY user_id, username
+            ORDER BY total DESC, username COLLATE NOCASE ASC
+            """,
+            (str(guild_id), year),
+        ) as cursor:
+            rankings = await cursor.fetchall()
+
+    leader = rankings[0] if rankings else None
+    user_row = next((row for row in rankings if row["user_id"] == str(user_id)), None)
+    rank = next((index for index, row in enumerate(rankings, start=1) if row["user_id"] == str(user_id)), None)
+
+    return rank, user_row, leader
+
+
+def allocation_sass(rank: Optional[int], user_row, leader):
+    if not rank or not user_row:
+        return "The tracker blinked and missed your ranking. Very mysterious. Very allocated."
+
+    if rank == 1:
+        return (
+            f"👑 You are still **#1** with **{user_row['total']}** logged finds. "
+            "The bourbon overlord remains seated on the barrel throne."
+        )
+
+    leader_name = leader["username"] if leader else "the leader"
+    leader_total = leader["total"] if leader else "more"
+    gap = leader["total"] - user_row["total"] if leader else None
+    gap_text = f" You are **{gap}** behind." if gap else ""
+
+    return (
+        f"📍 You are now **#{rank}** with **{user_row['total']}** logged finds.{gap_text} "
+        f"Better stretch those shelf-scanning muscles if you want to catch **{leader_name}** at **{leader_total}**."
+    )
+
+
 def parse_plain_int(value: str):
     match = re.search(r"\d[\d,]*", value)
 
@@ -2641,14 +2684,17 @@ class AllocationConfirmButton(discord.ui.DynamicItem[discord.ui.Button], templat
             )
             return
 
+        year = allocation_year()
+        rank, user_row, leader = await allocation_rank_context(interaction.guild.id, interaction.user.id, year)
+        sass = allocation_sass(rank, user_row, leader)
         await interaction.response.edit_message(
-            content=f"Logged **{pending['bottle_name']}** for {interaction.user.mention}.",
+            content=f"Logged **{pending['bottle_name']}** for {interaction.user.mention}.\n\n{sass}",
             embed=None,
-            view=None,
+            view=AllocationLoggedView(year),
         )
 
         if isinstance(interaction.channel, discord.TextChannel):
-            await update_allocation_leaderboard(interaction.channel)
+            await update_allocation_leaderboard(interaction.channel, year)
 
 
 class AllocationCancelButton(discord.ui.DynamicItem[discord.ui.Button], template=r"alloc_cancel:(?P<pending_id>[a-f0-9-]+)"):
@@ -2683,6 +2729,37 @@ class AllocationConfirmView(discord.ui.View):
         super().__init__(timeout=None)
         self.add_item(AllocationConfirmButton(pending_id))
         self.add_item(AllocationCancelButton(pending_id))
+
+
+class AllocationLeaderboardButton(discord.ui.DynamicItem[discord.ui.Button], template=r"alloc_leaderboard:(?P<year>\d{4})"):
+    def __init__(self, year: int):
+        super().__init__(
+            discord.ui.Button(
+                label="Leaderboard",
+                emoji="🏆",
+                style=discord.ButtonStyle.primary,
+                custom_id=f"alloc_leaderboard:{year}"
+            )
+        )
+        self.year = year
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(int(match.group("year")))
+
+    async def callback(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            await interaction.response.send_message("This leaderboard only works in a server.", ephemeral=True)
+            return
+
+        embed = await allocation_leaderboard_embed(interaction.guild.id, self.year)
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+
+
+class AllocationLoggedView(discord.ui.View):
+    def __init__(self, year: int):
+        super().__init__(timeout=None)
+        self.add_item(AllocationLeaderboardButton(year))
 
 
 UTILITY_ACTIONS = {
@@ -3201,6 +3278,7 @@ async def setup_hook():
     bot.add_dynamic_items(FlipCloseButton)
     bot.add_dynamic_items(AllocationConfirmButton)
     bot.add_dynamic_items(AllocationCancelButton)
+    bot.add_dynamic_items(AllocationLeaderboardButton)
     bot.add_view(UtilityView())
     configure_guild_commands()
 
