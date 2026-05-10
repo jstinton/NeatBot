@@ -1621,6 +1621,7 @@ def flip_embed(
     location: str,
     seller,
     posted_at,
+    photo_url: Optional[str] = None,
     binner=None,
     binned_at=None
 ):
@@ -1675,6 +1676,9 @@ def flip_embed(
             value=f"{binner.mention} at {discord.utils.format_dt(binned_at, 'f')}",
             inline=False
         )
+
+    if photo_url:
+        embed.set_image(url=photo_url)
 
     embed.set_footer(
         text=(
@@ -2693,8 +2697,8 @@ UTILITY_ACTIONS = {
         "emoji": "🔁",
         "style": discord.ButtonStyle.primary,
         "title": "🔁 /flip",
-        "description": "Creates an FT/ISO post with a discussion thread, BIN button, and Close Offer button.",
-        "example": "/flip ft:RR15 ft_value:700 zip_code:60657 iso:HH22 iso_value:750 ft_kicker:False iso_kicker:True rtr:True x_posted:False"
+        "description": "Creates an FT/ISO post with a discussion thread, BIN button, Close Offer button, and optional photo.",
+        "example": "/flip ft:RR15 ft_value:700 zip_code:60657 iso:HH22 iso_value:750 ft_kicker:False iso_kicker:True rtr:True x_posted:False photo:<attach image>"
     },
     "bottle": {
         "label": "Bottle",
@@ -2869,7 +2873,7 @@ class FlipFormModal(discord.ui.Modal):
     def __init__(self, *, defaults: Optional[dict] = None, error: Optional[str] = None):
         super().__init__(title="Fix Flip Post" if error else "Create Flip Post")
         defaults = defaults or {}
-        details_placeholder = "ZIP 60657; RTR yes/no; x-posted yes/no; buyer/seller kicker"
+        details_placeholder = "ZIP 60657; optional: RTR yes/no; x-posted yes/no"
 
         if error:
             details_placeholder = f"{error} {details_placeholder}"[:100]
@@ -2903,7 +2907,7 @@ class FlipFormModal(discord.ui.Modal):
             max_length=20
         )
         self.details = discord.ui.TextInput(
-            label="ZIP, RTR, x-posted, kicker notes",
+            label="ZIP + optional RTR / x-posted",
             placeholder=details_placeholder,
             default=defaults.get("details"),
             required=True,
@@ -3404,6 +3408,7 @@ async def post_flip_from_inputs(
     rtr: Optional[bool] = False,
     x_posted: Optional[bool] = False,
     send_via_channel: bool = False,
+    photo_url: Optional[str] = None,
 ):
     async def send_private_error(message: str):
         if interaction.response.is_done():
@@ -3507,7 +3512,8 @@ async def post_flip_from_inputs(
         x_posted=x_posted,
         location=location,
         seller=interaction.user,
-        posted_at=interaction.created_at
+        posted_at=interaction.created_at,
+        photo_url=photo_url
     )
     detail_message = await thread.send(
         embed=detail_embed,
@@ -3547,7 +3553,8 @@ async def post_flip_from_inputs(
     ft_kicker="Whether the buyer needs to add a kicker toward your FT",
     iso_kicker="Whether you need to add a kicker toward your ISO",
     rtr="Right to refuse",
-    x_posted="Whether this flip is x-posted"
+    x_posted="Whether this flip is x-posted",
+    photo="Optional bottle photo to show in the flip thread"
 )
 async def flip(
     interaction: discord.Interaction,
@@ -3559,7 +3566,8 @@ async def flip(
     ft_kicker: Optional[bool] = False,
     iso_kicker: Optional[bool] = False,
     rtr: Optional[bool] = False,
-    x_posted: Optional[bool] = False
+    x_posted: Optional[bool] = False,
+    photo: Optional[discord.Attachment] = None
 ):
     await post_flip_from_inputs(
         interaction,
@@ -3571,7 +3579,8 @@ async def flip(
         ft_kicker=ft_kicker,
         iso_kicker=iso_kicker,
         rtr=rtr,
-        x_posted=x_posted
+        x_posted=x_posted,
+        photo_url=photo.url if photo else None
     )
 
 
