@@ -523,6 +523,7 @@ async def post_tater_find_alert(
 BOTY_VOTES = load_json(BOTY_VOTES_PATH, {})
 BATTLE_VOTES = load_json(BATTLE_VOTES_PATH, {})
 FLIP_HELP_SESSIONS = {}
+FLIP_FORM_DRAFTS = {}
 
 
 def normalize(text: str) -> str:
@@ -2873,10 +2874,10 @@ class FlipFormModal(discord.ui.Modal):
     def __init__(self, *, defaults: Optional[dict] = None, error: Optional[str] = None):
         super().__init__(title="Fix Flip Post" if error else "Create Flip Post")
         defaults = defaults or {}
-        details_placeholder = "ZIP 60657; optional: RTR yes/no; x-posted yes/no"
+        zip_placeholder = "60657"
 
         if error:
-            details_placeholder = f"{error} {details_placeholder}"[:100]
+            zip_placeholder = f"{error} Example: 60657"[:100]
 
         self.ft = discord.ui.TextInput(
             label="FT or FS bottle(s)",
@@ -2906,20 +2907,19 @@ class FlipFormModal(discord.ui.Modal):
             required=False,
             max_length=20
         )
-        self.details = discord.ui.TextInput(
-            label="ZIP + optional RTR / x-posted",
-            placeholder=details_placeholder,
-            default=defaults.get("details"),
+        self.zip_code = discord.ui.TextInput(
+            label="ZIP code",
+            placeholder=zip_placeholder,
+            default=defaults.get("zip_code") or defaults.get("details"),
             required=True,
-            max_length=220,
-            style=discord.TextStyle.paragraph
+            max_length=5
         )
 
         self.add_item(self.ft)
         self.add_item(self.iso)
         self.add_item(self.ft_value)
         self.add_item(self.iso_value)
-        self.add_item(self.details)
+        self.add_item(self.zip_code)
 
     def current_defaults(self):
         return {
@@ -2927,7 +2927,7 @@ class FlipFormModal(discord.ui.Modal):
             "iso": str(self.iso).strip(),
             "ft_value": str(self.ft_value).strip(),
             "iso_value": str(self.iso_value).strip(),
-            "details": str(self.details).strip(),
+            "zip_code": str(self.zip_code).strip(),
         }
 
     async def retry_response(self, interaction: discord.Interaction, message: str, defaults: dict):
@@ -2952,26 +2952,30 @@ class FlipFormModal(discord.ui.Modal):
             await self.retry_response(interaction, "Fix ISO value: use a number like `750`.", defaults)
             return
 
-        details = parse_flip_form_details(str(self.details))
+        zip_code = str(self.zip_code).strip()
 
-        if not details["zip_code"]:
-            await self.retry_response(interaction, "Add your 5-digit ZIP in the details box.", defaults)
+        if not ZIP_CODE_PATTERN.fullmatch(zip_code):
+            await self.retry_response(interaction, "Add a valid 5-digit ZIP code.", defaults)
             return
 
-        await interaction.response.defer(ephemeral=True, thinking=True)
+        draft_id = uuid.uuid4().hex
+        FLIP_FORM_DRAFTS[draft_id] = {
+            "user_id": interaction.user.id,
+            "ft": str(self.ft).strip(),
+            "ft_value": ft_value,
+            "zip_code": zip_code,
+            "iso": str(self.iso).strip() or None,
+            "iso_value": iso_value,
+            "ft_kicker": False,
+            "iso_kicker": False,
+            "rtr": False,
+            "x_posted": False,
+        }
 
-        await post_flip_from_inputs(
-            interaction,
-            ft=str(self.ft),
-            ft_value=ft_value,
-            zip_code=details["zip_code"],
-            iso=str(self.iso).strip() or None,
-            iso_value=iso_value,
-            ft_kicker=details["ft_kicker"],
-            iso_kicker=details["iso_kicker"],
-            rtr=details["rtr"],
-            x_posted=details["x_posted"],
-            send_via_channel=True
+        await interaction.response.send_message(
+            embed=flip_form_review_embed(draft_id),
+            view=FlipFormReviewView(draft_id),
+            ephemeral=True
         )
 
 
@@ -2993,6 +2997,99 @@ class FlipFormRetryView(discord.ui.View):
     def __init__(self, defaults: dict, error: str):
         super().__init__(timeout=900)
         self.add_item(FlipFormRetryButton(defaults, error))
+
+
+def flip_form_review_embed(draft_id: str):
+    draft = FLIP_FORM_DRAFTS.get(draft_id, {})
+    embed = discord.Embed(
+        title="Review Flip Questions",
+        description="Answer each question below with the buttons, then post the flip.",
+        color=discord.Color.from_str("#C9973A")
+    )
+    embed.add_field(name="📦 FT / FS", value=draft.get("ft") or "Missing", inline=False)
+    embed.add_field(name="🌮 FT/FS Value", value=flip_taco_value(draft["ft_value"]) if draft.get("ft_value") is not None else "Blank", inline=True)
+    embed.add_field(name="🔍 ISO", value=draft.get("iso") or "Tacos only", inline=False)
+    embed.add_field(name="💵 ISO Value", value=flip_taco_value(draft["iso_value"]) if draft.get("iso_value") is not None else "Blank", inline=True)
+    embed.add_field(name="📍 ZIP", value=draft.get("zip_code") or "Missing", inline=True)
+    embed.add_field(name="🚫 RTR?", value=yes_no(draft.get("rtr")), inline=True)
+    embed.add_field(name="📣 X-posted?", value=yes_no(draft.get("x_posted")), inline=True)
+    embed.add_field(name="🥾 Buyer kicker?", value=yes_no(draft.get("ft_kicker")), inline=True)
+    embed.add_field(name="🥾 Seller kicker?", value=yes_no(draft.get("iso_kicker")), inline=True)
+    embed.set_footer(text="Photos are supported on /flip because Discord modals cannot upload files.")
+    return embed
+
+
+class FlipFormReviewButton(discord.ui.Button):
+    def __init__(self, draft_id: str, action: str, label: str, emoji: str, *, row: int, style=discord.ButtonStyle.secondary):
+        super().__init__(
+            label=label,
+            emoji=emoji,
+            style=style,
+            custom_id=f"flip_form:{action}:{draft_id}",
+            row=row
+        )
+        self.draft_id = draft_id
+        self.action = action
+
+    async def callback(self, interaction: discord.Interaction):
+        draft = FLIP_FORM_DRAFTS.get(self.draft_id)
+
+        if not draft:
+            await interaction.response.edit_message(
+                content="This flip draft expired. Run `/flipform` again.",
+                embed=None,
+                view=None
+            )
+            return
+
+        if interaction.user.id != draft["user_id"]:
+            await interaction.response.send_message("Only the person building this flip can use these buttons.", ephemeral=True)
+            return
+
+        if self.action == "post":
+            await interaction.response.defer(ephemeral=True, thinking=True)
+            posted = await post_flip_from_inputs(
+                interaction,
+                ft=draft["ft"],
+                ft_value=draft["ft_value"],
+                zip_code=draft["zip_code"],
+                iso=draft["iso"],
+                iso_value=draft["iso_value"],
+                ft_kicker=draft["ft_kicker"],
+                iso_kicker=draft["iso_kicker"],
+                rtr=draft["rtr"],
+                x_posted=draft["x_posted"],
+                send_via_channel=True,
+                send_success_followup=False
+            )
+            if not posted:
+                return
+
+            FLIP_FORM_DRAFTS.pop(self.draft_id, None)
+            await interaction.edit_original_response(
+                content="Posted your flip and created the thread.",
+                embed=None,
+                view=None
+            )
+            return
+
+        if self.action in {"rtr", "x_posted", "ft_kicker", "iso_kicker"}:
+            draft[self.action] = not draft.get(self.action, False)
+            await interaction.response.edit_message(
+                embed=flip_form_review_embed(self.draft_id),
+                view=FlipFormReviewView(self.draft_id)
+            )
+            return
+
+
+class FlipFormReviewView(discord.ui.View):
+    def __init__(self, draft_id: str):
+        super().__init__(timeout=900)
+        self.add_item(FlipFormReviewButton(draft_id, "rtr", "RTR?", "🚫", row=0))
+        self.add_item(FlipFormReviewButton(draft_id, "x_posted", "X-posted?", "📣", row=0))
+        self.add_item(FlipFormReviewButton(draft_id, "ft_kicker", "Buyer kicker?", "🥾", row=1))
+        self.add_item(FlipFormReviewButton(draft_id, "iso_kicker", "Seller kicker?", "🥾", row=1))
+        self.add_item(FlipFormReviewButton(draft_id, "post", "Post Flip", "✅", row=2, style=discord.ButtonStyle.success))
 
 
 class UtilityButton(discord.ui.Button):
@@ -3409,6 +3506,7 @@ async def post_flip_from_inputs(
     x_posted: Optional[bool] = False,
     send_via_channel: bool = False,
     photo_url: Optional[str] = None,
+    send_success_followup: bool = True,
 ):
     async def send_private_error(message: str):
         if interaction.response.is_done():
@@ -3418,7 +3516,7 @@ async def post_flip_from_inputs(
 
     if not interaction.guild or not isinstance(interaction.channel, discord.abc.GuildChannel):
         await send_private_error("`/flip` can only be used inside a server channel.")
-        return
+        return False
 
     bot_member = interaction.guild.me
 
@@ -3430,19 +3528,19 @@ async def post_flip_from_inputs(
                 "I need these channel permissions before I can create and close flip threads:\n"
                 f"{', '.join(missing_permissions)}"
             )
-            return
+            return False
 
     if not ft or not ft.strip():
         await send_private_error("Tell me what bottle is FT/FS first.")
-        return
+        return False
 
     if ft_value is not None and ft_value <= 0:
         await send_private_error("Use a positive FT value, or leave it blank for a straight bottle-for-bottle trade.")
-        return
+        return False
 
     if iso_value is not None and iso_value <= 0:
         await send_private_error("Use a positive value for the ISO bottle, or leave it blank for a straight bottle-for-bottle trade.")
-        return
+        return False
 
     ft, seller_text_kicker = strip_kicker_text(ft, False)
     ft = canonical_bottle_list(ft or "")
@@ -3458,7 +3556,7 @@ async def post_flip_from_inputs(
 
     if location is None:
         await send_private_error("Enter a 5-digit US ZIP so I can show City, State.")
-        return
+        return False
 
     seller_kicker, buyer_kicker = flip_kicker_flags(ft_value, iso_value, iso_kicker, ft_kicker)
     seller_kicker_text = seller_kicker_label(ft_value, iso_value) if seller_kicker else None
@@ -3499,7 +3597,7 @@ async def post_flip_from_inputs(
         thread = await message.create_thread(name=thread_name)
     except discord.HTTPException:
         await message.reply("I could not create the flip thread. A mod may need to check my thread permissions.")
-        return
+        return False
 
     detail_embed = flip_embed(
         ft=ft,
@@ -3525,7 +3623,7 @@ async def post_flip_from_inputs(
     except discord.HTTPException:
         pass
 
-    if send_via_channel:
+    if send_via_channel and send_success_followup:
         await interaction.followup.send("Posted your flip and created the thread.", ephemeral=True)
 
     if value_warning:
@@ -3541,6 +3639,8 @@ async def post_flip_from_inputs(
             'consider adding "any year" to your ISO description next time.',
             ephemeral=True
         )
+
+    return True
 
 
 @bot.tree.command(name="flip", description="Post a bottle flip with a BIN button and discussion thread.")
