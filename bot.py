@@ -1173,7 +1173,20 @@ def allocation_rows(rows, *, latest=False):
     if latest:
         return "\n".join(f"• {row['username']} — {row['bottle_name']}" for row in rows)
 
-    return "\n".join(f"{index}. {row['username']} — {row['total']}" for index, row in enumerate(rows, start=1))
+    rank_titles = {
+        1: "🥇 Juice Supreme",
+        2: "🥈 Juice Lite",
+        3: "🥉 Slightly Juiced",
+    }
+    lines = []
+
+    for index, row in enumerate(rows, start=1):
+        if index in rank_titles:
+            lines.append(f"{rank_titles[index]}: {row['username']} — {row['total']}")
+        else:
+            lines.append(f"{index}. {row['username']} — {row['total']}")
+
+    return "\n".join(lines)
 
 
 def allocation_bottle_rows(rows):
