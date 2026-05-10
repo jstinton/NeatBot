@@ -3,6 +3,7 @@ import json
 import difflib
 import re
 import uuid
+import random
 from datetime import datetime, timedelta
 from urllib.parse import quote_plus
 from pathlib import Path
@@ -1502,23 +1503,67 @@ async def allocation_rank_context(guild_id: int, user_id: int, year: int):
 
 def allocation_sass(rank: Optional[int], user_row, leader):
     if not rank or not user_row:
-        return "The tracker blinked and missed your ranking. Very mysterious. Very allocated."
+        return random.choice([
+            "The leaderboard briefly nosed an unlabeled sample and forgot how counting works. Deeply on-brand.",
+            "Your rank is currently hiding behind the glass case with the allocated stuff. Suspicious.",
+            "The tracker tried to calculate your rank, got distracted by a dusty, and wandered into the barrel warehouse."
+        ])
 
     if rank == 1:
-        return (
-            f"👑 You are still **#1** with **{user_row['total']}** logged finds. "
-            "The bourbon overlord remains seated on the barrel throne."
-        )
+        return random.choice([
+            (
+                f"👑 Still **#1** with **{user_row['total']}** logged finds. "
+                "The tater monarchy remains intact. Please wave regally from atop your throne of cardboard shippers."
+            ),
+            (
+                f"🥔 ALERT: **#1** tater detected. **{user_row['total']}** finds logged. "
+                "The line formed yesterday and somehow you were still first."
+            ),
+            (
+                f"🏆 You remain **#1** with **{user_row['total']}** finds. "
+                "The bourbon overlord has spoken, and the peasants may return to refreshing inventory pages."
+            ),
+            (
+                f"🦅 **#1** again. **{user_row['total']}** bottles logged. "
+                "At this point, Buffalo Trace checks under its bed for you."
+            ),
+            (
+                f"🥃 You are still **#1** with **{user_row['total']}** finds. "
+                "Your palate may be questionable, but your hunting disorder is clearly elite."
+            )
+        ])
 
     leader_name = leader["username"] if leader else "the leader"
     leader_total = leader["total"] if leader else "more"
     gap = leader["total"] - user_row["total"] if leader else None
     gap_text = f" You are **{gap}** behind." if gap else ""
 
-    return (
-        f"📍 You are now **#{rank}** with **{user_row['total']}** logged finds.{gap_text} "
-        f"Better stretch those shelf-scanning muscles if you want to catch **{leader_name}** at **{leader_total}**."
-    )
+    return random.choice([
+        (
+            f"📍 You are **#{rank}** with **{user_row['total']}** finds.{gap_text} "
+            f"Meanwhile **{leader_name}** sits at **{leader_total}**, polishing a bunker bottle and judging your cardio."
+        ),
+        (
+            f"🥔 Current tater ranking: **#{rank}**. Finds: **{user_row['total']}**.{gap_text} "
+            f"To catch **{leader_name}**, you may need to start camping in the parking lot like it is a limited sneaker drop."
+        ),
+        (
+            f"🔎 You are **#{rank}** with **{user_row['total']}** logged finds.{gap_text} "
+            f"**{leader_name}** is still ahead at **{leader_total}**, because apparently sleep is optional and store aisles are a lifestyle."
+        ),
+        (
+            f"📦 Rank **#{rank}**, total **{user_row['total']}**.{gap_text} "
+            f"**{leader_name}** remains the final boss at **{leader_total}**. Bring snacks, low expectations, and comfortable shoes."
+        ),
+        (
+            f"🧾 You are **#{rank}** with **{user_row['total']}** finds.{gap_text} "
+            f"The leader, **{leader_name}**, has **{leader_total}**. NeatBot recommends less dignity and more shelf lurking."
+        ),
+        (
+            f"🚨 Allocation acquired. Ego mildly inflated. Ranking: **#{rank}** with **{user_row['total']}**.{gap_text} "
+            f"Still chasing **{leader_name}** at **{leader_total}**, the current warehouse whisperer."
+        )
+    ])
 
 
 def parse_plain_int(value: str):
