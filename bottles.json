@@ -9987,5 +9987,105 @@
     "aliases": [
       "ECBP C13"
     ]
+  },
+  "Dettling Bourbon Whiskey": {
+    "name": "Dettling Bourbon Whiskey",
+    "aliases": [
+      "Dettling Bourbon",
+      "Dettling",
+      "Dettling Small Batch Bourbon",
+      "Dettling Straight Bourbon"
+    ]
+  },
+  "Dettling Single Barrel Bourbon": {
+    "name": "Dettling Single Barrel Bourbon",
+    "aliases": [
+      "Dettling Single Barrel",
+      "Dettling SiB",
+      "Dettling Bourbon SiB",
+      "Dettling SB Bourbon"
+    ]
+  },
+  "Dettling Cask Strength Bourbon": {
+    "name": "Dettling Cask Strength Bourbon",
+    "aliases": [
+      "Dettling Cask Strength",
+      "Dettling Barrel Proof",
+      "Dettling BP",
+      "Dettling CS Bourbon"
+    ]
+  },
+  "Dettling Bottled in Bond Bourbon": {
+    "name": "Dettling Bottled in Bond Bourbon",
+    "aliases": [
+      "Dettling BiB",
+      "Dettling Bottled in Bond",
+      "Dettling Bonded Bourbon",
+      "Dettling BIB Bourbon"
+    ]
+  },
+  "Dettling Reserve Bourbon": {
+    "name": "Dettling Reserve Bourbon",
+    "aliases": [
+      "Dettling Reserve",
+      "Dettling Reserve Bourbon Whiskey"
+    ]
+  },
+  "Dettling Straight Rye Whiskey": {
+    "name": "Dettling Straight Rye Whiskey",
+    "aliases": [
+      "Dettling Rye",
+      "Dettling Straight Rye",
+      "Dettling Rye Whiskey"
+    ]
+  },
+  "Dettling Single Barrel Rye": {
+    "name": "Dettling Single Barrel Rye",
+    "aliases": [
+      "Dettling Rye SiB",
+      "Dettling Single Barrel Rye Whiskey",
+      "Dettling SiB Rye"
+    ]
+  },
+  "Dettling Cask Strength Rye": {
+    "name": "Dettling Cask Strength Rye",
+    "aliases": [
+      "Dettling Rye Cask Strength",
+      "Dettling Rye Barrel Proof",
+      "Dettling Rye BP",
+      "Dettling Rye CS"
+    ]
+  },
+  "Dettling Bottled in Bond Rye": {
+    "name": "Dettling Bottled in Bond Rye",
+    "aliases": [
+      "Dettling Rye BiB",
+      "Dettling Bonded Rye",
+      "Dettling Bottled in Bond Rye"
+    ]
+  },
+  "Dettling Toasted Barrel Bourbon": {
+    "name": "Dettling Toasted Barrel Bourbon",
+    "aliases": [
+      "Dettling Toasted",
+      "Dettling Toasted Barrel",
+      "Dettling Toasted Bourbon"
+    ]
+  },
+  "Dettling Double Oaked Bourbon": {
+    "name": "Dettling Double Oaked Bourbon",
+    "aliases": [
+      "Dettling Double Oaked",
+      "Dettling DO",
+      "Dettling Double Barrel Bourbon"
+    ]
+  },
+  "Dettling Founder’s Reserve": {
+    "name": "Dettling Founder’s Reserve",
+    "aliases": [
+      "Dettling Founders Reserve",
+      "Dettling Founder Reserve",
+      "Dettling FR"
+    ]
   }
 }
