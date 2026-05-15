@@ -12743,5 +12743,37 @@
       "Batch 14a",
       "Batch 14b"
     ]
+  },
+  "E.H. Taylor Four Grain Bourbon 2017 Release": {
+    "name": "E.H. Taylor Four Grain Bourbon 2017 Release",
+    "aliases": [
+      "EHT Four Grain",
+      "EHTFG",
+      "EHT Four Grain 2017",
+      "EHTFG 2017",
+      "EH Taylor Four Grain",
+      "Colonel EH Taylor Four Grain",
+      "Taylor Four Grain"
+    ]
+  },
+  "E.H. Taylor Four Grain Bourbon 2018 Release": {
+    "name": "E.H. Taylor Four Grain Bourbon 2018 Release",
+    "aliases": [
+      "EHT Four Grain 2018",
+      "EHTFG 2018",
+      "EH Taylor Four Grain 2018",
+      "Taylor Four Grain 2018"
+    ]
+  },
+  "E.H. Taylor Four Grain Bourbon 2026 Release": {
+    "name": "E.H. Taylor Four Grain Bourbon 2026 Release",
+    "aliases": [
+      "EHT Four Grain 2026",
+      "EHTFG 2026",
+      "EH Taylor Four Grain 2026",
+      "Taylor Four Grain 2026",
+      "Buffalo Trace Four Grain 2026",
+      "Four Grain 2026"
+    ]
   }
 }
