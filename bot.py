@@ -28,6 +28,7 @@ BATTLE_VOTES_PATH = Path(__file__).parent / "battle_votes.json"
 WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
 NERD_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
 BRICKED_IMAGE_PATH = Path(__file__).parent / "assets" / "bricked.png"
+DOXXED_IMAGE_PATH = Path(__file__).parent / "assets" / "doxxed.jpg"
 ALLOCATION_DB_PATH = Path(
     os.getenv(
         "ALLOCATION_DB_PATH",
@@ -2998,6 +2999,14 @@ UTILITY_ACTIONS = {
         "title": "🧱 /bricked",
         "description": "Posts the bricked image in this channel.",
         "example": "/bricked"
+    },
+    "doxxed": {
+        "label": "Doxxed",
+        "emoji": "📍",
+        "style": discord.ButtonStyle.secondary,
+        "title": "📍 /doxxed",
+        "description": "Posts the doxxed image in this channel.",
+        "example": "/doxxed"
     }
 }
 
@@ -3367,6 +3376,18 @@ class UtilityButton(discord.ui.Button):
             await interaction.response.send_message(file=file)
             return
 
+        if self.action == "doxxed":
+            if not DOXXED_IMAGE_PATH.exists():
+                await interaction.response.send_message(
+                    "I can’t find the doxxed image file on the server.",
+                    ephemeral=True
+                )
+                return
+
+            file = discord.File(DOXXED_IMAGE_PATH, filename="doxxed.jpg")
+            await interaction.response.send_message(file=file)
+            return
+
         if self.action == "taterfind":
             await interaction.response.send_modal(TaterFindModal())
             return
@@ -3392,6 +3413,7 @@ class UtilityView(discord.ui.View):
         self.add_item(UtilityButton("battle", row=2))
         self.add_item(UtilityButton("whadd", row=2))
         self.add_item(UtilityButton("bricked", row=2))
+        self.add_item(UtilityButton("doxxed", row=2))
 
 
 def is_allocation_tracker_channel(channel):
@@ -3699,6 +3721,25 @@ async def bricked(interaction: discord.Interaction):
 
     try:
         file = discord.File(BRICKED_IMAGE_PATH, filename="bricked.png")
+        await interaction.response.send_message(file=file)
+    except discord.HTTPException:
+        await interaction.response.send_message(
+            "Discord wouldn’t let me post that image here. A mod may need to give NeatBot Attach Files permission.",
+            ephemeral=True
+        )
+
+
+@bot.tree.command(name="doxxed", description="Post the doxxed image.")
+async def doxxed(interaction: discord.Interaction):
+    if not DOXXED_IMAGE_PATH.exists():
+        await interaction.response.send_message(
+            "I can’t find the doxxed image file on the server.",
+            ephemeral=True
+        )
+        return
+
+    try:
+        file = discord.File(DOXXED_IMAGE_PATH, filename="doxxed.jpg")
         await interaction.response.send_message(file=file)
     except discord.HTTPException:
         await interaction.response.send_message(
