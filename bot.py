@@ -27,6 +27,7 @@ BOTY_VOTES_PATH = Path(__file__).parent / "boty_votes.json"
 BATTLE_VOTES_PATH = Path(__file__).parent / "battle_votes.json"
 WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
 NERD_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
+BRICKED_IMAGE_PATH = Path(__file__).parent / "assets" / "bricked.png"
 ALLOCATION_DB_PATH = Path(
     os.getenv(
         "ALLOCATION_DB_PATH",
@@ -2989,6 +2990,14 @@ UTILITY_ACTIONS = {
         "title": "❓ /whadd",
         "description": "Posts the WHADD?? image in this channel.",
         "example": "/whadd"
+    },
+    "bricked": {
+        "label": "Bricked",
+        "emoji": "🧱",
+        "style": discord.ButtonStyle.secondary,
+        "title": "🧱 /bricked",
+        "description": "Posts the bricked image in this channel.",
+        "example": "/bricked"
     }
 }
 
@@ -3346,6 +3355,18 @@ class UtilityButton(discord.ui.Button):
             await interaction.response.send_message(file=file)
             return
 
+        if self.action == "bricked":
+            if not BRICKED_IMAGE_PATH.exists():
+                await interaction.response.send_message(
+                    "I can’t find the bricked image file on the server.",
+                    ephemeral=True
+                )
+                return
+
+            file = discord.File(BRICKED_IMAGE_PATH, filename="bricked.png")
+            await interaction.response.send_message(file=file)
+            return
+
         if self.action == "taterfind":
             await interaction.response.send_modal(TaterFindModal())
             return
@@ -3370,6 +3391,7 @@ class UtilityView(discord.ui.View):
         self.add_item(UtilityButton("boty", row=1))
         self.add_item(UtilityButton("battle", row=2))
         self.add_item(UtilityButton("whadd", row=2))
+        self.add_item(UtilityButton("bricked", row=2))
 
 
 def is_allocation_tracker_channel(channel):
@@ -3658,6 +3680,25 @@ async def nerd(interaction: discord.Interaction):
 
     try:
         file = discord.File(NERD_IMAGE_PATH, filename="nerd.jpg")
+        await interaction.response.send_message(file=file)
+    except discord.HTTPException:
+        await interaction.response.send_message(
+            "Discord wouldn’t let me post that image here. A mod may need to give NeatBot Attach Files permission.",
+            ephemeral=True
+        )
+
+
+@bot.tree.command(name="bricked", description="Post the bricked image.")
+async def bricked(interaction: discord.Interaction):
+    if not BRICKED_IMAGE_PATH.exists():
+        await interaction.response.send_message(
+            "I can’t find the bricked image file on the server.",
+            ephemeral=True
+        )
+        return
+
+    try:
+        file = discord.File(BRICKED_IMAGE_PATH, filename="bricked.png")
         await interaction.response.send_message(file=file)
     except discord.HTTPException:
         await interaction.response.send_message(
