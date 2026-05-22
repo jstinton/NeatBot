@@ -21,8 +21,21 @@ load_dotenv()
 TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD_ID = os.getenv("GUILD_ID")
 GUILD_IDS = os.getenv("GUILD_IDS")
+BOTTLE_REVIEW_CHANNEL_ID = os.getenv("BOTTLE_REVIEW_CHANNEL_ID")
 
 DATA_PATH = Path(__file__).parent / "bottles.json"
+COMMUNITY_BOTTLES_PATH = Path(
+    os.getenv(
+        "COMMUNITY_BOTTLES_PATH",
+        "/data/community_bottles.json" if Path("/data").exists() else Path(__file__).parent / "community_bottles.json"
+    )
+)
+BOTTLE_SUBMISSIONS_PATH = Path(
+    os.getenv(
+        "BOTTLE_SUBMISSIONS_PATH",
+        "/data/bottle_submissions.json" if Path("/data").exists() else Path(__file__).parent / "bottle_submissions.json"
+    )
+)
 BOTY_VOTES_PATH = Path(__file__).parent / "boty_votes.json"
 BATTLE_VOTES_PATH = Path(__file__).parent / "battle_votes.json"
 WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
@@ -123,7 +136,16 @@ TATER_FIND_TYPE_CHOICES = [
 
 def load_bottles():
     with open(DATA_PATH, "r", encoding="utf-8") as f:
-        return json.load(f)
+        bottles = json.load(f)
+
+    if COMMUNITY_BOTTLES_PATH.exists():
+        with open(COMMUNITY_BOTTLES_PATH, "r", encoding="utf-8") as f:
+            community_bottles = json.load(f)
+
+        if isinstance(community_bottles, dict):
+            bottles.update(community_bottles)
+
+    return bottles
 
 
 BOTTLES = load_bottles()
@@ -158,9 +180,14 @@ def load_json(path: Path, default):
 
 
 def save_json(path: Path, data):
+    path.parent.mkdir(parents=True, exist_ok=True)
+
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
         f.write("\n")
+
+
+BOTTLE_SUBMISSIONS = load_json(BOTTLE_SUBMISSIONS_PATH, {})
 
 
 def configured_tater_location(store: Optional[str], location: Optional[str]):
@@ -738,6 +765,195 @@ def find_exact_bottle(query: str):
                 return name, data
 
     return None, None
+
+
+def split_aliases(value: Optional[str]):
+    if not value:
+        return []
+
+    aliases = re.split(r"\s*(?:,|;|\n)\s*", value)
+    return [alias.strip() for alias in aliases if alias.strip()]
+
+
+def dedupe_aliases(aliases):
+    seen = set()
+    deduped = []
+
+    for alias in aliases:
+        key = normalize(alias)
+
+        if not key or key in seen:
+            continue
+
+        seen.add(key)
+        deduped.append(alias)
+
+    return deduped
+
+
+def merge_aliases(existing_aliases, new_aliases):
+    return dedupe_aliases([*existing_aliases, *new_aliases])
+
+
+def reload_bottle_names():
+    global BOTTLE_NAMES
+    BOTTLE_NAMES = list(BOTTLES.keys())
+
+
+def save_community_bottles():
+    community_bottles = load_json(COMMUNITY_BOTTLES_PATH, {})
+    save_json(COMMUNITY_BOTTLES_PATH, community_bottles)
+
+
+def submission_status(submission_id: str):
+    return BOTTLE_SUBMISSIONS.get(submission_id, {}).get("status")
+
+
+def submission_embed(submission_id: str, submission: dict):
+    embed = discord.Embed(
+        title="🥃 Bottle Submission Review",
+        description="A member suggested a bottle for NeatBot’s supplemental database.",
+        color=discord.Color.from_str("#C9973A")
+    )
+    embed.add_field(name="Bottle", value=submission["name"], inline=False)
+    embed.add_field(
+        name="Aliases",
+        value=", ".join(submission.get("aliases", [])) or "None",
+        inline=False
+    )
+
+    if submission.get("proof") is not None:
+        embed.add_field(name="Proof", value=str(submission["proof"]), inline=True)
+
+    if submission.get("msrp") is not None:
+        embed.add_field(name="MSRP", value=dollars(submission["msrp"]), inline=True)
+
+    if submission.get("category"):
+        embed.add_field(name="Category", value=submission["category"], inline=True)
+
+    if submission.get("source_url"):
+        embed.add_field(name="Source", value=submission["source_url"], inline=False)
+
+    if submission.get("notes"):
+        embed.add_field(name="Notes", value=submission["notes"], inline=False)
+
+    submitter = submission.get("submitter_mention") or f"<@{submission.get('submitter_id')}>"
+    embed.add_field(name="Submitted by", value=submitter, inline=True)
+    embed.add_field(name="Status", value=submission.get("status", "pending").title(), inline=True)
+    embed.set_footer(text=f"Submission ID: {submission_id}")
+    return embed
+
+
+def bottle_submission_record(
+    *,
+    submitter,
+    name: str,
+    aliases: Optional[str],
+    proof: Optional[float],
+    msrp: Optional[float],
+    category: Optional[str],
+    source_url: Optional[str],
+    notes: Optional[str],
+):
+    clean_name = name.strip()
+    alias_list = dedupe_aliases(split_aliases(aliases))
+
+    return {
+        "name": clean_name,
+        "aliases": alias_list,
+        "proof": proof,
+        "msrp": msrp,
+        "category": category.strip() if category else None,
+        "source_url": clean_source_link(source_url),
+        "notes": notes.strip() if notes else None,
+        "submitter_id": submitter.id,
+        "submitter_mention": submitter.mention,
+        "submitted_at": discord.utils.utcnow().isoformat(),
+        "status": "pending",
+    }
+
+
+def approve_bottle_submission(submission_id: str, reviewer):
+    submission = BOTTLE_SUBMISSIONS.get(submission_id)
+
+    if not submission or submission.get("status") != "pending":
+        return None, "missing"
+
+    name = submission["name"]
+    aliases = submission.get("aliases", [])
+    existing_name, existing_data = find_bottle(name)
+
+    if not existing_name:
+        for alias in aliases:
+            existing_name, existing_data = find_bottle(alias)
+
+            if existing_name:
+                break
+
+    community_bottles = load_json(COMMUNITY_BOTTLES_PATH, {})
+
+    if existing_name and existing_data:
+        record = dict(existing_data)
+        record["name"] = existing_name
+        record["aliases"] = merge_aliases(bottle_aliases(existing_data), [name, *aliases])
+        community_bottles[existing_name] = record
+        BOTTLES[existing_name] = record
+        approved_name = existing_name
+        result = "updated"
+    else:
+        record = {
+            "name": name,
+            "aliases": dedupe_aliases(aliases),
+        }
+
+        for key in ("proof", "msrp", "category", "source_url", "notes"):
+            if submission.get(key) is not None:
+                record[key] = submission[key]
+
+        community_bottles[name] = record
+        BOTTLES[name] = record
+        approved_name = name
+        result = "created"
+
+    reload_bottle_names()
+    save_json(COMMUNITY_BOTTLES_PATH, community_bottles)
+
+    submission["status"] = "approved"
+    submission["reviewed_by"] = reviewer.id
+    submission["reviewed_at"] = discord.utils.utcnow().isoformat()
+    submission["approved_name"] = approved_name
+    submission["approval_result"] = result
+    save_json(BOTTLE_SUBMISSIONS_PATH, BOTTLE_SUBMISSIONS)
+
+    return approved_name, result
+
+
+def reject_bottle_submission(submission_id: str, reviewer):
+    submission = BOTTLE_SUBMISSIONS.get(submission_id)
+
+    if not submission or submission.get("status") != "pending":
+        return None
+
+    submission["status"] = "rejected"
+    submission["reviewed_by"] = reviewer.id
+    submission["reviewed_at"] = discord.utils.utcnow().isoformat()
+    save_json(BOTTLE_SUBMISSIONS_PATH, BOTTLE_SUBMISSIONS)
+    return submission
+
+
+async def bottle_review_channel(interaction: discord.Interaction):
+    if BOTTLE_REVIEW_CHANNEL_ID and DISCORD_ID_PATTERN.fullmatch(BOTTLE_REVIEW_CHANNEL_ID):
+        channel_id = int(BOTTLE_REVIEW_CHANNEL_ID)
+
+        try:
+            channel = bot.get_channel(channel_id) or await bot.fetch_channel(channel_id)
+
+            if hasattr(channel, "send"):
+                return channel
+        except discord.HTTPException:
+            pass
+
+    return interaction.channel if hasattr(interaction.channel, "send") else None
 
 
 def price_verdict(price: float, data: dict):
@@ -2980,6 +3196,114 @@ class AllocationLoggedView(discord.ui.View):
         self.add_item(AllocationLeaderboardButton(year))
 
 
+class BottleSubmissionApproveButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bottle_submit_approve:(?P<submission_id>[a-f0-9]+)"):
+    def __init__(self, submission_id: str):
+        super().__init__(
+            discord.ui.Button(
+                label="Approve",
+                emoji="✅",
+                style=discord.ButtonStyle.success,
+                custom_id=f"bottle_submit_approve:{submission_id}"
+            )
+        )
+        self.submission_id = submission_id
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(match.group("submission_id"))
+
+    async def callback(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            await interaction.response.send_message("Bottle submissions can only be reviewed in a server.", ephemeral=True)
+            return
+
+        permissions = interaction.channel.permissions_for(interaction.user) if interaction.channel else None
+
+        if not permissions or not permissions.manage_guild:
+            await interaction.response.send_message("Only mods with Manage Server can approve bottle submissions.", ephemeral=True)
+            return
+
+        approved_name, result = approve_bottle_submission(self.submission_id, interaction.user)
+
+        if not approved_name:
+            await interaction.response.send_message("That submission is already handled or missing.", ephemeral=True)
+            return
+
+        submission = BOTTLE_SUBMISSIONS[self.submission_id]
+        embed = submission_embed(self.submission_id, submission)
+        await interaction.response.edit_message(embed=embed, view=None)
+
+        submitter = interaction.guild.get_member(submission["submitter_id"])
+
+        if submitter:
+            try:
+                await submitter.send(
+                    f"🥃 Your bottle submission for **{approved_name}** was approved. "
+                    f"NeatBot can now find it. Nice little database pour."
+                )
+            except discord.HTTPException:
+                pass
+
+        await interaction.followup.send(
+            f"Approved **{approved_name}** ({result}).",
+            ephemeral=True
+        )
+
+
+class BottleSubmissionRejectButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bottle_submit_reject:(?P<submission_id>[a-f0-9]+)"):
+    def __init__(self, submission_id: str):
+        super().__init__(
+            discord.ui.Button(
+                label="Reject",
+                emoji="❌",
+                style=discord.ButtonStyle.danger,
+                custom_id=f"bottle_submit_reject:{submission_id}"
+            )
+        )
+        self.submission_id = submission_id
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(match.group("submission_id"))
+
+    async def callback(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            await interaction.response.send_message("Bottle submissions can only be reviewed in a server.", ephemeral=True)
+            return
+
+        permissions = interaction.channel.permissions_for(interaction.user) if interaction.channel else None
+
+        if not permissions or not permissions.manage_guild:
+            await interaction.response.send_message("Only mods with Manage Server can reject bottle submissions.", ephemeral=True)
+            return
+
+        submission = reject_bottle_submission(self.submission_id, interaction.user)
+
+        if not submission:
+            await interaction.response.send_message("That submission is already handled or missing.", ephemeral=True)
+            return
+
+        embed = submission_embed(self.submission_id, submission)
+        await interaction.response.edit_message(embed=embed, view=None)
+
+        submitter = interaction.guild.get_member(submission["submitter_id"])
+
+        if submitter:
+            try:
+                await submitter.send(
+                    f"Your bottle submission for **{submission['name']}** was rejected by the mod team."
+                )
+            except discord.HTTPException:
+                pass
+
+
+class BottleSubmissionReviewView(discord.ui.View):
+    def __init__(self, submission_id: str):
+        super().__init__(timeout=None)
+        self.add_item(BottleSubmissionApproveButton(submission_id))
+        self.add_item(BottleSubmissionRejectButton(submission_id))
+
+
 UTILITY_ACTIONS = {
     "messageneat": {
         "label": "Message Neat",
@@ -3019,6 +3343,14 @@ UTILITY_ACTIONS = {
         "title": "⚖️ /compare",
         "description": "Compares two bottles side by side and picks one based on NeatBot score.",
         "example": "/compare bottle_one:Stagg bottle_two:Elijah Craig Barrel Proof"
+    },
+    "suggestbottle": {
+        "label": "Suggest Bottle",
+        "emoji": "➕",
+        "style": discord.ButtonStyle.secondary,
+        "title": "➕ /suggestbottle",
+        "description": "Submits a bottle or alias to mods for approval before NeatBot adds it.",
+        "example": "/suggestbottle name:Rare Bottle 2026 aliases:RB26, Rare Bottle proof:115 msrp:150 source_url:https://example.com"
     },
     "taterfind": {
         "label": "Tater Find",
@@ -3109,6 +3441,7 @@ def utility_embed():
     )
     embed.add_field(name="💬 Message Neat", value="Starts the private `/flip` formatting wizard.", inline=False)
     embed.add_field(name="🔁 Trading", value="Use `/flip`, `/bottle`, `/worth`, and `/compare` helpers.", inline=False)
+    embed.add_field(name="➕ Bottle Database", value="Use `/suggestbottle` to submit missing bottles for mod approval.", inline=False)
     embed.add_field(name="🔔 Finds", value="Use `/taterfind` to post rare bottle shelf alerts.", inline=False)
     embed.add_field(name="🏆 Community", value="Start BOTY ratings, bottle battles, JuiceTrip RSVPs, or the WHADD image.", inline=False)
     embed.set_footer(text="NeatBot buttons preserve post history. Slash command examples are shown privately.")
@@ -3474,14 +3807,15 @@ class UtilityView(discord.ui.View):
         self.add_item(UtilityButton("flip", row=0))
         self.add_item(UtilityButton("bottle", row=0))
         self.add_item(UtilityButton("worth", row=0))
-        self.add_item(UtilityButton("compare", row=0))
+        self.add_item(UtilityButton("compare", row=1))
         self.add_item(UtilityButton("taterfind", row=1))
         self.add_item(UtilityButton("juicetrip", row=1))
-        self.add_item(UtilityButton("boty", row=1))
+        self.add_item(UtilityButton("suggestbottle", row=1))
+        self.add_item(UtilityButton("boty", row=2))
         self.add_item(UtilityButton("battle", row=2))
         self.add_item(UtilityButton("whadd", row=2))
-        self.add_item(UtilityButton("bricked", row=2))
-        self.add_item(UtilityButton("doxxed", row=2))
+        self.add_item(UtilityButton("bricked", row=3))
+        self.add_item(UtilityButton("doxxed", row=3))
 
 
 def is_allocation_tracker_channel(channel):
@@ -3539,6 +3873,8 @@ async def setup_hook():
     bot.add_dynamic_items(AllocationConfirmButton)
     bot.add_dynamic_items(AllocationCancelButton)
     bot.add_dynamic_items(AllocationLeaderboardButton)
+    bot.add_dynamic_items(BottleSubmissionApproveButton)
+    bot.add_dynamic_items(BottleSubmissionRejectButton)
     bot.add_view(UtilityView())
     configure_guild_commands()
 
@@ -3636,6 +3972,104 @@ async def worth(interaction: discord.Interaction, name: str, price: float):
     embed.set_footer(text="Pricing varies by state, store, timing, and chaos.")
 
     await interaction.response.send_message(embed=embed)
+
+
+@bot.tree.command(name="suggestbottle", description="Suggest a bottle for mods to add to NeatBot.")
+@app_commands.describe(
+    name="Formal bottle name",
+    aliases="Comma-separated aliases, e.g. RR15, Russell's 15, RR15 2024",
+    proof="Optional proof",
+    msrp="Optional MSRP",
+    category="Optional category, e.g. Bourbon, Rye, Tennessee Whiskey, Tequila",
+    source_url="Optional source/review/product URL",
+    notes="Optional notes for the mod team"
+)
+async def suggestbottle(
+    interaction: discord.Interaction,
+    name: str,
+    aliases: Optional[str] = None,
+    proof: Optional[float] = None,
+    msrp: Optional[float] = None,
+    category: Optional[str] = None,
+    source_url: Optional[str] = None,
+    notes: Optional[str] = None,
+):
+    if not interaction.guild:
+        await interaction.response.send_message("Bottle suggestions need to be submitted inside a server.", ephemeral=True)
+        return
+
+    clean_name = name.strip()
+
+    if len(clean_name) < 3:
+        await interaction.response.send_message("Give me a real bottle name, not a barrel whisper.", ephemeral=True)
+        return
+
+    if proof is not None and proof <= 0:
+        await interaction.response.send_message("Proof needs to be a positive number.", ephemeral=True)
+        return
+
+    if msrp is not None and msrp < 0:
+        await interaction.response.send_message("MSRP cannot be negative.", ephemeral=True)
+        return
+
+    await interaction.response.defer(ephemeral=True, thinking=True)
+
+    submission_id = uuid.uuid4().hex
+    submission = bottle_submission_record(
+        submitter=interaction.user,
+        name=clean_name,
+        aliases=aliases,
+        proof=proof,
+        msrp=msrp,
+        category=category,
+        source_url=source_url,
+        notes=notes,
+    )
+
+    BOTTLE_SUBMISSIONS[submission_id] = submission
+    save_json(BOTTLE_SUBMISSIONS_PATH, BOTTLE_SUBMISSIONS)
+
+    review_channel = await bottle_review_channel(interaction)
+
+    if not review_channel:
+        await interaction.followup.send(
+            "I saved the submission, but I couldn’t find a channel to post it for mod review.",
+            ephemeral=True
+        )
+        return
+
+    existing_name, _ = find_bottle(clean_name)
+
+    if not existing_name:
+        for alias in submission.get("aliases", []):
+            existing_name, _ = find_bottle(alias)
+
+            if existing_name:
+                break
+
+    content = "🥃 Bottle submission needs mod review."
+
+    if existing_name:
+        content += f"\nPossible existing match: **{existing_name}**. Approving will merge aliases into that record."
+
+    try:
+        review_message = await review_channel.send(
+            content=content,
+            embed=submission_embed(submission_id, submission),
+            view=BottleSubmissionReviewView(submission_id),
+            allowed_mentions=discord.AllowedMentions.none()
+        )
+    except discord.HTTPException:
+        await interaction.followup.send(
+            "I saved the submission, but I could not post it to the review channel. Check my channel permissions.",
+            ephemeral=True
+        )
+        return
+
+    await interaction.followup.send(
+        f"Submitted **{clean_name}** for mod review: {review_message.jump_url}",
+        ephemeral=True
+    )
 
 
 @bot.tree.command(name="alloc-leaderboard", description="Show allocation tracker rankings.")
