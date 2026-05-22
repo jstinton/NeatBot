@@ -41,6 +41,10 @@ ALLOCATION_BATCH_PATTERN = re.compile(
     r"\bbatch\s*(?:#|number|no\.?)?\s*(?P<batch>[a-z0-9][a-z0-9.\-]*)",
     re.IGNORECASE
 )
+STORE_PICK_MARKER_PATTERN = re.compile(
+    r"\b(?:sp|store\s*pick|single\s*barrel\s*pick|barrel\s*pick)\b",
+    re.IGNORECASE
+)
 ZIP_CODE_PATTERN = re.compile(r"^\d{5}$")
 USER_MENTION_PATTERN = re.compile(r"<@!?(?P<user_id>\d+)>")
 VINTAGE_YEAR_PATTERN = re.compile(r"\b(19|20)\d{2}\b")
@@ -222,6 +226,34 @@ def tater_store_location_link(store: Optional[str], location: Optional[str]):
     label = f"{store} — {location}"
 
     return f"[{label}]({google_maps_url(location)})"
+
+
+def has_store_pick_marker(value: Optional[str]):
+    return bool(value and STORE_PICK_MARKER_PATTERN.search(value))
+
+
+def strip_store_pick_marker(value: str):
+    stripped = STORE_PICK_MARKER_PATTERN.sub(" ", value)
+    stripped = re.sub(r"\s+", " ", stripped)
+    stripped = re.sub(r"\s+([,;:/-])\s+", r" \1 ", stripped)
+    return stripped.strip(" -:;,")
+
+
+def format_store_pick_name(bottle_name: str, source: Optional[str] = None):
+    display = f"{bottle_name} Store Pick"
+
+    if source:
+        display = f"{display} — {source}"
+
+    return display
+
+
+def store_pick_source_from_context(*values: Optional[str]):
+    for value in values:
+        if value and value != "TBD":
+            return value
+
+    return None
 
 
 def taterfind_message(
@@ -469,9 +501,16 @@ async def post_tater_find_alert(
             )
             return
 
-        bottle_name, _ = find_bottle(bottle)
-        display_bottle = bottle_name or canonical_bottle_name(bottle)
         resolved_location = configured_tater_location(store, location)
+        is_store_pick = has_store_pick_marker(bottle)
+        bottle_lookup = strip_store_pick_marker(bottle) if is_store_pick else bottle
+        bottle_name, _ = find_bottle(bottle_lookup)
+        display_bottle = bottle_name or canonical_bottle_name(bottle_lookup)
+
+        if is_store_pick:
+            pick_source = store_pick_source_from_context(store, resolved_location)
+            display_bottle = format_store_pick_name(display_bottle, pick_source)
+
         notes, extracted_source_link = extract_source_link_from_notes(notes)
         display_source_link = clean_source_link(source_link) or extracted_source_link
         display_source_preview = await source_post_preview(display_source_link)
@@ -1042,6 +1081,26 @@ def allocation_batch_context(content: str):
     return prefix, batch
 
 
+def allocation_store_pick_source(content: str):
+    match = re.search(
+        r"\b(?:at|from)\s+(?P<source>[^.!?\n]+)",
+        content,
+        re.IGNORECASE
+    )
+
+    if not match:
+        return None
+
+    source = match.group("source").strip(" -:;,")
+    source = re.sub(r"\b(today|yesterday|tonight|this morning|this afternoon|this evening)\b.*$", "", source, flags=re.IGNORECASE)
+    source = re.sub(r"\s+", " ", source).strip(" -:;,")
+
+    if not source:
+        return None
+
+    return source[:80]
+
+
 def batch_label_matches(bottle_name: str, batch: str):
     normalized_name = normalize(bottle_name)
     normalized_batch = normalize(batch)
@@ -1059,7 +1118,10 @@ def allocation_bottle_display_name(bottle_name: str, batch: Optional[str] = None
 
 
 def detect_allocation_bottle(content: str):
-    batch_context = allocation_batch_context(content)
+    store_pick = has_store_pick_marker(content)
+    lookup_content = strip_store_pick_marker(content) if store_pick else content
+    store_pick_source = allocation_store_pick_source(content) if store_pick else None
+    batch_context = allocation_batch_context(lookup_content)
 
     if batch_context:
         prefix, batch = batch_context
@@ -1070,12 +1132,17 @@ def detect_allocation_bottle(content: str):
             if allocation_alias_matches(prefix, alias):
                 canonical_name, _ = find_exact_bottle(bottle_name)
                 display_name = allocation_bottle_display_name(canonical_name or bottle_name, batch)
+                if store_pick:
+                    display_name = format_store_pick_name(display_name, store_pick_source)
                 return display_name, f"{alias} Batch {batch}"
 
     for alias, bottle_name in allocation_alias_entries():
-        if allocation_alias_matches(content, alias):
+        if allocation_alias_matches(lookup_content, alias):
             canonical_name, _ = find_exact_bottle(bottle_name)
-            return canonical_name or bottle_name, alias
+            display_name = canonical_name or bottle_name
+            if store_pick:
+                display_name = format_store_pick_name(display_name, store_pick_source)
+            return display_name, alias
 
     return None, None
 
