@@ -800,15 +800,6 @@ def reload_bottle_names():
     BOTTLE_NAMES = list(BOTTLES.keys())
 
 
-def save_community_bottles():
-    community_bottles = load_json(COMMUNITY_BOTTLES_PATH, {})
-    save_json(COMMUNITY_BOTTLES_PATH, community_bottles)
-
-
-def submission_status(submission_id: str):
-    return BOTTLE_SUBMISSIONS.get(submission_id, {}).get("status")
-
-
 def submission_embed(submission_id: str, submission: dict):
     embed = discord.Embed(
         title="🥃 Bottle Submission Review",
@@ -844,6 +835,56 @@ def submission_embed(submission_id: str, submission: dict):
     return embed
 
 
+def exact_submission_match(submission: dict):
+    existing_name, existing_data = find_exact_bottle(submission["name"])
+
+    if existing_name:
+        return existing_name, existing_data
+
+    for alias in submission.get("aliases", []):
+        existing_name, existing_data = find_exact_bottle(alias)
+
+        if existing_name:
+            return existing_name, existing_data
+
+    return None, None
+
+
+def submission_record_from_submission(submission: dict):
+    record = {
+        "name": submission["name"],
+        "aliases": dedupe_aliases(submission.get("aliases", [])),
+    }
+
+    for key in ("proof", "msrp", "category", "source_url", "notes"):
+        if submission.get(key) is not None:
+            record[key] = submission[key]
+
+    return record
+
+
+def remove_aliases_from_other_community_records(community_bottles: dict, target_name: str, aliases):
+    normalized_aliases = {normalize(alias) for alias in aliases if alias}
+
+    if not normalized_aliases:
+        return
+
+    for bottle_name, data in community_bottles.items():
+        if bottle_name == target_name or not isinstance(data, dict):
+            continue
+
+        current_aliases = bottle_aliases(data)
+        filtered_aliases = [
+            alias for alias in current_aliases
+            if normalize(alias) not in normalized_aliases
+        ]
+
+        if len(filtered_aliases) != len(current_aliases):
+            data["aliases"] = filtered_aliases
+            if bottle_name in BOTTLES and isinstance(BOTTLES[bottle_name], dict):
+                BOTTLES[bottle_name]["aliases"] = filtered_aliases
+
+
 def bottle_submission_record(
     *,
     submitter,
@@ -873,7 +914,7 @@ def bottle_submission_record(
     }
 
 
-def approve_bottle_submission(submission_id: str, reviewer):
+def approve_bottle_submission(submission_id: str, reviewer, *, force_separate: bool = False):
     submission = BOTTLE_SUBMISSIONS.get(submission_id)
 
     if not submission or submission.get("status") != "pending":
@@ -881,14 +922,7 @@ def approve_bottle_submission(submission_id: str, reviewer):
 
     name = submission["name"]
     aliases = submission.get("aliases", [])
-    existing_name, existing_data = find_bottle(name)
-
-    if not existing_name:
-        for alias in aliases:
-            existing_name, existing_data = find_bottle(alias)
-
-            if existing_name:
-                break
+    existing_name, existing_data = (None, None) if force_separate else exact_submission_match(submission)
 
     community_bottles = load_json(COMMUNITY_BOTTLES_PATH, {})
 
@@ -901,19 +935,12 @@ def approve_bottle_submission(submission_id: str, reviewer):
         approved_name = existing_name
         result = "updated"
     else:
-        record = {
-            "name": name,
-            "aliases": dedupe_aliases(aliases),
-        }
-
-        for key in ("proof", "msrp", "category", "source_url", "notes"):
-            if submission.get(key) is not None:
-                record[key] = submission[key]
-
+        record = submission_record_from_submission(submission)
+        remove_aliases_from_other_community_records(community_bottles, name, [name, *aliases])
         community_bottles[name] = record
         BOTTLES[name] = record
         approved_name = name
-        result = "created"
+        result = "created separately" if force_separate else "created"
 
     reload_bottle_names()
     save_json(COMMUNITY_BOTTLES_PATH, community_bottles)
@@ -3200,7 +3227,7 @@ class BottleSubmissionApproveButton(discord.ui.DynamicItem[discord.ui.Button], t
     def __init__(self, submission_id: str):
         super().__init__(
             discord.ui.Button(
-                label="Approve",
+                label="Approve / Merge",
                 emoji="✅",
                 style=discord.ButtonStyle.success,
                 custom_id=f"bottle_submit_approve:{submission_id}"
@@ -3246,6 +3273,60 @@ class BottleSubmissionApproveButton(discord.ui.DynamicItem[discord.ui.Button], t
 
         await interaction.followup.send(
             f"Approved **{approved_name}** ({result}).",
+            ephemeral=True
+        )
+
+
+class BottleSubmissionSeparateButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bottle_submit_separate:(?P<submission_id>[a-f0-9]+)"):
+    def __init__(self, submission_id: str):
+        super().__init__(
+            discord.ui.Button(
+                label="Add Separately",
+                emoji="➕",
+                style=discord.ButtonStyle.primary,
+                custom_id=f"bottle_submit_separate:{submission_id}"
+            )
+        )
+        self.submission_id = submission_id
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(match.group("submission_id"))
+
+    async def callback(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            await interaction.response.send_message("Bottle submissions can only be reviewed in a server.", ephemeral=True)
+            return
+
+        permissions = interaction.channel.permissions_for(interaction.user) if interaction.channel else None
+
+        if not permissions or not permissions.manage_guild:
+            await interaction.response.send_message("Only mods with Manage Server can add bottle submissions.", ephemeral=True)
+            return
+
+        approved_name, result = approve_bottle_submission(self.submission_id, interaction.user, force_separate=True)
+
+        if not approved_name:
+            await interaction.response.send_message("That submission is already handled or missing.", ephemeral=True)
+            return
+
+        submission = BOTTLE_SUBMISSIONS[self.submission_id]
+        embed = submission_embed(self.submission_id, submission)
+        await interaction.response.edit_message(embed=embed, view=None)
+
+        submitter = interaction.guild.get_member(submission["submitter_id"])
+
+        if submitter:
+            try:
+                await submitter.send(
+                    f"🥃 Your bottle submission for **{approved_name}** was approved as a separate bottle. "
+                    "NeatBot can now find it."
+                )
+            except discord.HTTPException:
+                pass
+
+        await interaction.followup.send(
+            f"Added **{approved_name}** separately.",
             ephemeral=True
         )
 
@@ -3301,6 +3382,7 @@ class BottleSubmissionReviewView(discord.ui.View):
     def __init__(self, submission_id: str):
         super().__init__(timeout=None)
         self.add_item(BottleSubmissionApproveButton(submission_id))
+        self.add_item(BottleSubmissionSeparateButton(submission_id))
         self.add_item(BottleSubmissionRejectButton(submission_id))
 
 
@@ -3874,6 +3956,7 @@ async def setup_hook():
     bot.add_dynamic_items(AllocationCancelButton)
     bot.add_dynamic_items(AllocationLeaderboardButton)
     bot.add_dynamic_items(BottleSubmissionApproveButton)
+    bot.add_dynamic_items(BottleSubmissionSeparateButton)
     bot.add_dynamic_items(BottleSubmissionRejectButton)
     bot.add_view(UtilityView())
     configure_guild_commands()
@@ -4038,19 +4121,17 @@ async def suggestbottle(
         )
         return
 
-    existing_name, _ = find_bottle(clean_name)
-
-    if not existing_name:
-        for alias in submission.get("aliases", []):
-            existing_name, _ = find_bottle(alias)
-
-            if existing_name:
-                break
+    existing_name, _ = exact_submission_match(submission)
 
     content = "🥃 Bottle submission needs mod review."
 
     if existing_name:
-        content += f"\nPossible existing match: **{existing_name}**. Approving will merge aliases into that record."
+        content += (
+            f"\nExact existing match: **{existing_name}**. "
+            "Approve will merge aliases; Add Separately will create a new bottle."
+        )
+    else:
+        content += "\nNo exact match found. Approve will create a new bottle."
 
     try:
         review_message = await review_channel.send(
