@@ -7,7 +7,7 @@ import random
 import ipaddress
 from datetime import datetime, timedelta
 from html import unescape
-from urllib.parse import quote_plus, urlparse
+from urllib.parse import quote_plus, unquote, urlparse
 from pathlib import Path
 from typing import Optional
 
@@ -950,6 +950,49 @@ def submission_record_from_submission(submission: dict):
     return record
 
 
+def update_bottle_submission(submission_id: str, reviewer, updates: dict):
+    submission = BOTTLE_SUBMISSIONS.get(submission_id)
+
+    if not submission or submission.get("status") != "pending":
+        return None
+
+    clean_name = (updates.get("name") or "").strip()
+
+    if len(clean_name) < 3:
+        raise ValueError("Bottle name needs at least 3 characters.")
+
+    proof = updates.get("proof")
+    msrp = updates.get("msrp")
+
+    if proof is not None and proof <= 0:
+        raise ValueError("Proof needs to be a positive number.")
+
+    if msrp is not None and msrp < 0:
+        raise ValueError("MSRP cannot be negative.")
+
+    submission["name"] = clean_name
+    submission["aliases"] = dedupe_aliases(split_aliases(updates.get("aliases")))
+    submission["proof"] = proof
+    submission["msrp"] = msrp
+    submission["category"] = (updates.get("category") or "").strip() or None
+    submission["edited_by"] = reviewer.id
+    submission["edited_at"] = discord.utils.utcnow().isoformat()
+    save_json(BOTTLE_SUBMISSIONS_PATH, BOTTLE_SUBMISSIONS)
+    return submission
+
+
+def parse_optional_float_text(value: str, field_name: str):
+    cleaned = (value or "").strip().replace("$", "").replace(",", "")
+
+    if not cleaned:
+        return None
+
+    try:
+        return float(cleaned)
+    except ValueError as exc:
+        raise ValueError(f"{field_name} needs to be a number or blank.") from exc
+
+
 def remove_aliases_from_other_community_records(community_bottles: dict, target_name: str, aliases):
     normalized_aliases = {normalize(alias) for alias in aliases if alias}
 
@@ -1029,17 +1072,20 @@ def safe_external_url(value: Optional[str]):
 
 
 def html_meta_content(html: str, key: str):
-    patterns = [
-        rf'<meta[^>]+property=["\']{re.escape(key)}["\'][^>]+content=["\'](?P<value>.*?)["\']',
-        rf'<meta[^>]+name=["\']{re.escape(key)}["\'][^>]+content=["\'](?P<value>.*?)["\']',
-        rf'<meta[^>]+content=["\'](?P<value>.*?)["\'][^>]+(?:property|name)=["\']{re.escape(key)}["\']',
-    ]
+    meta_tags = re.findall(r"<meta\b[^>]*>", html, re.IGNORECASE)
+    attr_pattern = re.compile(r"([:\w-]+)\s*=\s*([\"'])(.*?)\2", re.IGNORECASE | re.DOTALL)
 
-    for pattern in patterns:
-        match = re.search(pattern, html, re.IGNORECASE | re.DOTALL)
+    for tag in meta_tags:
+        attrs = {
+            name.lower(): clean_html_text(value)
+            for name, _quote, value in attr_pattern.findall(tag)
+        }
 
-        if match:
-            return clean_html_text(match.group("value"))
+        if attrs.get("property") == key or attrs.get("name") == key:
+            return attrs.get("content")
+
+        if key == "product:name" and attrs.get("itemprop") == "name":
+            return attrs.get("content")
 
     return None
 
@@ -1052,6 +1098,10 @@ def clean_html_text(value: Optional[str]):
     text = unescape(text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
+
+
+def has_html_markup_leak(value: str):
+    return bool(re.search(r"</?\w+|(?:name|property|content)=['\"]", value, re.IGNORECASE))
 
 
 def html_title(html: str):
@@ -1109,11 +1159,45 @@ def json_ld_names(html: str):
     return [name for name in names if name]
 
 
+def html_heading_candidates(html: str):
+    candidates = []
+
+    for tag in ("h1", "h2"):
+        for match in re.finditer(rf"<{tag}\b[^>]*>(?P<value>.*?)</{tag}>", html, re.IGNORECASE | re.DOTALL):
+            value = clean_html_text(match.group("value"))
+
+            if value:
+                candidates.append(value)
+
+    return candidates
+
+
+def url_slug_candidate(url: str):
+    parsed = urlparse(url)
+    slug = unquote(parsed.path.rstrip("/").split("/")[-1])
+    slug = re.sub(r"\.[a-z0-9]{2,5}$", "", slug, flags=re.IGNORECASE)
+    slug = re.sub(r"[-_]+", " ", slug)
+    slug = re.sub(r"\s+", " ", slug).strip()
+
+    if not slug or len(slug) < 3:
+        return None
+
+    return title_format_bottle_name(slug)
+
+
 def strip_title_noise(title: str):
     text = title.strip()
     text = re.sub(r"^\s*(review|press release|bourbon review|whiskey review|whisky review)\s*:\s*", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"^\s*(buy|shop|order)\s+", "", text, flags=re.IGNORECASE)
+    text = re.sub(
+        r"^\s*(?:[A-Z][\w&'.-]*(?:\s+[A-Z][\w&'.-]*){0,5})\s+"
+        r"(?:unveils|announces|releases|launches|introduces|debuts|reveals|reintroduces)\s+",
+        "",
+        text,
+        flags=re.IGNORECASE
+    )
 
-    for separator in (" | ", " – ", " — "):
+    for separator in (" | ", " – ", " — ", " - "):
         if separator in text:
             parts = [part.strip() for part in text.split(separator) if part.strip()]
 
@@ -1122,21 +1206,91 @@ def strip_title_noise(title: str):
                 break
 
     text = re.sub(r"\s+review\s*$", "", text, flags=re.IGNORECASE)
+    text = re.sub(r"\s+(online|for sale|price and reviews?|ratings? and reviews?)\s*$", "", text, flags=re.IGNORECASE)
     return text.strip(" -:|")
 
 
-def infer_bottle_name_from_page(html: str):
-    candidates = [*json_ld_names(html)]
+def bottle_name_candidate_score(candidate: str):
+    cleaned = strip_title_noise(candidate)
+
+    if not cleaned or len(cleaned) < 3:
+        return None
+
+    words = re.findall(r"[A-Za-z0-9]+", cleaned)
+
+    if len(words) > 18 or len(cleaned) > 140:
+        return None
+
+    normalized = normalize(cleaned)
+    score = 0
+
+    bottle_terms = (
+        "bourbon", "rye", "whiskey", "whisky", "tequila", "scotch",
+        "single barrel", "barrel proof", "small batch", "straight",
+        "bottled in bond", "proof", "year", "yr"
+    )
+    noisy_terms = (
+        "privacy policy", "terms of service", "shipping", "delivery",
+        "where to buy", "best bourbon", "best whiskey", "everything you need",
+        "we tasted", "our review", "guide to", "liquor store"
+    )
+
+    if has_html_markup_leak(cleaned):
+        score -= 20
+
+    score += sum(3 for term in bottle_terms if term in normalized)
+    score -= sum(6 for term in noisy_terms if term in normalized)
+
+    if re.search(r"\b\d{2,3}(?:\.\d+)?\s*proof\b", cleaned, re.IGNORECASE):
+        score += 3
+
+    if re.search(r"\b(?:19|20)\d{2}\b|\b\d{1,2}\s*(?:year|yr)\b", cleaned, re.IGNORECASE):
+        score += 2
+
+    if len(words) <= 10:
+        score += 2
+    elif len(words) >= 14:
+        score -= 3
+
+    if cleaned.endswith((".", "!", "?")):
+        score -= 4
+
+    return cleaned[:180], score
+
+
+def infer_bottle_name_from_page(html: str, url: Optional[str] = None):
+    candidates = []
+
+    for key in ("og:title", "twitter:title", "product:name"):
+        value = html_meta_content(html, key)
+
+        if value:
+            candidates.append(value)
+
+    candidates.extend(html_heading_candidates(html))
+    candidates.extend(json_ld_names(html))
     title = html_title(html)
 
     if title:
         candidates.append(title)
 
-    for candidate in candidates:
-        cleaned = strip_title_noise(candidate)
+    if url:
+        slug = url_slug_candidate(url)
 
-        if cleaned and len(cleaned) >= 3:
-            return cleaned[:180]
+        if slug:
+            candidates.append(slug)
+
+    scored = []
+
+    for index, candidate in enumerate(candidates):
+        scored_candidate = bottle_name_candidate_score(candidate)
+
+        if scored_candidate:
+            cleaned, score = scored_candidate
+            scored.append((score, -index, cleaned))
+
+    if scored:
+        return max(scored)[2]
 
     return None
 
@@ -1173,20 +1327,31 @@ def infer_msrp_from_page(text: str):
 
 
 def infer_category_from_page(name: str, text: str):
-    combined = normalize(f"{name} {text[:1500]}")
+    categories = [
+        ("Tennessee Whiskey", (r"\btennessee whiskey\b",)),
+        ("Bourbon", (r"\bbourbon\b", r"\bstraight bourbon whiskey\b")),
+        ("Rye", (r"\brye whiskey\b", r"\bstraight rye\b", r"\brye\b")),
+        ("Tequila", (r"\btequila\b",)),
+        ("Whisky", (r"\bwhisky\b",)),
+        ("Whiskey", (r"\bwhiskey\b",)),
+    ]
+    normalized_name = normalize(name)
 
-    if "tequila" in combined:
-        return "Tequila"
-    if "rye" in combined:
-        return "Rye"
-    if "tennessee whiskey" in combined:
-        return "Tennessee Whiskey"
-    if "bourbon" in combined:
-        return "Bourbon"
-    if "whisky" in combined:
-        return "Whisky"
-    if "whiskey" in combined:
-        return "Whiskey"
+    for category, patterns in categories:
+        if any(re.search(pattern, normalized_name) for pattern in patterns):
+            return category
+
+    normalized_text = normalize(text[:2500])
+    scored_categories = []
+
+    for index, (category, patterns) in enumerate(categories):
+        score = sum(len(re.findall(pattern, normalized_text)) for pattern in patterns)
+
+        if score:
+            scored_categories.append((score, -index, category))
+
+    if scored_categories:
+        return max(scored_categories)[2]
 
     return None
 
@@ -1246,7 +1411,7 @@ async def bottle_submission_from_url(interaction: discord.Interaction, url: str,
         raise ValueError("Give me a normal public http/https URL.")
 
     html = await fetch_submission_page(safe_url)
-    name = infer_bottle_name_from_page(html)
+    name = infer_bottle_name_from_page(html, safe_url)
 
     if not name:
         raise ValueError("I could not find a bottle name on that page.")
@@ -1338,7 +1503,7 @@ async def bottle_review_channel(interaction: discord.Interaction):
         except discord.HTTPException:
             pass
 
-    return interaction.channel if hasattr(interaction.channel, "send") else None
+    return None
 
 
 async def post_bottle_submission_for_review(interaction: discord.Interaction, submission_id: str, submission: dict):
@@ -1367,6 +1532,18 @@ async def post_bottle_submission_for_review(interaction: discord.Interaction, su
         )
     except discord.HTTPException:
         return None, "I saved the submission, but I could not post it to the review channel. Check my channel permissions."
+
+    return review_message, None
+
+
+async def submit_bottle_suggestion(interaction: discord.Interaction, submission: dict):
+    submission_id = uuid.uuid4().hex
+    BOTTLE_SUBMISSIONS[submission_id] = submission
+    save_json(BOTTLE_SUBMISSIONS_PATH, BOTTLE_SUBMISSIONS)
+    review_message, error = await post_bottle_submission_for_review(interaction, submission_id, submission)
+
+    if error:
+        return None, error
 
     return review_message, None
 
@@ -3808,9 +3985,121 @@ class BottleSubmissionRejectButton(discord.ui.DynamicItem[discord.ui.Button], te
                 pass
 
 
+class BottleSubmissionEditModal(discord.ui.Modal, title="Edit Bottle Draft"):
+    def __init__(self, submission_id: str, submission: dict):
+        super().__init__()
+        self.submission_id = submission_id
+        self.name = discord.ui.TextInput(
+            label="Bottle name",
+            default=submission.get("name") or "",
+            required=True,
+            max_length=180
+        )
+        self.aliases = discord.ui.TextInput(
+            label="Aliases",
+            default=", ".join(submission.get("aliases", [])),
+            required=False,
+            max_length=300
+        )
+        self.category = discord.ui.TextInput(
+            label="Category",
+            placeholder="Bourbon, Rye, Tennessee Whiskey, Tequila...",
+            default=submission.get("category") or "",
+            required=False,
+            max_length=60
+        )
+        self.proof = discord.ui.TextInput(
+            label="Proof",
+            default="" if submission.get("proof") is None else str(submission["proof"]),
+            required=False,
+            max_length=20
+        )
+        self.msrp = discord.ui.TextInput(
+            label="MSRP",
+            default="" if submission.get("msrp") is None else str(submission["msrp"]),
+            required=False,
+            max_length=20
+        )
+
+        self.add_item(self.name)
+        self.add_item(self.aliases)
+        self.add_item(self.category)
+        self.add_item(self.proof)
+        self.add_item(self.msrp)
+
+    async def on_submit(self, interaction: discord.Interaction):
+        permissions = interaction.channel.permissions_for(interaction.user) if interaction.channel else None
+
+        if not permissions or not permissions.manage_guild:
+            await interaction.response.send_message("Only mods with Manage Server can edit bottle submissions.", ephemeral=True)
+            return
+
+        try:
+            submission = update_bottle_submission(
+                self.submission_id,
+                interaction.user,
+                {
+                    "name": str(self.name),
+                    "aliases": str(self.aliases),
+                    "category": str(self.category),
+                    "proof": parse_optional_float_text(str(self.proof), "Proof"),
+                    "msrp": parse_optional_float_text(str(self.msrp), "MSRP"),
+                }
+            )
+        except ValueError as error:
+            await interaction.response.send_message(f"Could not update that draft: {error}", ephemeral=True)
+            return
+
+        if not submission:
+            await interaction.response.send_message("That submission is already handled or missing.", ephemeral=True)
+            return
+
+        await interaction.response.edit_message(
+            embed=submission_embed(self.submission_id, submission),
+            view=BottleSubmissionReviewView(self.submission_id)
+        )
+
+
+class BottleSubmissionEditButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bottle_submit_edit:(?P<submission_id>[a-f0-9]+)"):
+    def __init__(self, submission_id: str):
+        super().__init__(
+            discord.ui.Button(
+                label="Edit Draft",
+                emoji="🛠️",
+                style=discord.ButtonStyle.secondary,
+                custom_id=f"bottle_submit_edit:{submission_id}"
+            )
+        )
+        self.submission_id = submission_id
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(match.group("submission_id"))
+
+    async def callback(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            await interaction.response.send_message("Bottle submissions can only be reviewed in a server.", ephemeral=True)
+            return
+
+        permissions = interaction.channel.permissions_for(interaction.user) if interaction.channel else None
+
+        if not permissions or not permissions.manage_guild:
+            await interaction.response.send_message("Only mods with Manage Server can edit bottle submissions.", ephemeral=True)
+            return
+
+        submission = BOTTLE_SUBMISSIONS.get(self.submission_id)
+
+        if not submission or submission.get("status") != "pending":
+            await interaction.response.send_message("That submission is already handled or missing.", ephemeral=True)
+            return
+
+        await interaction.response.send_modal(BottleSubmissionEditModal(self.submission_id, submission))
+
+
 class BottleSubmissionReviewView(discord.ui.View):
     def __init__(self, submission_id: str):
         super().__init__(timeout=None)
+        self.add_item(BottleSubmissionEditButton(submission_id))
         self.add_item(BottleSubmissionApproveButton(submission_id))
         self.add_item(BottleSubmissionSeparateButton(submission_id))
         self.add_item(BottleSubmissionRejectButton(submission_id))
@@ -4406,6 +4695,7 @@ async def setup_hook():
     bot.add_dynamic_items(BottleSubmissionApproveButton)
     bot.add_dynamic_items(BottleSubmissionSeparateButton)
     bot.add_dynamic_items(BottleSubmissionRejectButton)
+    bot.add_dynamic_items(BottleSubmissionEditButton)
     bot.add_view(UtilityView())
     configure_guild_commands()
 
@@ -4565,7 +4855,6 @@ async def suggestbottle(
 
     await interaction.response.defer(ephemeral=True, thinking=True)
 
-    submission_id = uuid.uuid4().hex
     submission = bottle_submission_record(
         submitter=interaction.user,
         name=clean_name,
@@ -4577,9 +4866,7 @@ async def suggestbottle(
         notes=notes,
     )
 
-    BOTTLE_SUBMISSIONS[submission_id] = submission
-    save_json(BOTTLE_SUBMISSIONS_PATH, BOTTLE_SUBMISSIONS)
-    review_message, error = await post_bottle_submission_for_review(interaction, submission_id, submission)
+    review_message, error = await submit_bottle_suggestion(interaction, submission)
 
     if error:
         await interaction.followup.send(
@@ -4589,7 +4876,7 @@ async def suggestbottle(
         return
 
     await interaction.followup.send(
-        f"Submitted **{clean_name}** for mod review: {review_message.jump_url}",
+        f"Submitted **{submission['name']}** for mod review: {review_message.jump_url}",
         ephemeral=True
     )
 
@@ -4619,17 +4906,14 @@ async def suggestbottleurl(
         )
         return
 
-    submission_id = uuid.uuid4().hex
-    BOTTLE_SUBMISSIONS[submission_id] = submission
-    save_json(BOTTLE_SUBMISSIONS_PATH, BOTTLE_SUBMISSIONS)
-    review_message, error = await post_bottle_submission_for_review(interaction, submission_id, submission)
+    review_message, error = await submit_bottle_suggestion(interaction, submission)
 
     if error:
         await interaction.followup.send(error, ephemeral=True)
         return
 
     await interaction.followup.send(
-        f"I drafted **{submission['name']}** from that URL and sent it for mod review: {review_message.jump_url}",
+        f"Submitted **{submission['name']}** for mod review: {review_message.jump_url}",
         ephemeral=True
     )
 
