@@ -1035,7 +1035,10 @@ def bottle_submission_record(
     notes: Optional[str],
 ):
     clean_name = name.strip()
-    alias_list = dedupe_aliases(split_aliases(aliases))
+    alias_list = dedupe_aliases([
+        *split_aliases(aliases),
+        *common_bottle_aliases(clean_name)
+    ])
 
     return {
         "name": clean_name,
@@ -1366,13 +1369,43 @@ def infer_category_from_page(name: str, text: str):
 
 def acronym_alias(name: str):
     words = re.findall(r"[A-Za-z0-9]+", name)
-    ignore = {"the", "a", "an", "and", "of", "in", "for"}
+    ignore = {
+        "the", "a", "an", "and", "of", "in", "for", "bourbon", "whiskey",
+        "whisky", "rye", "tequila", "batch", "release", "edition", "straight",
+        "single", "barrel", "small", "proof", "bottled", "bond", "s"
+    }
     letters = [word[0].upper() for word in words if word.lower() not in ignore and not word.isdigit()]
     alias = "".join(letters)
-    return alias if 2 <= len(alias) <= 8 else None
+    return alias if 2 <= len(alias) <= 5 else None
 
 
-def url_submission_aliases(name: str):
+def proof_alias_value(value: str):
+    return value.rstrip("0").rstrip(".") if "." in value else value
+
+
+def bottle_alias_base(words: list[str]):
+    if len(words) >= 3 and len(words[0]) == 1 and len(words[1]) == 1:
+        return "".join(word[0].upper() for word in words[:3])
+
+    return words[0] if words else None
+
+
+def clipped_alias(value: Optional[str], max_length: int = 80):
+    if not value:
+        return None
+
+    alias = re.sub(r"\s+", " ", value).strip(" -:;,.\"'")
+
+    if len(alias) < 2 or len(alias) > max_length:
+        return None
+
+    if has_html_markup_leak(alias):
+        return None
+
+    return alias
+
+
+def common_bottle_aliases(name: str):
     aliases = []
     acronym = acronym_alias(name)
 
@@ -1384,7 +1417,146 @@ def url_submission_aliases(name: str):
     if no_punctuation != name:
         aliases.append(no_punctuation)
 
+    words = re.findall(r"[A-Za-z0-9]+", name)
+
+    if not words:
+        return dedupe_aliases(aliases)
+
+    alias_base = bottle_alias_base(words)
+    name_without_product_terms = re.sub(
+        r"\b(?:kentucky|straight|single barrel|small batch|barrel proof|cask strength|"
+        r"bottled in bond|bottled-in-bond|bourbon|whiskey|whisky|rye|tequila|edition|release)\b",
+        " ",
+        name,
+        flags=re.IGNORECASE
+    )
+    name_without_product_terms = re.sub(r"\s+", " ", name_without_product_terms).strip()
+
+    type_suffixes = []
+    normalized_name = normalize(name)
+
+    if "rye" in normalized_name:
+        type_suffixes.append("Rye")
+    if "bourbon" in normalized_name:
+        type_suffixes.append("Bourbon")
+    if "tequila" in normalized_name:
+        type_suffixes.append("Tequila")
+
+    for candidate in (name_without_product_terms, *[f"{name_without_product_terms} {suffix}" for suffix in type_suffixes]):
+        alias = clipped_alias(candidate)
+
+        if alias and normalize(alias) != normalize(name):
+            aliases.append(alias)
+
+    year_match = re.search(r"\b(?P<age>\d{1,2})\s*(?:year|yr|year-old)\b", name, re.IGNORECASE)
+
+    if year_match:
+        age = year_match.group("age")
+        aliases.extend([f"{alias_base} {age}", f"{alias_base} {age}yr", f"{alias_base} {age} year"])
+
+    proof_match = re.search(r"\b(?P<proof>\d{2,3}(?:\.\d+)?)\s*proof\b", name, re.IGNORECASE)
+
+    if proof_match:
+        proof = proof_alias_value(proof_match.group("proof"))
+        aliases.append(f"{alias_base} {proof}")
+
+    if re.search(r"\bbottled[-\s]in[-\s]bond\b", name, re.IGNORECASE):
+        aliases.extend([f"{alias_base} BIB", f"{alias_base} Bottled in Bond"])
+
+    expression_aliases = [
+        (r"\bsingle\s+barrel\b", "SiB"),
+        (r"\bsmall\s+batch\b", "SmB"),
+        (r"\bbarrel\s+proof\b", "BP"),
+        (r"\bcask\s+strength\b", "CS"),
+        (r"\bfull\s+proof\b", "FP"),
+        (r"\bbottled[-\s]in[-\s]bond\b", "BIB"),
+    ]
+
+    for pattern, shorthand in expression_aliases:
+        if re.search(pattern, name, re.IGNORECASE):
+            aliases.append(f"{alias_base} {shorthand}")
+
+    ordinal_match = re.search(r"\b(?P<number>\d{2,4})(?:st|nd|rd|th)?\b", name, re.IGNORECASE)
+
+    if ordinal_match:
+        number = ordinal_match.group("number")
+        aliases.append(f"{alias_base} {number}")
+
+        if not re.fullmatch(r"(?:19|20)\d{2}", number):
+            aliases.append(f"{alias_base} {number}th")
+
+    batch_positions = [index for index, word in enumerate(words) if word.lower() == "batch"]
+
+    if batch_positions:
+        batch_index = batch_positions[-1]
+        batch_words = []
+
+        for word in reversed(words[:batch_index]):
+            if re.fullmatch(r"\d{2,4}(?:-\d{1,2})?", word):
+                continue
+
+            if word.lower() in {"bourbon", "whiskey", "whisky", "rye", "batch", "s"}:
+                continue
+
+            batch_words.insert(0, word)
+
+            if len(batch_words) >= 3:
+                break
+
+        if batch_words:
+            batch_name = " ".join(batch_words)
+            aliases.extend([batch_name, f"{batch_name} Batch"])
+
+            if not normalize(batch_name).startswith(normalize(alias_base)):
+                aliases.append(f"{alias_base} {batch_name}")
+
     return dedupe_aliases(aliases)
+
+
+def review_text_aliases(name: str, text: str):
+    aliases = []
+    alias_base = bottle_alias_base(re.findall(r"[A-Za-z0-9]+", name))
+    normalized_name = normalize(name)
+
+    quoted_patterns = [
+        r"(?:known as|called|nicknamed|aka|a\.k\.a\.)\s+[\"“”'‘’](?P<alias>[^\"“”'‘’]{2,80})[\"“”'‘’]",
+        r"[\"“](?P<alias>[^\"“”]{2,80})[\"”]\s+(?:batch|release|edition|bottle)",
+    ]
+
+    for pattern in quoted_patterns:
+        for match in re.finditer(pattern, text, re.IGNORECASE):
+            alias = clipped_alias(match.group("alias"))
+
+            if alias and normalize(alias) not in normalized_name:
+                aliases.append(alias)
+
+    if alias_base:
+        age_match = re.search(r"\b(?P<age>\d{1,2})[-\s]year[-\s]old\b", text, re.IGNORECASE)
+
+        if age_match:
+            age = age_match.group("age")
+            aliases.extend([f"{alias_base} {age}", f"{alias_base} {age}yr", f"{alias_base} {age} Year"])
+
+        proof_match = re.search(r"\b(?P<proof>\d{2,3}(?:\.\d+)?)\s*proof\b", text, re.IGNORECASE)
+
+        if proof_match:
+            proof = proof_alias_value(proof_match.group("proof"))
+            aliases.append(f"{alias_base} {proof}")
+
+        if re.search(r"\bbottled[-\s]in[-\s]bond\b", text, re.IGNORECASE):
+            aliases.extend([f"{alias_base} BIB", f"{alias_base} Bottled in Bond"])
+
+        if re.search(r"\blimited[-\s]edition\b", text, re.IGNORECASE):
+            aliases.append(f"{alias_base} Limited Edition")
+
+    return dedupe_aliases(aliases)
+
+
+def url_submission_aliases(name: str, text: str = ""):
+    return dedupe_aliases([
+        *common_bottle_aliases(name),
+        *review_text_aliases(name, text)
+    ])
 
 
 async def fetch_submission_page(url: str):
@@ -1436,7 +1608,7 @@ async def bottle_submission_from_url(interaction: discord.Interaction, url: str,
     return bottle_submission_record(
         submitter=interaction.user,
         name=name,
-        aliases=", ".join(url_submission_aliases(name)),
+        aliases=", ".join(url_submission_aliases(name, text)),
         proof=proof,
         msrp=msrp,
         category=category,
