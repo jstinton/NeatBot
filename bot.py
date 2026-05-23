@@ -769,6 +769,91 @@ def find_exact_bottle(query: str):
     return None, None
 
 
+def bottle_search_text(name: str, data: dict):
+    aliases = " ".join(bottle_aliases(data))
+    extra = " ".join(
+        str(data.get(key) or "")
+        for key in ("brand", "distillery", "category", "type", "style", "expression", "batch")
+    )
+    return normalize(f"{name} {aliases} {extra}")
+
+
+def bottle_list_entries(search: Optional[str] = None):
+    entries = list(BOTTLES.items())
+    entries.reverse()
+
+    if not search:
+        return entries
+
+    terms = [normalize(term) for term in re.findall(r"[a-z0-9’']+", search) if term.strip()]
+
+    if not terms:
+        return entries
+
+    return [
+        (name, data)
+        for name, data in entries
+        if all(term in bottle_search_text(name, data) for term in terms)
+    ]
+
+
+def clip_text(value: str, limit: int):
+    if len(value) <= limit:
+        return value
+
+    return f"{value[:limit - 3]}..."
+
+
+def bottle_list_page(entries, page: int, page_size: int = 8):
+    total_pages = max(1, (len(entries) + page_size - 1) // page_size)
+    safe_page = max(1, min(page, total_pages))
+    start = (safe_page - 1) * page_size
+    return entries[start:start + page_size], safe_page, total_pages
+
+
+def bottle_list_line(index: int, name: str, data: dict):
+    aliases = bottle_aliases(data)
+    alias_text = f" — aliases: {', '.join(aliases[:2])}" if aliases else ""
+    proof = data.get("proof")
+    proof_text = f" · {proof} proof" if proof not in {None, ""} else ""
+    return clip_text(f"`{index}.` **{name}**{proof_text}{alias_text}", 115)
+
+
+def bottle_list_embed(search: Optional[str], page: int):
+    entries = bottle_list_entries(search)
+    page_entries, safe_page, total_pages = bottle_list_page(entries, page)
+    title = "🥃 Bottle List"
+
+    if search:
+        title = f"🥃 Bottle List Search: {search}"
+
+    embed = discord.Embed(
+        title=title,
+        description=(
+            "Sorted newest-to-oldest by database entry. "
+            "Use `/bottle name:<name>` for full details."
+        ),
+        color=discord.Color.from_str("#C9973A")
+    )
+
+    if page_entries:
+        start_index = (safe_page - 1) * 8 + 1
+        lines = [
+            bottle_list_line(start_index + offset, name, data)
+            for offset, (name, data) in enumerate(page_entries)
+        ]
+        embed.add_field(name=f"Results ({len(entries)})", value="\n".join(lines), inline=False)
+    else:
+        embed.add_field(
+            name="No bottles found",
+            value="Try a shorter search term, an alias, a brand, or a category.",
+            inline=False
+        )
+
+    embed.set_footer(text=f"Page {safe_page}/{total_pages} • {len(entries)} matching bottle(s)")
+    return embed, safe_page, total_pages
+
+
 def split_aliases(value: Optional[str]):
     if not value:
         return []
@@ -3526,6 +3611,48 @@ class AllocationLoggedView(discord.ui.View):
         self.add_item(AllocationLeaderboardButton(year))
 
 
+class BottleListButton(discord.ui.Button):
+    def __init__(self, direction: int, *, disabled: bool = False):
+        super().__init__(
+            label="Previous" if direction < 0 else "Next",
+            emoji="◀️" if direction < 0 else "▶️",
+            style=discord.ButtonStyle.secondary,
+            disabled=disabled
+        )
+        self.direction = direction
+
+    async def callback(self, interaction: discord.Interaction):
+        view = self.view
+
+        if not isinstance(view, BottleListView):
+            await interaction.response.send_message("This bottle list expired. Run `/bottlelist` again.", ephemeral=True)
+            return
+
+        if interaction.user.id != view.user_id:
+            await interaction.response.send_message("This is someone else’s bottle list. Run `/bottlelist` to make your own.", ephemeral=True)
+            return
+
+        view.page += self.direction
+        embed, safe_page, total_pages = bottle_list_embed(view.search, view.page)
+        view.page = safe_page
+        view.refresh_buttons(total_pages)
+        await interaction.response.edit_message(embed=embed, view=view)
+
+
+class BottleListView(discord.ui.View):
+    def __init__(self, user_id: int, search: Optional[str], page: int, total_pages: int):
+        super().__init__(timeout=900)
+        self.user_id = user_id
+        self.search = search
+        self.page = page
+        self.refresh_buttons(total_pages)
+
+    def refresh_buttons(self, total_pages: int):
+        self.clear_items()
+        self.add_item(BottleListButton(-1, disabled=self.page <= 1))
+        self.add_item(BottleListButton(1, disabled=self.page >= total_pages))
+
+
 class BottleSubmissionApproveButton(discord.ui.DynamicItem[discord.ui.Button], template=r"bottle_submit_approve:(?P<submission_id>[a-f0-9]+)"):
     def __init__(self, submission_id: str):
         super().__init__(
@@ -3713,6 +3840,14 @@ UTILITY_ACTIONS = {
         "description": "Looks up proof, style, MSRP, profile, and similar bottles.",
         "example": "/bottle name:RR15"
     },
+    "bottlelist": {
+        "label": "Bottle List",
+        "emoji": "📚",
+        "style": discord.ButtonStyle.secondary,
+        "title": "📚 /bottlelist",
+        "description": "Browse the whole bottle database newest-first, or search by name, alias, brand, or category.",
+        "example": "/bottlelist search:weller"
+    },
     "worth": {
         "label": "Worth",
         "emoji": "🌮",
@@ -3833,7 +3968,7 @@ def utility_embed():
         color=discord.Color.from_str("#C9973A")
     )
     embed.add_field(name="💬 Message Neat", value="Starts the private `/flip` formatting wizard.", inline=False)
-    embed.add_field(name="🔁 Trading", value="Use `/flip`, `/bottle`, `/worth`, and `/compare` helpers.", inline=False)
+    embed.add_field(name="🔁 Trading", value="Use `/flip`, `/bottle`, `/bottlelist`, `/worth`, and `/compare` helpers.", inline=False)
     embed.add_field(name="➕ Bottle Database", value="Use `/suggestbottle` or `/suggestbottleurl` to submit missing bottles for mod approval.", inline=False)
     embed.add_field(name="🔔 Finds", value="Use `/taterfind` to post rare bottle shelf alerts.", inline=False)
     embed.add_field(name="🏆 Community", value="Start BOTY ratings, bottle battles, JuiceTrip RSVPs, or the WHADD image.", inline=False)
@@ -4199,17 +4334,18 @@ class UtilityView(discord.ui.View):
         self.add_item(UtilityButton("messageneat", row=0))
         self.add_item(UtilityButton("flip", row=0))
         self.add_item(UtilityButton("bottle", row=0))
-        self.add_item(UtilityButton("worth", row=0))
+        self.add_item(UtilityButton("bottlelist", row=0))
+        self.add_item(UtilityButton("worth", row=1))
         self.add_item(UtilityButton("compare", row=1))
         self.add_item(UtilityButton("taterfind", row=1))
-        self.add_item(UtilityButton("juicetrip", row=1))
-        self.add_item(UtilityButton("suggestbottle", row=1))
+        self.add_item(UtilityButton("juicetrip", row=2))
         self.add_item(UtilityButton("suggestbottleurl", row=2))
-        self.add_item(UtilityButton("boty", row=2))
+        self.add_item(UtilityButton("suggestbottle", row=2))
+        self.add_item(UtilityButton("boty", row=3))
         self.add_item(UtilityButton("battle", row=2))
-        self.add_item(UtilityButton("whadd", row=3))
-        self.add_item(UtilityButton("bricked", row=3))
-        self.add_item(UtilityButton("doxxed", row=3))
+        self.add_item(UtilityButton("whadd", row=4))
+        self.add_item(UtilityButton("bricked", row=4))
+        self.add_item(UtilityButton("doxxed", row=4))
 
 
 def is_allocation_tracker_channel(channel):
@@ -4322,6 +4458,26 @@ async def bottle(interaction: discord.Interaction, name: str):
         return
 
     await interaction.response.send_message(embed=bottle_embed(bottle_name, data))
+
+
+@bot.tree.command(name="bottlelist", description="Browse or search the full NeatBot bottle list.")
+@app_commands.describe(
+    search="Optional search by name, alias, brand, category, or style",
+    page="Optional page number"
+)
+async def bottlelist(
+    interaction: discord.Interaction,
+    search: Optional[str] = None,
+    page: Optional[int] = 1
+):
+    safe_page = max(1, page or 1)
+    clean_search = search.strip() if search and search.strip() else None
+    embed, safe_page, total_pages = bottle_list_embed(clean_search, safe_page)
+    await interaction.response.send_message(
+        embed=embed,
+        view=BottleListView(interaction.user.id, clean_search, safe_page, total_pages),
+        ephemeral=True
+    )
 
 
 @bot.tree.command(name="worth", description="Check if a bottle is worth the asking price.")
