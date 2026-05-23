@@ -4,8 +4,10 @@ import difflib
 import re
 import uuid
 import random
+import ipaddress
 from datetime import datetime, timedelta
-from urllib.parse import quote_plus
+from html import unescape
+from urllib.parse import quote_plus, urlparse
 from pathlib import Path
 from typing import Optional
 
@@ -914,6 +916,277 @@ def bottle_submission_record(
     }
 
 
+def safe_external_url(value: Optional[str]):
+    url = clean_source_link(value)
+
+    if not url:
+        return None
+
+    parsed = urlparse(url)
+
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return None
+
+    hostname = parsed.hostname or ""
+
+    if hostname in {"localhost", "127.0.0.1", "::1"} or hostname.endswith(".local"):
+        return None
+
+    try:
+        ip = ipaddress.ip_address(hostname)
+
+        if ip.is_private or ip.is_loopback or ip.is_link_local:
+            return None
+    except ValueError:
+        pass
+
+    return url
+
+
+def html_meta_content(html: str, key: str):
+    patterns = [
+        rf'<meta[^>]+property=["\']{re.escape(key)}["\'][^>]+content=["\'](?P<value>.*?)["\']',
+        rf'<meta[^>]+name=["\']{re.escape(key)}["\'][^>]+content=["\'](?P<value>.*?)["\']',
+        rf'<meta[^>]+content=["\'](?P<value>.*?)["\'][^>]+(?:property|name)=["\']{re.escape(key)}["\']',
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, html, re.IGNORECASE | re.DOTALL)
+
+        if match:
+            return clean_html_text(match.group("value"))
+
+    return None
+
+
+def clean_html_text(value: Optional[str]):
+    if not value:
+        return None
+
+    text = re.sub(r"<[^>]+>", " ", value)
+    text = unescape(text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def html_title(html: str):
+    for key in ("og:title", "twitter:title"):
+        value = html_meta_content(html, key)
+
+        if value:
+            return value
+
+    match = re.search(r"<title[^>]*>(?P<value>.*?)</title>", html, re.IGNORECASE | re.DOTALL)
+
+    if match:
+        return clean_html_text(match.group("value"))
+
+    return None
+
+
+def json_ld_names(html: str):
+    names = []
+
+    for match in re.finditer(
+        r'<script[^>]+type=["\']application/ld\+json["\'][^>]*>(?P<json>.*?)</script>',
+        html,
+        re.IGNORECASE | re.DOTALL
+    ):
+        raw_json = unescape(match.group("json")).strip()
+
+        try:
+            data = json.loads(raw_json)
+        except json.JSONDecodeError:
+            continue
+
+        stack = data if isinstance(data, list) else [data]
+
+        while stack:
+            item = stack.pop(0)
+
+            if isinstance(item, list):
+                stack.extend(item)
+                continue
+
+            if not isinstance(item, dict):
+                continue
+
+            for key in ("name", "headline"):
+                value = item.get(key)
+
+                if isinstance(value, str) and value.strip():
+                    names.append(clean_html_text(value))
+
+            for key in ("@graph", "itemListElement"):
+                if isinstance(item.get(key), list):
+                    stack.extend(item[key])
+
+    return [name for name in names if name]
+
+
+def strip_title_noise(title: str):
+    text = title.strip()
+    text = re.sub(r"^\s*(review|press release|bourbon review|whiskey review|whisky review)\s*:\s*", "", text, flags=re.IGNORECASE)
+
+    for separator in (" | ", " – ", " — "):
+        if separator in text:
+            parts = [part.strip() for part in text.split(separator) if part.strip()]
+
+            if parts:
+                text = parts[0]
+                break
+
+    text = re.sub(r"\s+review\s*$", "", text, flags=re.IGNORECASE)
+    return text.strip(" -:|")
+
+
+def infer_bottle_name_from_page(html: str):
+    candidates = [*json_ld_names(html)]
+    title = html_title(html)
+
+    if title:
+        candidates.append(title)
+
+    for candidate in candidates:
+        cleaned = strip_title_noise(candidate)
+
+        if cleaned and len(cleaned) >= 3:
+            return cleaned[:180]
+
+    return None
+
+
+def infer_proof_from_page(text: str):
+    match = re.search(r"\b(?P<proof>\d{2,3}(?:\.\d+)?)\s*proof\b", text, re.IGNORECASE)
+
+    if not match:
+        return None
+
+    try:
+        return float(match.group("proof"))
+    except ValueError:
+        return None
+
+
+def infer_msrp_from_page(text: str):
+    patterns = [
+        r"\bMSRP\b[^$\d]{0,20}\$?(?P<value>\d{2,5}(?:\.\d{1,2})?)",
+        r"suggested\s+retail\s+price[^$\d]{0,30}\$?(?P<value>\d{2,5}(?:\.\d{1,2})?)",
+        r"retail\s+price[^$\d]{0,30}\$?(?P<value>\d{2,5}(?:\.\d{1,2})?)",
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, text, re.IGNORECASE)
+
+        if match:
+            try:
+                return float(match.group("value"))
+            except ValueError:
+                return None
+
+    return None
+
+
+def infer_category_from_page(name: str, text: str):
+    combined = normalize(f"{name} {text[:1500]}")
+
+    if "tequila" in combined:
+        return "Tequila"
+    if "rye" in combined:
+        return "Rye"
+    if "tennessee whiskey" in combined:
+        return "Tennessee Whiskey"
+    if "bourbon" in combined:
+        return "Bourbon"
+    if "whisky" in combined:
+        return "Whisky"
+    if "whiskey" in combined:
+        return "Whiskey"
+
+    return None
+
+
+def acronym_alias(name: str):
+    words = re.findall(r"[A-Za-z0-9]+", name)
+    ignore = {"the", "a", "an", "and", "of", "in", "for"}
+    letters = [word[0].upper() for word in words if word.lower() not in ignore and not word.isdigit()]
+    alias = "".join(letters)
+    return alias if 2 <= len(alias) <= 8 else None
+
+
+def url_submission_aliases(name: str):
+    aliases = []
+    acronym = acronym_alias(name)
+
+    if acronym:
+        aliases.append(acronym)
+
+    no_punctuation = re.sub(r"[’']", "", name)
+
+    if no_punctuation != name:
+        aliases.append(no_punctuation)
+
+    return dedupe_aliases(aliases)
+
+
+async def fetch_submission_page(url: str):
+    timeout = aiohttp.ClientTimeout(total=8)
+    headers = {
+        "User-Agent": "NeatBot/1.0 bottle-submission-review"
+    }
+
+    async with aiohttp.ClientSession(timeout=timeout, headers=headers) as session:
+        async with session.get(url) as response:
+            if response.status != 200:
+                raise ValueError(f"Page returned HTTP {response.status}")
+
+            content_type = response.headers.get("content-type", "")
+
+            if "text/html" not in content_type and "application/xhtml" not in content_type:
+                raise ValueError("That URL does not look like an HTML page")
+
+            return await response.text(errors="ignore")
+
+
+def page_text_for_inference(html: str):
+    text = re.sub(r"<script\b.*?</script>", " ", html, flags=re.IGNORECASE | re.DOTALL)
+    text = re.sub(r"<style\b.*?</style>", " ", text, flags=re.IGNORECASE | re.DOTALL)
+    return clean_html_text(text) or ""
+
+
+async def bottle_submission_from_url(interaction: discord.Interaction, url: str, notes: Optional[str]):
+    safe_url = safe_external_url(url)
+
+    if not safe_url:
+        raise ValueError("Give me a normal public http/https URL.")
+
+    html = await fetch_submission_page(safe_url)
+    name = infer_bottle_name_from_page(html)
+
+    if not name:
+        raise ValueError("I could not find a bottle name on that page.")
+
+    text = page_text_for_inference(html)
+    proof = infer_proof_from_page(text)
+    msrp = infer_msrp_from_page(text)
+    category = infer_category_from_page(name, text)
+    auto_notes = "Auto-filled from URL. Mods should verify before approving."
+
+    if notes:
+        auto_notes = f"{auto_notes}\nUser notes: {notes.strip()}"
+
+    return bottle_submission_record(
+        submitter=interaction.user,
+        name=name,
+        aliases=", ".join(url_submission_aliases(name)),
+        proof=proof,
+        msrp=msrp,
+        category=category,
+        source_url=safe_url,
+        notes=auto_notes,
+    )
+
+
 def approve_bottle_submission(submission_id: str, reviewer, *, force_separate: bool = False):
     submission = BOTTLE_SUBMISSIONS.get(submission_id)
 
@@ -981,6 +1254,36 @@ async def bottle_review_channel(interaction: discord.Interaction):
             pass
 
     return interaction.channel if hasattr(interaction.channel, "send") else None
+
+
+async def post_bottle_submission_for_review(interaction: discord.Interaction, submission_id: str, submission: dict):
+    review_channel = await bottle_review_channel(interaction)
+
+    if not review_channel:
+        return None, "I saved the submission, but I couldn’t find a channel to post it for mod review."
+
+    existing_name, _ = exact_submission_match(submission)
+    content = "🥃 Bottle submission needs mod review."
+
+    if existing_name:
+        content += (
+            f"\nExact existing match: **{existing_name}**. "
+            "Approve will merge aliases; Add Separately will create a new bottle."
+        )
+    else:
+        content += "\nNo exact match found. Approve will create a new bottle."
+
+    try:
+        review_message = await review_channel.send(
+            content=content,
+            embed=submission_embed(submission_id, submission),
+            view=BottleSubmissionReviewView(submission_id),
+            allowed_mentions=discord.AllowedMentions.none()
+        )
+    except discord.HTTPException:
+        return None, "I saved the submission, but I could not post it to the review channel. Check my channel permissions."
+
+    return review_message, None
 
 
 def price_verdict(price: float, data: dict):
@@ -3434,6 +3737,14 @@ UTILITY_ACTIONS = {
         "description": "Submits a bottle or alias to mods for approval before NeatBot adds it.",
         "example": "/suggestbottle name:Rare Bottle 2026 aliases:RB26, Rare Bottle proof:115 msrp:150 source_url:https://example.com"
     },
+    "suggestbottleurl": {
+        "label": "Suggest URL",
+        "emoji": "🔗",
+        "style": discord.ButtonStyle.secondary,
+        "title": "🔗 /suggestbottleurl",
+        "description": "Fetches a bottle page URL, drafts bottle details, and sends it to mods for approval.",
+        "example": "/suggestbottleurl url:https://www.breakingbourbon.com/review/example-bottle"
+    },
     "taterfind": {
         "label": "Tater Find",
         "emoji": "🔔",
@@ -3523,7 +3834,7 @@ def utility_embed():
     )
     embed.add_field(name="💬 Message Neat", value="Starts the private `/flip` formatting wizard.", inline=False)
     embed.add_field(name="🔁 Trading", value="Use `/flip`, `/bottle`, `/worth`, and `/compare` helpers.", inline=False)
-    embed.add_field(name="➕ Bottle Database", value="Use `/suggestbottle` to submit missing bottles for mod approval.", inline=False)
+    embed.add_field(name="➕ Bottle Database", value="Use `/suggestbottle` or `/suggestbottleurl` to submit missing bottles for mod approval.", inline=False)
     embed.add_field(name="🔔 Finds", value="Use `/taterfind` to post rare bottle shelf alerts.", inline=False)
     embed.add_field(name="🏆 Community", value="Start BOTY ratings, bottle battles, JuiceTrip RSVPs, or the WHADD image.", inline=False)
     embed.set_footer(text="NeatBot buttons preserve post history. Slash command examples are shown privately.")
@@ -3893,9 +4204,10 @@ class UtilityView(discord.ui.View):
         self.add_item(UtilityButton("taterfind", row=1))
         self.add_item(UtilityButton("juicetrip", row=1))
         self.add_item(UtilityButton("suggestbottle", row=1))
+        self.add_item(UtilityButton("suggestbottleurl", row=2))
         self.add_item(UtilityButton("boty", row=2))
         self.add_item(UtilityButton("battle", row=2))
-        self.add_item(UtilityButton("whadd", row=2))
+        self.add_item(UtilityButton("whadd", row=3))
         self.add_item(UtilityButton("bricked", row=3))
         self.add_item(UtilityButton("doxxed", row=3))
 
@@ -4111,44 +4423,57 @@ async def suggestbottle(
 
     BOTTLE_SUBMISSIONS[submission_id] = submission
     save_json(BOTTLE_SUBMISSIONS_PATH, BOTTLE_SUBMISSIONS)
+    review_message, error = await post_bottle_submission_for_review(interaction, submission_id, submission)
 
-    review_channel = await bottle_review_channel(interaction)
-
-    if not review_channel:
+    if error:
         await interaction.followup.send(
-            "I saved the submission, but I couldn’t find a channel to post it for mod review.",
-            ephemeral=True
-        )
-        return
-
-    existing_name, _ = exact_submission_match(submission)
-
-    content = "🥃 Bottle submission needs mod review."
-
-    if existing_name:
-        content += (
-            f"\nExact existing match: **{existing_name}**. "
-            "Approve will merge aliases; Add Separately will create a new bottle."
-        )
-    else:
-        content += "\nNo exact match found. Approve will create a new bottle."
-
-    try:
-        review_message = await review_channel.send(
-            content=content,
-            embed=submission_embed(submission_id, submission),
-            view=BottleSubmissionReviewView(submission_id),
-            allowed_mentions=discord.AllowedMentions.none()
-        )
-    except discord.HTTPException:
-        await interaction.followup.send(
-            "I saved the submission, but I could not post it to the review channel. Check my channel permissions.",
+            error,
             ephemeral=True
         )
         return
 
     await interaction.followup.send(
         f"Submitted **{clean_name}** for mod review: {review_message.jump_url}",
+        ephemeral=True
+    )
+
+
+@bot.tree.command(name="suggestbottleurl", description="Suggest a bottle by URL for mods to review.")
+@app_commands.describe(
+    url="Review, product, or press-release URL to scan",
+    notes="Optional notes for the mod team"
+)
+async def suggestbottleurl(
+    interaction: discord.Interaction,
+    url: str,
+    notes: Optional[str] = None,
+):
+    if not interaction.guild:
+        await interaction.response.send_message("Bottle suggestions need to be submitted inside a server.", ephemeral=True)
+        return
+
+    await interaction.response.defer(ephemeral=True, thinking=True)
+
+    try:
+        submission = await bottle_submission_from_url(interaction, url, notes)
+    except (aiohttp.ClientError, TimeoutError, ValueError) as error:
+        await interaction.followup.send(
+            f"I couldn’t build a bottle draft from that URL: {error}",
+            ephemeral=True
+        )
+        return
+
+    submission_id = uuid.uuid4().hex
+    BOTTLE_SUBMISSIONS[submission_id] = submission
+    save_json(BOTTLE_SUBMISSIONS_PATH, BOTTLE_SUBMISSIONS)
+    review_message, error = await post_bottle_submission_for_review(interaction, submission_id, submission)
+
+    if error:
+        await interaction.followup.send(error, ephemeral=True)
+        return
+
+    await interaction.followup.send(
+        f"I drafted **{submission['name']}** from that URL and sent it for mod review: {review_message.jump_url}",
         ephemeral=True
     )
 
