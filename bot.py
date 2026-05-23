@@ -24,6 +24,14 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD_ID = os.getenv("GUILD_ID")
 GUILD_IDS = os.getenv("GUILD_IDS")
 BOTTLE_REVIEW_CHANNEL_ID = os.getenv("BOTTLE_REVIEW_CHANNEL_ID")
+BOTTLE_REVIEW_CHANNEL_NAMES = [
+    name.strip()
+    for name in os.getenv(
+        "BOTTLE_REVIEW_CHANNEL_NAMES",
+        "bottle-review,bottle-submissions,mod-review,mod-bottle-review"
+    ).split(",")
+    if name.strip()
+]
 
 DATA_PATH = Path(__file__).parent / "bottles.json"
 COMMUNITY_BOTTLES_PATH = Path(
@@ -1491,6 +1499,25 @@ def reject_bottle_submission(submission_id: str, reviewer):
     return submission
 
 
+def can_use_bottle_review_channel(channel):
+    if not isinstance(channel, discord.TextChannel):
+        return False
+
+    guild = channel.guild
+    bot_member = guild.me or (guild.get_member(bot.user.id) if bot.user else None)
+
+    if not bot_member:
+        return False
+
+    bot_permissions = channel.permissions_for(bot_member)
+
+    if not bot_permissions.view_channel or not bot_permissions.send_messages or not bot_permissions.embed_links:
+        return False
+
+    default_permissions = channel.permissions_for(guild.default_role)
+    return not default_permissions.view_channel
+
+
 async def bottle_review_channel(interaction: discord.Interaction):
     if BOTTLE_REVIEW_CHANNEL_ID and DISCORD_ID_PATTERN.fullmatch(BOTTLE_REVIEW_CHANNEL_ID):
         channel_id = int(BOTTLE_REVIEW_CHANNEL_ID)
@@ -1498,10 +1525,21 @@ async def bottle_review_channel(interaction: discord.Interaction):
         try:
             channel = bot.get_channel(channel_id) or await bot.fetch_channel(channel_id)
 
-            if hasattr(channel, "send"):
+            if can_use_bottle_review_channel(channel):
                 return channel
         except discord.HTTPException:
             pass
+
+    guild = interaction.guild
+
+    if guild:
+        review_names = {normalize(name).replace(" ", "-") for name in BOTTLE_REVIEW_CHANNEL_NAMES}
+
+        for channel in guild.text_channels:
+            channel_names = {normalize(channel.name), normalize(channel.name).replace(" ", "-")}
+
+            if review_names & channel_names and can_use_bottle_review_channel(channel):
+                return channel
 
     return None
 
@@ -1510,7 +1548,10 @@ async def post_bottle_submission_for_review(interaction: discord.Interaction, su
     review_channel = await bottle_review_channel(interaction)
 
     if not review_channel:
-        return None, "I saved the submission, but I couldn’t find a channel to post it for mod review."
+        return None, (
+            "I saved the submission, but I couldn’t find a private mod-review channel. "
+            "Set `BOTTLE_REVIEW_CHANNEL_ID`, or create a private channel named `bottle-review`."
+        )
 
     existing_name, _ = exact_submission_match(submission)
     content = "🥃 Bottle submission needs mod review."
