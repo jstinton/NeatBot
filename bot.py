@@ -53,6 +53,7 @@ NERD_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
 BRICKED_IMAGE_PATH = Path(__file__).parent / "assets" / "bricked.png"
 DOXXED_IMAGE_PATH = Path(__file__).parent / "assets" / "doxxed.jpg"
 GOOD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "good-bot.png"
+BAD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "bad-bot.png"
 ALLOCATION_DB_PATH = Path(
     os.getenv(
         "ALLOCATION_DB_PATH",
@@ -79,6 +80,7 @@ DISCORD_MESSAGE_LINK_PATTERN = re.compile(
     r"(?P<guild_id>\d+|@me)/(?P<channel_id>\d+)/(?P<message_id>\d+)"
 )
 GOOD_BOT_PATTERN = re.compile(r"\bgood\s+bot\b", re.IGNORECASE)
+BAD_BOT_PATTERN = re.compile(r"\bbad\s+bot\b", re.IGNORECASE)
 
 
 STORE_ROLE_MAP = {
@@ -4896,15 +4898,26 @@ async def handle_allocation_tracker_message(message: discord.Message):
     )
 
 
-async def maybe_send_good_bot_image(message: discord.Message):
-    if not message.guild or not GOOD_BOT_PATTERN.search(message.content or ""):
+async def maybe_send_bot_reaction_image(message: discord.Message):
+    if not message.guild:
         return
 
-    if not GOOD_BOT_IMAGE_PATH.exists():
+    content = message.content or ""
+    image_path = None
+    filename = None
+
+    if GOOD_BOT_PATTERN.search(content):
+        image_path = GOOD_BOT_IMAGE_PATH
+        filename = "good-bot.png"
+    elif BAD_BOT_PATTERN.search(content):
+        image_path = BAD_BOT_IMAGE_PATH
+        filename = "bad-bot.png"
+
+    if not image_path or not image_path.exists():
         return
 
     try:
-        file = discord.File(GOOD_BOT_IMAGE_PATH, filename="good-bot.png")
+        file = discord.File(image_path, filename=filename)
         await message.channel.send(file=file)
     except discord.HTTPException:
         pass
@@ -4965,7 +4978,7 @@ async def on_message(message: discord.Message):
         await handle_flip_helper_message(message)
         return
 
-    await maybe_send_good_bot_image(message)
+    await maybe_send_bot_reaction_image(message)
     await handle_allocation_tracker_message(message)
     await bot.process_commands(message)
 
