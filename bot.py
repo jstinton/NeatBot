@@ -4332,7 +4332,7 @@ UTILITY_ACTIONS = {
         "style": discord.ButtonStyle.primary,
         "title": "🔁 /flip",
         "description": "Creates an FT/ISO post with a discussion thread, BIN button, Close Offer button, and optional photo.",
-        "example": "/flip ft:RR15 ft_value:700 zip_code:60657 iso:HH22 iso_value:750 ft_kicker:False iso_kicker:True rtr:True x_posted:False photo:<attach image>"
+        "example": "/flip ft:RR15 zip_code:60657 ft_value:700 iso:HH22 iso_value:750 ft_kicker:False iso_kicker:True rtr:True x_posted:False photo:<attach image>"
     },
     "bottle": {
         "label": "Bottle",
@@ -5520,8 +5520,8 @@ async def post_flip_from_inputs(
 @bot.tree.command(name="flip", description="Post a bottle flip with a BIN button and discussion thread.")
 @app_commands.describe(
     ft="Bottle or bottles being offered, e.g. RR15 + Weller 12",
-    ft_value="Estimated FT value",
     zip_code="Your 5-digit US ZIP for City, State display",
+    ft_value="Optional estimated FT value",
     iso="Optional ISO bottle or bottles. Leave blank for tacos only.",
     iso_value="Optional ISO value",
     ft_kicker="Whether the buyer needs to add a kicker toward your FT",
@@ -5533,8 +5533,8 @@ async def post_flip_from_inputs(
 async def flip(
     interaction: discord.Interaction,
     ft: str,
-    ft_value: int,
     zip_code: str,
+    ft_value: Optional[int] = None,
     iso: Optional[str] = None,
     iso_value: Optional[int] = None,
     ft_kicker: Optional[bool] = False,
