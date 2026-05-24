@@ -1911,11 +1911,10 @@ def iso_thread_target(iso: Optional[str], iso_value: Optional[int], buyer_kicker
 
     if iso:
         parts.append(iso)
-    elif iso_value is None:
-        parts.append("🌮 Tacos")
-
-    if iso_value is not None:
+    elif iso_value is not None:
         parts.append(flip_taco_value(iso_value))
+    else:
+        parts.append("🌮 Tacos")
 
     if buyer_kicker:
         parts.append(buyer_kicker)
