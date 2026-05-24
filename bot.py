@@ -52,6 +52,7 @@ WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
 NERD_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
 BRICKED_IMAGE_PATH = Path(__file__).parent / "assets" / "bricked.png"
 DOXXED_IMAGE_PATH = Path(__file__).parent / "assets" / "doxxed.jpg"
+GOOD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "good-bot.png"
 ALLOCATION_DB_PATH = Path(
     os.getenv(
         "ALLOCATION_DB_PATH",
@@ -77,6 +78,7 @@ DISCORD_MESSAGE_LINK_PATTERN = re.compile(
     r"https?://(?:canary\.|ptb\.)?discord(?:app)?\.com/channels/"
     r"(?P<guild_id>\d+|@me)/(?P<channel_id>\d+)/(?P<message_id>\d+)"
 )
+GOOD_BOT_PATTERN = re.compile(r"\bgood\s+bot\b", re.IGNORECASE)
 
 
 STORE_ROLE_MAP = {
@@ -4894,6 +4896,20 @@ async def handle_allocation_tracker_message(message: discord.Message):
     )
 
 
+async def maybe_send_good_bot_image(message: discord.Message):
+    if not message.guild or not GOOD_BOT_PATTERN.search(message.content or ""):
+        return
+
+    if not GOOD_BOT_IMAGE_PATH.exists():
+        return
+
+    try:
+        file = discord.File(GOOD_BOT_IMAGE_PATH, filename="good-bot.png")
+        await message.channel.send(file=file)
+    except discord.HTTPException:
+        pass
+
+
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
@@ -4949,6 +4965,7 @@ async def on_message(message: discord.Message):
         await handle_flip_helper_message(message)
         return
 
+    await maybe_send_good_bot_image(message)
     await handle_allocation_tracker_message(message)
     await bot.process_commands(message)
 
