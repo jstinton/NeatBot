@@ -1795,8 +1795,14 @@ def flip_taco_value(value: int):
     return f"🌮 {value:,}"
 
 
-def has_value_mismatch(ft_value: Optional[int], iso_value: Optional[int]):
-    return ft_value is not None and iso_value is not None and iso_value * 100 > ft_value * 115
+def has_value_mismatch(ft_value: Optional[int], iso_value: Optional[int], seller_kicker: Optional[bool] = None, ft_kicker: Optional[bool] = None):
+    if ft_value is None or iso_value is None:
+        return False
+
+    seller_kicker, buyer_kicker = flip_kicker_flags(ft_value, iso_value, seller_kicker, ft_kicker)
+    effective_ft_value = ft_value + (seller_kicker_amount(ft_value, iso_value) if seller_kicker else 0)
+    effective_iso_value = iso_value + (buyer_kicker_amount(ft_value, iso_value) if buyer_kicker else 0)
+    return effective_iso_value * 100 > effective_ft_value * 115
 
 
 def seller_kicker_amount(ft_value: Optional[int], iso_value: Optional[int]):
@@ -5423,7 +5429,6 @@ async def post_flip_from_inputs(
     if iso and iso != "🌮 Tacos":
         iso = canonical_bottle_list(iso)
 
-    value_warning = has_value_mismatch(ft_value, iso_value)
     iso_needs_vintage_tip = bool(iso) and not VINTAGE_YEAR_PATTERN.search(iso)
     location = await resolve_zip_location(zip_code)
 
@@ -5499,10 +5504,14 @@ async def post_flip_from_inputs(
     if send_via_channel and send_success_followup:
         await interaction.followup.send("Posted your flip and created the thread.", ephemeral=True)
 
+    value_warning = has_value_mismatch(ft_value, iso_value, seller_kicker, buyer_kicker)
+
     if value_warning:
         await interaction.followup.send(
             f"⚠️ Your ISO value ({flip_taco_value(iso_value)}) is significantly higher than "
-            f"your FT value ({flip_taco_value(ft_value)}). Consider adding a seller kicker or adjusting values.",
+            f"your offered package value ({flip_taco_value(ft_value)}"
+            f"{f' + {seller_kicker_text}' if seller_kicker_text else ''}). "
+            "Consider adding a seller kicker or adjusting values.",
             ephemeral=True
         )
 
