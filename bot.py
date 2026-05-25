@@ -617,6 +617,7 @@ BOTY_VOTES = load_json(BOTY_VOTES_PATH, {})
 BATTLE_VOTES = load_json(BATTLE_VOTES_PATH, {})
 FLIP_HELP_SESSIONS = {}
 FLIP_FORM_DRAFTS = {}
+HANDYBOT_PENDING_UPLOADS = {}
 
 SASSY_ONE_LINERS = [
     "Your bottle flex has been reviewed by the committee and sentenced to the bottom shelf 💅",
@@ -2707,11 +2708,89 @@ async def update_handybot_prompt_count(session: dict, count: int):
         pass
 
 
+async def complete_handybot_snag(
+    *,
+    session: dict,
+    guild: discord.Guild,
+    channel: discord.Thread,
+    user: discord.abc.User,
+    source_message_id: int,
+    source_url: Optional[str],
+    image_attachments: list[discord.Attachment],
+    note: Optional[str] = None,
+):
+    photo_urls = [attachment.url for attachment in image_attachments]
+    saved = await save_handybot_claim(
+        session=session,
+        guild_id=guild.id,
+        channel_id=channel.id,
+        user_id=user.id,
+        username=user.display_name,
+        message_id=source_message_id,
+        photo_urls=photo_urls,
+    )
+
+    if not saved:
+        return "duplicate", None
+
+    count = await handybot_claim_count(session["session_id"])
+    await forward_handybot_photos(
+        session=session,
+        guild=guild,
+        user=user,
+        source_url=source_url,
+        image_attachments=image_attachments,
+    )
+    await update_handybot_prompt_count(session, count)
+
+    embed = discord.Embed(
+        title="🥃 Confirmed Snag",
+        description=(
+            f"{user.mention} snagged **{session['bottle_name']}**.\n\n"
+            f"Current HandyBot count: **{count}**.\n"
+            f"{random.choice(HANDYBOT_SASS)}"
+        ),
+        color=discord.Color.from_str("#C9973A"),
+        timestamp=discord.utils.utcnow(),
+    )
+
+    if note:
+        embed.add_field(name="Note", value=note, inline=False)
+
+    public_file = None
+
+    try:
+        public_file = await image_attachments[0].to_file()
+        embed.set_image(url=f"attachment://{public_file.filename}")
+    except discord.HTTPException:
+        embed.set_image(url=image_attachments[0].url)
+
+    if public_file:
+        await channel.send(
+            embed=embed,
+            file=public_file,
+            allowed_mentions=discord.AllowedMentions(users=True),
+        )
+    else:
+        await channel.send(
+            embed=embed,
+            allowed_mentions=discord.AllowedMentions(users=True),
+        )
+
+    return "saved", count
+
+
 async def handle_handybot_claim_message(message: discord.Message):
     if not message.guild or not isinstance(message.channel, discord.Thread):
         return
 
-    if not message.content.strip() or not HANDYBOT_CLAIM_PATTERN.search(message.content):
+    pending_key = (message.channel.id, message.author.id)
+    pending_upload = HANDYBOT_PENDING_UPLOADS.get(pending_key)
+    is_pending_upload = bool(pending_upload)
+
+    if not is_pending_upload and (
+        not message.content.strip() or not HANDYBOT_CLAIM_PATTERN.search(message.content)
+    ):
         return
 
     session = await active_handybot_session(message.channel.id)
@@ -2722,47 +2801,33 @@ async def handle_handybot_claim_message(message: discord.Message):
     image_attachments = [attachment for attachment in message.attachments if is_image_attachment(attachment)]
 
     if not image_attachments:
-        await message.reply(
-            "HandyBot requires photo evidence. Attach a bottle pic and say **I snagged that bottle** again.",
-            mention_author=True,
-        )
+        if is_pending_upload:
+            await message.reply("Almost. Attach the bottle photo to your next message and I’ll count it.", mention_author=True)
+        else:
+            await message.reply(
+                "HandyBot requires photo evidence. Click **I snagged it**, then upload a bottle photo.",
+                mention_author=True,
+            )
         return
 
-    photo_urls = [attachment.url for attachment in image_attachments]
-    saved = await save_handybot_claim(
+    status, _count = await complete_handybot_snag(
         session=session,
-        guild_id=message.guild.id,
-        channel_id=message.channel.id,
-        user_id=message.author.id,
-        username=message.author.display_name,
-        message_id=message.id,
-        photo_urls=photo_urls,
+        guild=message.guild,
+        channel=message.channel,
+        user=message.author,
+        source_message_id=message.id,
+        source_url=message.jump_url,
+        image_attachments=image_attachments,
+        note=message.content.strip() if message.content.strip() else None,
     )
+    HANDYBOT_PENDING_UPLOADS.pop(pending_key, None)
 
-    if not saved:
+    if status == "duplicate":
         await message.reply(
             "You already logged this HandyBot snag. The count is preserved, because apparently I do know how counting works.",
             mention_author=True,
         )
         return
-
-    count = await handybot_claim_count(session["session_id"])
-    await forward_handybot_photos(
-        session=session,
-        guild=message.guild,
-        user=message.author,
-        source_url=message.jump_url,
-        image_attachments=image_attachments,
-    )
-    await update_handybot_prompt_count(session, count)
-    await message.channel.send(
-        (
-            f"🥃 {message.author.mention} snagged **{session['bottle_name']}**.\n"
-            f"Current HandyBot count: **{count}**.\n"
-            f"{random.choice(HANDYBOT_SASS)}"
-        ),
-        allowed_mentions=discord.AllowedMentions(users=True),
-    )
 
 
 async def claim_and_save_allocation(pending_id: str, user_id: int):
@@ -5147,72 +5212,25 @@ class HandyBotSnagModal(discord.ui.Modal, title="Confirm HandyBot Snag"):
             await interaction.response.send_message("Upload an image file so HandyBot can count the snag.", ephemeral=True)
             return
 
-        photo_urls = [attachment.url for attachment in image_attachments]
-        saved = await save_handybot_claim(
+        await interaction.response.defer(ephemeral=True, thinking=True)
+
+        status, _count = await complete_handybot_snag(
             session=session,
-            guild_id=interaction.guild.id,
-            channel_id=interaction.channel.id,
-            user_id=interaction.user.id,
-            username=interaction.user.display_name,
-            message_id=interaction.message.id if interaction.message else 0,
-            photo_urls=photo_urls,
+            guild=interaction.guild,
+            channel=interaction.channel,
+            user=interaction.user,
+            source_message_id=interaction.message.id if interaction.message else 0,
+            source_url=interaction.message.jump_url if interaction.message else None,
+            image_attachments=image_attachments,
+            note=str(self.note).strip() or None,
         )
 
-        if not saved:
-            await interaction.response.send_message(
+        if status == "duplicate":
+            await interaction.followup.send(
                 "You already logged this HandyBot snag. I counted it once, because this is bourbon math, not chaos math.",
                 ephemeral=True,
             )
             return
-
-        await interaction.response.defer(ephemeral=True, thinking=True)
-
-        count = await handybot_claim_count(session["session_id"])
-        source_url = interaction.message.jump_url if interaction.message else None
-        note = str(self.note).strip()
-
-        await forward_handybot_photos(
-            session=session,
-            guild=interaction.guild,
-            user=interaction.user,
-            source_url=source_url,
-            image_attachments=image_attachments,
-        )
-        await update_handybot_prompt_count(session, count)
-
-        embed = discord.Embed(
-            title="🥃 Confirmed Snag",
-            description=(
-                f"{interaction.user.mention} snagged **{session['bottle_name']}**.\n\n"
-                f"Current HandyBot count: **{count}**.\n"
-                f"{random.choice(HANDYBOT_SASS)}"
-            ),
-            color=discord.Color.from_str("#C9973A"),
-            timestamp=discord.utils.utcnow(),
-        )
-
-        if note:
-            embed.add_field(name="Note", value=note, inline=False)
-
-        public_file = None
-
-        try:
-            public_file = await image_attachments[0].to_file()
-            embed.set_image(url=f"attachment://{public_file.filename}")
-        except discord.HTTPException:
-            embed.set_image(url=image_attachments[0].url)
-
-        if public_file:
-            await interaction.channel.send(
-                embed=embed,
-                file=public_file,
-                allowed_mentions=discord.AllowedMentions(users=True),
-            )
-        else:
-            await interaction.channel.send(
-                embed=embed,
-                allowed_mentions=discord.AllowedMentions(users=True),
-            )
 
         await interaction.followup.send("Snag logged. HandyBot has consumed the evidence.", ephemeral=True)
 
@@ -5240,7 +5258,24 @@ class HandyBotClaimButton(discord.ui.DynamicItem[discord.ui.Button], template=r"
             await interaction.response.send_message("This HandyBot drop is no longer active.", ephemeral=True)
             return
 
-        await interaction.response.send_modal(HandyBotSnagModal(self.session_id))
+        try:
+            await interaction.response.send_modal(HandyBotSnagModal(self.session_id))
+        except Exception as exc:
+            print(f"HandyBot upload modal failed: {exc}")
+            HANDYBOT_PENDING_UPLOADS[(interaction.channel.id, interaction.user.id)] = {
+                "session_id": str(self.session_id),
+                "created_at": discord.utils.utcnow().isoformat(),
+            }
+            fallback_message = (
+                f"Discord would not open the upload form, so I started quick-upload mode for "
+                f"**{session['bottle_name']}**.\n\n"
+                "Attach the bottle photo in this thread now. No special text needed."
+            )
+
+            if interaction.response.is_done():
+                await interaction.followup.send(fallback_message, ephemeral=True)
+            else:
+                await interaction.response.send_message(fallback_message, ephemeral=True)
 
 
 class HandyBotClaimView(discord.ui.View):
