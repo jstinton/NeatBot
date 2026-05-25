@@ -52,6 +52,7 @@ WHADD_IMAGE_PATH = Path(__file__).parent / "assets" / "whadd.png"
 NERD_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
 BRICKED_IMAGE_PATH = Path(__file__).parent / "assets" / "bricked.png"
 DOXXED_IMAGE_PATH = Path(__file__).parent / "assets" / "doxxed.jpg"
+FELLAS_IMAGE_PATH = Path(__file__).parent / "assets" / "fellas.png"
 GOOD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "good-bot.png"
 BAD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "bad-bot.png"
 ALLOCATION_DB_PATH = Path(
@@ -81,6 +82,7 @@ DISCORD_MESSAGE_LINK_PATTERN = re.compile(
 )
 GOOD_BOT_PATTERN = re.compile(r"\bgood\s+bot\b", re.IGNORECASE)
 BAD_BOT_PATTERN = re.compile(r"\bbad\s+bot\b", re.IGNORECASE)
+FELLAS_PATTERN = re.compile(r"\bfellas\b", re.IGNORECASE)
 
 
 STORE_ROLE_MAP = {
@@ -4898,7 +4900,7 @@ async def handle_allocation_tracker_message(message: discord.Message):
     )
 
 
-async def maybe_send_bot_reaction_image(message: discord.Message):
+async def maybe_send_chat_trigger_image(message: discord.Message):
     if not message.guild:
         return
 
@@ -4906,7 +4908,10 @@ async def maybe_send_bot_reaction_image(message: discord.Message):
     image_path = None
     filename = None
 
-    if GOOD_BOT_PATTERN.search(content):
+    if FELLAS_PATTERN.search(content):
+        image_path = FELLAS_IMAGE_PATH
+        filename = "fellas.png"
+    elif GOOD_BOT_PATTERN.search(content):
         image_path = GOOD_BOT_IMAGE_PATH
         filename = "good-bot.png"
     elif BAD_BOT_PATTERN.search(content):
@@ -4978,7 +4983,7 @@ async def on_message(message: discord.Message):
         await handle_flip_helper_message(message)
         return
 
-    await maybe_send_bot_reaction_image(message)
+    await maybe_send_chat_trigger_image(message)
     await handle_allocation_tracker_message(message)
     await bot.process_commands(message)
 
