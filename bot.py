@@ -83,6 +83,8 @@ DISCORD_MESSAGE_LINK_PATTERN = re.compile(
 GOOD_BOT_PATTERN = re.compile(r"\bgood\s+bot\b", re.IGNORECASE)
 BAD_BOT_PATTERN = re.compile(r"\bbad\s+bot\b", re.IGNORECASE)
 FELLAS_PATTERN = re.compile(r"\bfellas\b", re.IGNORECASE)
+WHADD_PATTERN = re.compile(r"\bwhadd\b", re.IGNORECASE)
+NERD_PATTERN = re.compile(r"\bnerd\b", re.IGNORECASE)
 
 
 STORE_ROLE_MAP = {
@@ -4911,6 +4913,12 @@ async def maybe_send_chat_trigger_image(message: discord.Message):
     if FELLAS_PATTERN.search(content):
         image_path = FELLAS_IMAGE_PATH
         filename = "fellas.png"
+    elif WHADD_PATTERN.search(content):
+        image_path = WHADD_IMAGE_PATH
+        filename = "whadd.png"
+    elif NERD_PATTERN.search(content):
+        image_path = NERD_IMAGE_PATH
+        filename = "nerd.jpg"
     elif GOOD_BOT_PATTERN.search(content):
         image_path = GOOD_BOT_IMAGE_PATH
         filename = "good-bot.png"
