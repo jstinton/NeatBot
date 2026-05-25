@@ -24,6 +24,7 @@ TOKEN = os.getenv("DISCORD_TOKEN")
 GUILD_ID = os.getenv("GUILD_ID")
 GUILD_IDS = os.getenv("GUILD_IDS")
 BOTTLE_REVIEW_CHANNEL_ID = os.getenv("BOTTLE_REVIEW_CHANNEL_ID")
+HANDYBOT_ADMIN_CHANNEL_ID = os.getenv("HANDYBOT_ADMIN_CHANNEL_ID")
 BOTTLE_REVIEW_CHANNEL_NAMES = [
     name.strip()
     for name in os.getenv(
@@ -85,6 +86,10 @@ BAD_BOT_PATTERN = re.compile(r"\bbad\s+bot\b", re.IGNORECASE)
 FELLAS_PATTERN = re.compile(r"\bfellas\b", re.IGNORECASE)
 WHADD_PATTERN = re.compile(r"\bwhadd\b", re.IGNORECASE)
 NERD_PATTERN = re.compile(r"\bnerd\b", re.IGNORECASE)
+HANDYBOT_CLAIM_PATTERN = re.compile(
+    r"\b(?:i\s+)?snagged(?:\s+that\s+bottle|\s+it)?\b|\bi\s+(?:got|grabbed|secured|picked\s+up)\b",
+    re.IGNORECASE
+)
 
 
 STORE_ROLE_MAP = {
@@ -713,6 +718,17 @@ SASSY_ONE_LINERS = [
     "Your bunker could survive winter, boredom, and three group buys 💅",
     "That pour has notes of caramel, oak, and someone refreshing Discord too hard 💅",
     "You do not need a decanter, you need a moderator for your impulses 💅",
+]
+
+HANDYBOT_SASS = [
+    "The shelf boss has been defeated and the receipt printer is filing a complaint.",
+    "A bottle has been snagged. Somewhere, a tater just whispered 'market adjustment' into the wind.",
+    "Confirmed acquisition. The bourbon gods are pleased, but your cabinet is concerned.",
+    "Another one secured. The allocation spreadsheet just sat up straighter.",
+    "Photo received. This is now evidence in the court of questionable priorities.",
+    "The bottle has landed. Please hydrate, stretch, and stop calling it research.",
+    "Snag confirmed. The parking-lot intel network remains undefeated.",
+    "That bottle is now off the board. Everybody act normal, which has historically been impossible.",
 ]
 
 
@@ -2279,6 +2295,37 @@ async def init_allocation_db():
             """
         )
         await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS handybot_sessions (
+                session_id TEXT PRIMARY KEY,
+                guild_id TEXT NOT NULL,
+                channel_id TEXT NOT NULL,
+                parent_channel_id TEXT,
+                message_id TEXT,
+                bottle_name TEXT NOT NULL,
+                created_by TEXT NOT NULL,
+                created_at TEXT NOT NULL,
+                active INTEGER NOT NULL DEFAULT 1
+            )
+            """
+        )
+        await db.execute(
+            """
+            CREATE TABLE IF NOT EXISTS handybot_claims (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                session_id TEXT NOT NULL,
+                guild_id TEXT NOT NULL,
+                channel_id TEXT NOT NULL,
+                user_id TEXT NOT NULL,
+                username TEXT NOT NULL,
+                bottle_name TEXT NOT NULL,
+                message_id TEXT NOT NULL,
+                photo_urls TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+            """
+        )
+        await db.execute(
             "CREATE INDEX IF NOT EXISTS idx_allocations_guild_year ON allocations (guild_id, year)"
         )
         await db.execute(
@@ -2295,6 +2342,12 @@ async def init_allocation_db():
         )
         await db.execute(
             "CREATE INDEX IF NOT EXISTS idx_pending_allocations_expires_at ON pending_allocations (expires_at)"
+        )
+        await db.execute(
+            "CREATE INDEX IF NOT EXISTS idx_handybot_sessions_channel_active ON handybot_sessions (channel_id, active)"
+        )
+        await db.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS idx_handybot_claims_unique_user ON handybot_claims (session_id, user_id)"
         )
         await db.execute(
             "DELETE FROM pending_allocations WHERE expires_at <= ?",
@@ -2413,6 +2466,263 @@ async def save_confirmed_allocation(pending):
             ),
         )
         await db.commit()
+
+
+def public_bottle_name(query: str) -> str:
+    bottle_name, _ = find_bottle(query)
+
+    if bottle_name:
+        return bottle_name
+
+    return title_format_bottle_name(query)
+
+
+def is_image_attachment(attachment: discord.Attachment):
+    content_type = (attachment.content_type or "").lower()
+
+    if content_type.startswith("image/"):
+        return True
+
+    return attachment.filename.lower().endswith((".png", ".jpg", ".jpeg", ".gif", ".webp"))
+
+
+async def create_handybot_session(
+    *,
+    guild_id: int,
+    channel_id: int,
+    parent_channel_id: Optional[int],
+    message_id: Optional[int],
+    bottle_name: str,
+    created_by: int,
+):
+    created_at = discord.utils.utcnow()
+
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        await db.execute(
+            """
+            INSERT OR REPLACE INTO handybot_sessions (
+                session_id, guild_id, channel_id, parent_channel_id, message_id,
+                bottle_name, created_by, created_at, active
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
+            """,
+            (
+                str(channel_id),
+                str(guild_id),
+                str(channel_id),
+                str(parent_channel_id) if parent_channel_id else None,
+                str(message_id) if message_id else None,
+                bottle_name,
+                str(created_by),
+                created_at.isoformat(),
+            ),
+        )
+        await db.commit()
+
+
+async def active_handybot_session(channel_id: int):
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            """
+            SELECT * FROM handybot_sessions
+            WHERE channel_id = ? AND active = 1
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (str(channel_id),),
+        ) as cursor:
+            row = await cursor.fetchone()
+
+    return dict(row) if row else None
+
+
+async def save_handybot_claim(session: dict, message: discord.Message, photo_urls: list[str]):
+    created_at = discord.utils.utcnow()
+
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        try:
+            await db.execute(
+                """
+                INSERT INTO handybot_claims (
+                    session_id, guild_id, channel_id, user_id, username,
+                    bottle_name, message_id, photo_urls, created_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    session["session_id"],
+                    str(message.guild.id),
+                    str(message.channel.id),
+                    str(message.author.id),
+                    message.author.display_name,
+                    session["bottle_name"],
+                    str(message.id),
+                    json.dumps(photo_urls),
+                    created_at.isoformat(),
+                ),
+            )
+            await db.commit()
+        except aiosqlite.IntegrityError:
+            return False
+
+    return True
+
+
+async def handybot_claim_count(session_id: str):
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        async with db.execute(
+            "SELECT COUNT(*) FROM handybot_claims WHERE session_id = ?",
+            (session_id,),
+        ) as cursor:
+            row = await cursor.fetchone()
+
+    return int(row[0] or 0)
+
+
+def handybot_embed(bottle_name: str, creator: discord.abc.User):
+    embed = discord.Embed(
+        title=f"🖐️ HandyBot: {bottle_name}",
+        description=(
+            "@here a bottle was found.\n\n"
+            "If you snagged it, reply in this thread with **I snagged that bottle** "
+            "and attach a photo of the bottle."
+        ),
+        color=discord.Color.from_str("#C9973A"),
+    )
+    embed.add_field(name="Bottle", value=bottle_name, inline=False)
+    embed.add_field(name="Activated by", value=creator.mention, inline=True)
+    embed.add_field(name="Count", value="0 confirmed snags", inline=True)
+    embed.set_footer(text="Photo required. No photo, no tater glory.")
+    return embed
+
+
+async def handybot_admin_channel(guild: discord.Guild):
+    channel_ids = [HANDYBOT_ADMIN_CHANNEL_ID, BOTTLE_REVIEW_CHANNEL_ID]
+
+    for channel_id in channel_ids:
+        if channel_id and DISCORD_ID_PATTERN.fullmatch(channel_id):
+            try:
+                channel = bot.get_channel(int(channel_id)) or await bot.fetch_channel(int(channel_id))
+
+                if can_use_bottle_review_channel(channel):
+                    return channel
+            except discord.HTTPException:
+                pass
+
+    review_names = {normalize(name).replace(" ", "-") for name in BOTTLE_REVIEW_CHANNEL_NAMES}
+
+    for channel in guild.text_channels:
+        channel_names = {normalize(channel.name), normalize(channel.name).replace(" ", "-")}
+
+        if review_names & channel_names and can_use_bottle_review_channel(channel):
+            return channel
+
+    return None
+
+
+async def forward_handybot_photos(session: dict, message: discord.Message, image_attachments: list[discord.Attachment]):
+    admin_channel = await handybot_admin_channel(message.guild)
+
+    if not admin_channel:
+        return False
+
+    for index, attachment in enumerate(image_attachments, start=1):
+        embed = discord.Embed(
+            title="🖐️ HandyBot Photo Collected",
+            color=discord.Color.from_str("#C9973A"),
+            timestamp=discord.utils.utcnow(),
+        )
+        embed.add_field(name="Bottle", value=session["bottle_name"], inline=False)
+        embed.add_field(name="Snagged by", value=message.author.mention, inline=True)
+        embed.add_field(name="Source", value=f"[Jump to message]({message.jump_url})", inline=True)
+        embed.set_footer(text=f"Photo {index} of {len(image_attachments)}")
+
+        try:
+            file = await attachment.to_file()
+            embed.set_image(url=f"attachment://{file.filename}")
+            await admin_channel.send(
+                embed=embed,
+                file=file,
+                allowed_mentions=discord.AllowedMentions.none(),
+            )
+        except discord.HTTPException:
+            embed.set_image(url=attachment.url)
+            await admin_channel.send(embed=embed, allowed_mentions=discord.AllowedMentions.none())
+
+    return True
+
+
+async def update_handybot_prompt_count(session: dict, count: int):
+    message_id = session.get("message_id")
+
+    if not message_id:
+        return
+
+    try:
+        channel = bot.get_channel(int(session["channel_id"])) or await bot.fetch_channel(int(session["channel_id"]))
+        prompt_message = await channel.fetch_message(int(message_id))
+    except (discord.HTTPException, ValueError, TypeError):
+        return
+
+    if not prompt_message.embeds:
+        return
+
+    embed = prompt_message.embeds[0]
+
+    for index, field in enumerate(embed.fields):
+        if field.name == "Count":
+            embed.set_field_at(index, name="Count", value=f"{count} confirmed snag{'s' if count != 1 else ''}", inline=True)
+            break
+
+    try:
+        await prompt_message.edit(embed=embed, view=HandyBotClaimView(int(session["session_id"])))
+    except discord.HTTPException:
+        pass
+
+
+async def handle_handybot_claim_message(message: discord.Message):
+    if not message.guild or not isinstance(message.channel, discord.Thread):
+        return
+
+    if not message.content.strip() or not HANDYBOT_CLAIM_PATTERN.search(message.content):
+        return
+
+    session = await active_handybot_session(message.channel.id)
+
+    if not session:
+        return
+
+    image_attachments = [attachment for attachment in message.attachments if is_image_attachment(attachment)]
+
+    if not image_attachments:
+        await message.reply(
+            "HandyBot requires photo evidence. Attach a bottle pic and say **I snagged that bottle** again.",
+            mention_author=True,
+        )
+        return
+
+    photo_urls = [attachment.url for attachment in image_attachments]
+    saved = await save_handybot_claim(session, message, photo_urls)
+
+    if not saved:
+        await message.reply(
+            "You already logged this HandyBot snag. The count is preserved, because apparently I do know how counting works.",
+            mention_author=True,
+        )
+        return
+
+    count = await handybot_claim_count(session["session_id"])
+    await forward_handybot_photos(session, message, image_attachments)
+    await update_handybot_prompt_count(session, count)
+    await message.channel.send(
+        (
+            f"🥃 {message.author.mention} snagged **{session['bottle_name']}**.\n"
+            f"Current HandyBot count: **{count}**.\n"
+            f"{random.choice(HANDYBOT_SASS)}"
+        ),
+        allowed_mentions=discord.AllowedMentions(users=True),
+    )
 
 
 async def claim_and_save_allocation(pending_id: str, user_id: int):
@@ -4411,6 +4721,14 @@ UTILITY_ACTIONS = {
         "description": "Mod-only RSVP board for bourbon trips, tours, Airbnb capacity, maybes, and day-trip folks.",
         "example": "/juicetrip destination:Bardstown dates:Oct 10-12, 2026 airbnb_capacity:8 estimated_cost:150-200 tours:Heaven Hill, Willett, Bardstown Bourbon Co deadline:Sept 30"
     },
+    "handybot": {
+        "label": "HandyBot",
+        "emoji": "🖐️",
+        "style": discord.ButtonStyle.secondary,
+        "title": "🖐️ /handybot",
+        "description": "Admin-only bottle snag tracker. Creates a thread, pings @here, requires photo proof, counts snags, and forwards photos to the mod channel.",
+        "example": "/handybot"
+    },
     "boty": {
         "label": "BOTY",
         "emoji": "🏆",
@@ -4666,6 +4984,127 @@ class FlipFormModal(discord.ui.Modal):
         )
 
 
+class HandyBotBottleModal(discord.ui.Modal, title="Activate HandyBot"):
+    bottle = discord.ui.TextInput(
+        label="What bottle was found?",
+        placeholder="RR15, Stagg, Weller 12, JD14...",
+        required=True,
+        max_length=160,
+    )
+
+    async def on_submit(self, interaction: discord.Interaction):
+        if not interaction.guild:
+            await interaction.response.send_message("HandyBot only works in a server.", ephemeral=True)
+            return
+
+        if not interaction.user.guild_permissions.administrator:
+            await interaction.response.send_message("Only admins can activate HandyBot.", ephemeral=True)
+            return
+
+        await interaction.response.defer(ephemeral=True, thinking=True)
+
+        bottle_name = public_bottle_name(str(self.bottle).strip())
+        source_channel = interaction.channel
+
+        if not isinstance(source_channel, (discord.TextChannel, discord.Thread)):
+            await interaction.followup.send("HandyBot needs to be activated in a text channel or thread.", ephemeral=True)
+            return
+
+        embed = handybot_embed(bottle_name, interaction.user)
+        allowed_mentions = discord.AllowedMentions(everyone=True, users=True)
+
+        try:
+            if isinstance(source_channel, discord.Thread):
+                prompt_message = await source_channel.send(
+                    content="@here HandyBot is live.",
+                    embed=embed,
+                    view=HandyBotClaimView(source_channel.id),
+                    allowed_mentions=allowed_mentions,
+                )
+                await create_handybot_session(
+                    guild_id=interaction.guild.id,
+                    channel_id=source_channel.id,
+                    parent_channel_id=source_channel.parent_id,
+                    message_id=prompt_message.id,
+                    bottle_name=bottle_name,
+                    created_by=interaction.user.id,
+                )
+                await interaction.followup.send(f"HandyBot is live in {source_channel.mention}.", ephemeral=True)
+                return
+
+            announcement = await source_channel.send(
+                embed=discord.Embed(
+                    title=f"🖐️ HandyBot: {bottle_name}",
+                    description="Check the HandyBot thread below.",
+                    color=discord.Color.from_str("#C9973A"),
+                )
+            )
+            thread = await announcement.create_thread(
+                name=f"🖐️ HandyBot — {bottle_name}"[:100],
+                auto_archive_duration=1440,
+            )
+            prompt_message = await thread.send(
+                content="@here HandyBot is live.",
+                embed=embed,
+                view=HandyBotClaimView(thread.id),
+                allowed_mentions=allowed_mentions,
+            )
+            await create_handybot_session(
+                guild_id=interaction.guild.id,
+                channel_id=thread.id,
+                parent_channel_id=source_channel.id,
+                message_id=prompt_message.id,
+                bottle_name=bottle_name,
+                created_by=interaction.user.id,
+            )
+            await interaction.followup.send(f"HandyBot is live in {thread.mention}.", ephemeral=True)
+        except discord.Forbidden:
+            await interaction.followup.send(
+                "I need permission to send messages, mention @here, and create public threads here.",
+                ephemeral=True,
+            )
+        except discord.HTTPException:
+            await interaction.followup.send("Discord coughed up a barrel-char hairball. Try again.", ephemeral=True)
+
+
+class HandyBotClaimButton(discord.ui.DynamicItem[discord.ui.Button], template=r"handy_claim:(?P<session_id>\d+)"):
+    def __init__(self, session_id: int):
+        super().__init__(
+            discord.ui.Button(
+                label="I snagged it",
+                emoji="📸",
+                style=discord.ButtonStyle.success,
+                custom_id=f"handy_claim:{session_id}",
+            )
+        )
+        self.session_id = session_id
+
+    @classmethod
+    async def from_custom_id(cls, interaction, item, match):
+        return cls(int(match.group("session_id")))
+
+    async def callback(self, interaction: discord.Interaction):
+        session = await active_handybot_session(self.session_id)
+
+        if not session:
+            await interaction.response.send_message("This HandyBot drop is no longer active.", ephemeral=True)
+            return
+
+        await interaction.response.send_message(
+            (
+                f"Nice. To log **{session['bottle_name']}**, post a message in this thread saying "
+                "**I snagged that bottle** and attach a photo of the bottle."
+            ),
+            ephemeral=True,
+        )
+
+
+class HandyBotClaimView(discord.ui.View):
+    def __init__(self, session_id: int):
+        super().__init__(timeout=None)
+        self.add_item(HandyBotClaimButton(session_id))
+
+
 class FlipFormRetryButton(discord.ui.Button):
     def __init__(self, defaults: dict, error: str):
         super().__init__(
@@ -4856,6 +5295,7 @@ class UtilityView(discord.ui.View):
         self.add_item(UtilityButton("juicetrip", row=2))
         self.add_item(UtilityButton("suggestbottleurl", row=2))
         self.add_item(UtilityButton("suggestbottle", row=2))
+        self.add_item(UtilityButton("handybot", row=3))
         self.add_item(UtilityButton("boty", row=3))
         self.add_item(UtilityButton("battle", row=2))
         self.add_item(UtilityButton("whadd", row=4))
@@ -4952,6 +5392,7 @@ async def setup_hook():
     bot.add_dynamic_items(AllocationConfirmButton)
     bot.add_dynamic_items(AllocationCancelButton)
     bot.add_dynamic_items(AllocationLeaderboardButton)
+    bot.add_dynamic_items(HandyBotClaimButton)
     bot.add_dynamic_items(BottleSubmissionApproveButton)
     bot.add_dynamic_items(BottleSubmissionSeparateButton)
     bot.add_dynamic_items(BottleSubmissionRejectButton)
@@ -4992,6 +5433,7 @@ async def on_message(message: discord.Message):
         return
 
     await maybe_send_chat_trigger_image(message)
+    await handle_handybot_claim_message(message)
     await handle_allocation_tracker_message(message)
     await bot.process_commands(message)
 
@@ -5370,6 +5812,20 @@ async def messageneat(interaction: discord.Interaction):
 @bot.tree.command(name="utility", description="Post the NeatBot utility board with buttons for common tools.")
 async def utility(interaction: discord.Interaction):
     await interaction.response.send_message(embed=utility_embed(), view=UtilityView(), ephemeral=True)
+
+
+@bot.tree.command(name="handybot", description="Admin-only bottle snag photo tracker.")
+@app_commands.default_permissions(administrator=True)
+async def handybot(interaction: discord.Interaction):
+    if not interaction.guild:
+        await interaction.response.send_message("HandyBot only works in a server.", ephemeral=True)
+        return
+
+    if not interaction.user.guild_permissions.administrator:
+        await interaction.response.send_message("Only admins can activate HandyBot.", ephemeral=True)
+        return
+
+    await interaction.response.send_modal(HandyBotBottleModal())
 
 
 @bot.tree.command(name="taterfind", description="Post a rare bottle shelf alert in the current channel.")
