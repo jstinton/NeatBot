@@ -54,6 +54,7 @@ NERD_IMAGE_PATH = Path(__file__).parent / "assets" / "nerd.jpg"
 BRICKED_IMAGE_PATH = Path(__file__).parent / "assets" / "bricked.png"
 DOXXED_IMAGE_PATH = Path(__file__).parent / "assets" / "doxxed.jpg"
 FELLAS_IMAGE_PATH = Path(__file__).parent / "assets" / "fellas.png"
+HANDYBOT_IMAGE_PATH = Path(__file__).parent / "assets" / "handybot.png"
 GOOD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "good-bot.png"
 BAD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "bad-bot.png"
 ALLOCATION_DB_PATH = Path(
@@ -2597,6 +2598,13 @@ def handybot_embed(bottle_name: str, creator: discord.abc.User):
     return embed
 
 
+def handybot_prompt_file():
+    if HANDYBOT_IMAGE_PATH.exists():
+        return discord.File(HANDYBOT_IMAGE_PATH, filename="handybot.png")
+
+    return None
+
+
 async def handybot_admin_channel(guild: discord.Guild):
     channel_ids = [HANDYBOT_ADMIN_CHANNEL_ID, BOTTLE_REVIEW_CHANNEL_ID]
 
@@ -5015,9 +5023,11 @@ class HandyBotBottleModal(discord.ui.Modal, title="Activate HandyBot"):
 
         try:
             if isinstance(source_channel, discord.Thread):
+                file = handybot_prompt_file()
                 prompt_message = await source_channel.send(
                     content="@here HandyBot is live.",
                     embed=embed,
+                    file=file,
                     view=HandyBotClaimView(source_channel.id),
                     allowed_mentions=allowed_mentions,
                 )
@@ -5043,9 +5053,11 @@ class HandyBotBottleModal(discord.ui.Modal, title="Activate HandyBot"):
                 name=f"🖐️ HandyBot — {bottle_name}"[:100],
                 auto_archive_duration=1440,
             )
+            file = handybot_prompt_file()
             prompt_message = await thread.send(
                 content="@here HandyBot is live.",
                 embed=embed,
+                file=file,
                 view=HandyBotClaimView(thread.id),
                 allowed_mentions=allowed_mentions,
             )
