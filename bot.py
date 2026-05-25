@@ -2718,6 +2718,7 @@ async def complete_handybot_snag(
     source_url: Optional[str],
     image_attachments: list[discord.Attachment],
     note: Optional[str] = None,
+    repost_photo_in_thread: bool = True,
 ):
     photo_urls = [attachment.url for attachment in image_attachments]
     saved = await save_handybot_claim(
@@ -2757,8 +2758,14 @@ async def complete_handybot_snag(
     if note:
         embed.add_field(name="Note", value=note, inline=False)
 
-    public_file = None
+    if not repost_photo_in_thread:
+        await channel.send(
+            embed=embed,
+            allowed_mentions=discord.AllowedMentions(users=True),
+        )
+        return "saved", count
 
+    public_file = None
     try:
         public_file = await image_attachments[0].to_file()
         embed.set_image(url=f"attachment://{public_file.filename}")
@@ -2819,6 +2826,7 @@ async def handle_handybot_claim_message(message: discord.Message):
         source_url=message.jump_url,
         image_attachments=image_attachments,
         note=message.content.strip() if message.content.strip() else None,
+        repost_photo_in_thread=not is_pending_upload,
     )
     HANDYBOT_PENDING_UPLOADS.pop(pending_key, None)
 
