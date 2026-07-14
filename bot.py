@@ -607,10 +607,52 @@ async def post_tater_find_alert(
         )
         return
 
-    await interaction.followup.send(
-        f"Tater find posted: {post.jump_url}",
-        ephemeral=True
-    )
+    if not photo:
+        pending_key = (channel.id, interaction.user.id)
+        TATER_PENDING_PHOTOS[pending_key] = {
+            "message": post,
+            "expires": discord.utils.utcnow() + timedelta(minutes=2),
+        }
+        await interaction.followup.send(
+            f"Tater find posted: {post.jump_url}\n_Reply with a photo in this channel within 2 minutes to attach it to the find._",
+            ephemeral=True
+        )
+    else:
+        await interaction.followup.send(
+            f"Tater find posted: {post.jump_url}",
+            ephemeral=True
+        )
+
+
+async def handle_tater_find_photo_message(message: discord.Message):
+    if not message.attachments:
+        return
+
+    pending_key = (message.channel.id, message.author.id)
+    pending = TATER_PENDING_PHOTOS.get(pending_key)
+
+    if not pending:
+        return
+
+    if discord.utils.utcnow() > pending["expires"]:
+        TATER_PENDING_PHOTOS.pop(pending_key, None)
+        return
+
+    image_attachments = [a for a in message.attachments if is_image_attachment(a)]
+
+    if not image_attachments:
+        return
+
+    TATER_PENDING_PHOTOS.pop(pending_key, None)
+
+    embed = discord.Embed(color=discord.Color.from_str("#C9973A"))
+    embed.set_image(url=image_attachments[0].url)
+
+    try:
+        await pending["message"].edit(embed=embed)
+        await message.delete()
+    except Exception as error:
+        print(f"tater photo attach failed: {error}")
 
 
 BOTY_VOTES = load_json(BOTY_VOTES_PATH, {})
@@ -618,6 +660,7 @@ BATTLE_VOTES = load_json(BATTLE_VOTES_PATH, {})
 FLIP_HELP_SESSIONS = {}
 FLIP_FORM_DRAFTS = {}
 HANDYBOT_PENDING_UPLOADS = {}
+TATER_PENDING_PHOTOS = {}
 
 SASSY_ONE_LINERS = [
     "Your bottle flex has been reviewed by the committee and sentenced to the bottom shelf 💅",
@@ -5620,6 +5663,7 @@ async def on_message(message: discord.Message):
         return
 
     await maybe_send_chat_trigger_image(message)
+    await handle_tater_find_photo_message(message)
     await handle_handybot_claim_message(message)
     await handle_allocation_tracker_message(message)
     await bot.process_commands(message)
