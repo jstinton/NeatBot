@@ -580,7 +580,7 @@ async def post_tater_find_alert(
 
         if photo:
             embed = discord.Embed(color=discord.Color.from_str("#C9973A"))
-            embed.set_image(url=photo.url)
+            embed.set_image(url=photo.proxy_url or photo.url)
 
         post = await channel.send(
             content=content,
@@ -645,8 +645,9 @@ async def handle_tater_find_photo_message(message: discord.Message):
 
     TATER_PENDING_PHOTOS.pop(pending_key, None)
 
+    attachment = image_attachments[0]
     embed = discord.Embed(color=discord.Color.from_str("#C9973A"))
-    embed.set_image(url=image_attachments[0].url)
+    embed.set_image(url=attachment.proxy_url or attachment.url)
 
     try:
         await pending["message"].edit(embed=embed)
@@ -5609,6 +5610,19 @@ async def maybe_send_chat_trigger_image(message: discord.Message):
 intents = discord.Intents.default()
 intents.message_content = True
 bot = commands.Bot(command_prefix="!", intents=intents)
+
+
+@bot.tree.error
+async def on_tree_error(interaction: discord.Interaction, error: app_commands.AppCommandError):
+    print(f"Tree error in {interaction.command and interaction.command.name}: {error}")
+    msg = "Something went wrong. Try again or ping a mod."
+    try:
+        if interaction.response.is_done():
+            await interaction.followup.send(msg, ephemeral=True)
+        else:
+            await interaction.response.send_message(msg, ephemeral=True)
+    except Exception:
+        pass
 
 
 @bot.event
