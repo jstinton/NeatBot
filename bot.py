@@ -88,7 +88,7 @@ BAD_BOT_PATTERN = re.compile(r"\bbad\s+bot\b", re.IGNORECASE)
 FELLAS_PATTERN = re.compile(r"\bfellas\b", re.IGNORECASE)
 WHADD_PATTERN = re.compile(r"\bwhadd\b", re.IGNORECASE)
 NERD_PATTERN = re.compile(r"\bnerd\b", re.IGNORECASE)
-KOALA_PATTERN = re.compile(r"\bkoala\b|🐨", re.IGNORECASE)
+KOALA_PATTERN = re.compile(r"\bkoala\b|🐨|<a?:koala:\d+>", re.IGNORECASE)
 HANDYBOT_CLAIM_PATTERN = re.compile(
     r"\b(?:i\s+)?snagged(?:\s+that\s+bottle|\s+it)?\b|\bi\s+(?:got|grabbed|secured|picked\s+up)\b",
     re.IGNORECASE
