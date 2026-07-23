@@ -57,7 +57,7 @@ FELLAS_IMAGE_PATH = Path(__file__).parent / "assets" / "fellas.png"
 HANDYBOT_IMAGE_PATH = Path(__file__).parent / "assets" / "handybot.png"
 GOOD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "good-bot.png"
 BAD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "bad-bot.png"
-KOALA_IMAGE_PATH = Path(__file__).parent / "assets" / "koala.jpg"
+KOALA_IMAGE_PATH = Path(__file__).parent / "assets" / "koala.png"
 ALLOCATION_DB_PATH = Path(
     os.getenv(
         "ALLOCATION_DB_PATH",
@@ -5556,7 +5556,7 @@ async def maybe_send_chat_trigger_image(message: discord.Message):
         filename = "bad-bot.png"
     elif KOALA_PATTERN.search(content):
         image_path = KOALA_IMAGE_PATH
-        filename = "koala.jpg"
+        filename = "koala.png"
 
     if not image_path or not image_path.exists():
         return
