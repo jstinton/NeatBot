@@ -1,4 +1,6 @@
 import os
+import sys
+import time
 import json
 import difflib
 import re
@@ -5615,9 +5617,16 @@ async def setup_hook():
     configure_guild_commands()
 
 
+COMMANDS_SYNCED = False
+
+
 @bot.event
 async def on_ready():
+    global COMMANDS_SYNCED
     print(f"Logged in as {bot.user}")
+
+    if COMMANDS_SYNCED:
+        return
 
     try:
         guild_ids = parse_guild_ids()
@@ -5633,6 +5642,8 @@ async def on_ready():
         else:
             synced = await bot.tree.sync()
             print(f"Synced {len(synced)} global command(s)")
+
+        COMMANDS_SYNCED = True
     except Exception as e:
         print(f"Command sync failed: {e}")
 
@@ -6405,4 +6416,19 @@ if not TOKEN:
     raise RuntimeError("Missing DISCORD_TOKEN. Put it in your .env file.")
 
 if __name__ == "__main__":
-    bot.run(TOKEN)
+    try:
+        bot.run(TOKEN)
+    except discord.LoginFailure:
+        # Bad token: retrying will never help, fail loudly.
+        raise
+    except (discord.HTTPException, aiohttp.ClientError) as exc:
+        detail = re.sub(r"<[^>]+>", " ", str(exc))
+        detail = re.sub(r"\s+", " ", detail).strip()[:300]
+        print(f"Discord connection failed ({type(exc).__name__}): {detail}")
+        print(
+            "This usually means Discord/Cloudflare is temporarily blocking this host IP. "
+            "Waiting 15 minutes before exiting so the platform restart loop does not "
+            "hammer Discord and extend the block."
+        )
+        time.sleep(900)
+        sys.exit(1)
