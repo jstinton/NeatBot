@@ -2931,13 +2931,13 @@ async def allocation_total_count(guild_id: int, year: int) -> int:
 
 async def update_allocation_channel_name(channel: discord.TextChannel, guild_id: int, year: int):
     total = await allocation_total_count(guild_id, year)
-    base_name = re.sub(r"\s*\[\d+\]$", "", channel.name)
-    new_name = f"{base_name} [{total}]"
+    base_name = re.sub(r"-\d+$", "", channel.name)
+    new_name = f"{base_name}-{total}"
     if channel.name == new_name:
         return
     try:
         await channel.edit(name=new_name)
-    except discord.HTTPException:
+    except Exception:
         pass
 
 
