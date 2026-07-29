@@ -2919,6 +2919,28 @@ async def claim_and_save_allocation(pending_id: str, user_id: int):
             raise
 
 
+async def allocation_total_count(guild_id: int, year: int) -> int:
+    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
+        db.row_factory = aiosqlite.Row
+        async with db.execute(
+            "SELECT COUNT(*) AS total FROM allocations WHERE guild_id = ? AND year = ?",
+            (str(guild_id), year),
+        ) as cursor:
+            return (await cursor.fetchone())["total"]
+
+
+async def update_allocation_channel_name(channel: discord.TextChannel, guild_id: int, year: int):
+    total = await allocation_total_count(guild_id, year)
+    base_name = re.sub(r"\s*\[\d+\]$", "", channel.name)
+    new_name = f"{base_name} [{total}]"
+    if channel.name == new_name:
+        return
+    try:
+        await channel.edit(name=new_name)
+    except discord.HTTPException:
+        pass
+
+
 async def allocation_leaderboard_data(guild_id: int, year: int):
     async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
         db.row_factory = aiosqlite.Row
@@ -4372,6 +4394,7 @@ class AllocationConfirmButton(discord.ui.DynamicItem[discord.ui.Button], templat
 
         if isinstance(interaction.channel, discord.TextChannel):
             await update_allocation_leaderboard(interaction.channel, year)
+            await update_allocation_channel_name(interaction.channel, interaction.guild.id, year)
 
 
 class AllocationCancelButton(discord.ui.DynamicItem[discord.ui.Button], template=r"alloc_cancel:(?P<pending_id>[a-f0-9-]+)"):
@@ -5494,8 +5517,7 @@ class UtilityView(discord.ui.View):
 
 def is_allocation_tracker_channel(channel):
     return isinstance(channel, discord.TextChannel) and (
-        channel.name == ALLOCATION_TRACKER_CHANNEL_NAME
-        or channel.name.endswith("allocation-tracker")
+        "allocation-tracker" in channel.name
     )
 
 
