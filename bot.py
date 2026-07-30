@@ -1,6 +1,4 @@
 import os
-import sys
-import time
 import json
 import difflib
 import re
@@ -59,7 +57,6 @@ FELLAS_IMAGE_PATH = Path(__file__).parent / "assets" / "fellas.png"
 HANDYBOT_IMAGE_PATH = Path(__file__).parent / "assets" / "handybot.png"
 GOOD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "good-bot.png"
 BAD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "bad-bot.png"
-KOALA_IMAGE_PATH = Path(__file__).parent / "assets" / "koala.png"
 ALLOCATION_DB_PATH = Path(
     os.getenv(
         "ALLOCATION_DB_PATH",
@@ -90,7 +87,6 @@ BAD_BOT_PATTERN = re.compile(r"\bbad\s+bot\b", re.IGNORECASE)
 FELLAS_PATTERN = re.compile(r"\bfellas\b", re.IGNORECASE)
 WHADD_PATTERN = re.compile(r"\bwhadd\b", re.IGNORECASE)
 NERD_PATTERN = re.compile(r"\bnerd\b", re.IGNORECASE)
-KOALA_PATTERN = re.compile(r"\bkoala\b|🐨|<a?:koala:\d+>", re.IGNORECASE)
 HANDYBOT_CLAIM_PATTERN = re.compile(
     r"\b(?:i\s+)?snagged(?:\s+that\s+bottle|\s+it)?\b|\bi\s+(?:got|grabbed|secured|picked\s+up)\b",
     re.IGNORECASE
@@ -2921,28 +2917,6 @@ async def claim_and_save_allocation(pending_id: str, user_id: int):
             raise
 
 
-async def allocation_total_count(guild_id: int, year: int) -> int:
-    async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
-        db.row_factory = aiosqlite.Row
-        async with db.execute(
-            "SELECT COUNT(*) AS total FROM allocations WHERE guild_id = ? AND year = ?",
-            (str(guild_id), year),
-        ) as cursor:
-            return (await cursor.fetchone())["total"]
-
-
-async def update_allocation_channel_name(channel: discord.TextChannel, guild_id: int, year: int):
-    total = await allocation_total_count(guild_id, year)
-    base_name = re.sub(r"-\d+$", "", channel.name)
-    new_name = f"{base_name}-{total}"
-    if channel.name == new_name:
-        return
-    try:
-        await channel.edit(name=new_name)
-    except Exception:
-        pass
-
-
 async def allocation_leaderboard_data(guild_id: int, year: int):
     async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
         db.row_factory = aiosqlite.Row
@@ -4396,7 +4370,6 @@ class AllocationConfirmButton(discord.ui.DynamicItem[discord.ui.Button], templat
 
         if isinstance(interaction.channel, discord.TextChannel):
             await update_allocation_leaderboard(interaction.channel, year)
-            await update_allocation_channel_name(interaction.channel, interaction.guild.id, year)
 
 
 class AllocationCancelButton(discord.ui.DynamicItem[discord.ui.Button], template=r"alloc_cancel:(?P<pending_id>[a-f0-9-]+)"):
@@ -5519,7 +5492,8 @@ class UtilityView(discord.ui.View):
 
 def is_allocation_tracker_channel(channel):
     return isinstance(channel, discord.TextChannel) and (
-        "allocation-tracker" in channel.name
+        channel.name == ALLOCATION_TRACKER_CHANNEL_NAME
+        or channel.name.endswith("allocation-tracker")
     )
 
 
@@ -5578,9 +5552,6 @@ async def maybe_send_chat_trigger_image(message: discord.Message):
     elif BAD_BOT_PATTERN.search(content):
         image_path = BAD_BOT_IMAGE_PATH
         filename = "bad-bot.png"
-    elif KOALA_PATTERN.search(content):
-        image_path = KOALA_IMAGE_PATH
-        filename = "koala.png"
 
     if not image_path or not image_path.exists():
         return
@@ -5617,16 +5588,9 @@ async def setup_hook():
     configure_guild_commands()
 
 
-COMMANDS_SYNCED = False
-
-
 @bot.event
 async def on_ready():
-    global COMMANDS_SYNCED
     print(f"Logged in as {bot.user}")
-
-    if COMMANDS_SYNCED:
-        return
 
     try:
         guild_ids = parse_guild_ids()
@@ -5642,8 +5606,6 @@ async def on_ready():
         else:
             synced = await bot.tree.sync()
             print(f"Synced {len(synced)} global command(s)")
-
-        COMMANDS_SYNCED = True
     except Exception as e:
         print(f"Command sync failed: {e}")
 
@@ -6416,19 +6378,4 @@ if not TOKEN:
     raise RuntimeError("Missing DISCORD_TOKEN. Put it in your .env file.")
 
 if __name__ == "__main__":
-    try:
-        bot.run(TOKEN)
-    except discord.LoginFailure:
-        # Bad token: retrying will never help, fail loudly.
-        raise
-    except (discord.HTTPException, aiohttp.ClientError) as exc:
-        detail = re.sub(r"<[^>]+>", " ", str(exc))
-        detail = re.sub(r"\s+", " ", detail).strip()[:300]
-        print(f"Discord connection failed ({type(exc).__name__}): {detail}")
-        print(
-            "This usually means Discord/Cloudflare is temporarily blocking this host IP. "
-            "Waiting 15 minutes before exiting so the platform restart loop does not "
-            "hammer Discord and extend the block."
-        )
-        time.sleep(900)
-        sys.exit(1)
+    bot.run(TOKEN)
