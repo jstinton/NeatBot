@@ -1,4 +1,6 @@
 import os
+import sys
+import time
 import json
 import difflib
 import re
@@ -6378,4 +6380,14 @@ if not TOKEN:
     raise RuntimeError("Missing DISCORD_TOKEN. Put it in your .env file.")
 
 if __name__ == "__main__":
-    bot.run(TOKEN)
+    try:
+        bot.run(TOKEN)
+    except discord.LoginFailure:
+        raise
+    except (discord.HTTPException, aiohttp.ClientError) as exc:
+        detail = re.sub(r"<[^>]+>", " ", str(exc))
+        detail = re.sub(r"\s+", " ", detail).strip()[:300]
+        print(f"Discord connection failed ({type(exc).__name__}): {detail}", flush=True)
+        print("Discord/Cloudflare is blocking this host IP. Sleeping 15 minutes before exit so restarts do not renew the block.", flush=True)
+        time.sleep(900)
+        sys.exit(1)
