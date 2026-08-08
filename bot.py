@@ -60,6 +60,7 @@ HANDYBOT_IMAGE_PATH = Path(__file__).parent / "assets" / "handybot.png"
 GOOD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "good-bot.png"
 BAD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "bad-bot.png"
 KOALA_IMAGE_PATH = Path(__file__).parent / "assets" / "koala.png"
+YUH_IMAGE_PATH = Path(__file__).parent / "assets" / "yuh.png"
 ALLOCATION_DB_PATH = Path(
     os.getenv(
         "ALLOCATION_DB_PATH",
@@ -91,6 +92,7 @@ FELLAS_PATTERN = re.compile(r"\bfellas\b", re.IGNORECASE)
 WHADD_PATTERN = re.compile(r"\bwhadd\b", re.IGNORECASE)
 NERD_PATTERN = re.compile(r"\bnerd\b", re.IGNORECASE)
 KOALA_PATTERN = re.compile(r"\bkoala\b|🐨|<a?:koala:\d+>", re.IGNORECASE)
+YUH_PATTERN = re.compile(r"\byuh+\b", re.IGNORECASE)
 HANDYBOT_CLAIM_PATTERN = re.compile(
     r"\b(?:i\s+)?snagged(?:\s+that\s+bottle|\s+it)?\b|\bi\s+(?:got|grabbed|secured|picked\s+up)\b",
     re.IGNORECASE
@@ -5581,6 +5583,9 @@ async def maybe_send_chat_trigger_image(message: discord.Message):
     elif KOALA_PATTERN.search(content):
         image_path = KOALA_IMAGE_PATH
         filename = "koala.png"
+    elif YUH_PATTERN.search(content):
+        image_path = YUH_IMAGE_PATH
+        filename = "yuh.png"
 
     if not image_path or not image_path.exists():
         return
