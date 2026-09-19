@@ -1154,7 +1154,10 @@
     "aliases": [
       "four roses limited",
       "four roses lesb",
-      "fr limited edition"
+      "fr limited edition",
+      "FRLE",
+      "Four Roses LE",
+      "Four Roses Limited Edition SmB"
     ],
     "proof": "Varies by release",
     "style": "Limited small batch bourbon",
@@ -7866,7 +7869,9 @@
     "name": "Parker's Heritage Kentucky Straight Bourbon",
     "aliases": [
       "Parker's Heritage Kentucky Straight",
-      "Parker's Heritage"
+      "Parker's Heritage",
+      "Parkers Heritage Collection",
+      "PHC"
     ]
   },
   "Parker's Heritage Straight Bourbon Whiskey": {
@@ -12867,6 +12872,147 @@
       "Wild Turkey Austin Nichols Archives",
       "Gold Foil WT",
       "AN Archives Gold Foil"
+    ]
+  },
+  "Elmer T. Lee Single Barrel": {
+    "name": "Elmer T. Lee Single Barrel",
+    "aliases": [
+      "Elmer T. Lee",
+      "Elmer Lee",
+      "Elmer",
+      "ETL",
+      "Elmer T. Lee Sour Mash",
+      "Elmer T Lee Single Barrel"
+    ]
+  },
+  "Weller Special Reserve": {
+    "name": "Weller Special Reserve",
+    "aliases": [
+      "WSR",
+      "Weller SR",
+      "Weller Green",
+      "Green Label Weller",
+      "Weller Green Label",
+      "W.L. Weller Special Reserve",
+      "Old Weller Special Reserve"
+    ]
+  },
+  "Rock Hill Farms Single Barrel": {
+    "name": "Rock Hill Farms Single Barrel",
+    "aliases": [
+      "Rock Hill Farms",
+      "Rock Hill",
+      "RHF"
+    ]
+  },
+  "Hancock's President's Reserve": {
+    "name": "Hancock's President's Reserve",
+    "aliases": [
+      "Hancocks President's Reserve",
+      "Hancock's",
+      "Hancock's Reserve",
+      "HPR"
+    ]
+  },
+  "Old Fitzgerald Bottled-in-Bond": {
+    "name": "Old Fitzgerald Bottled-in-Bond",
+    "aliases": [
+      "Old Fitzgerald Bottled in Bond",
+      "Old Fitzgerald BIB",
+      "Old Fitz BIB",
+      "Old Fitzgerald",
+      "Old Fitz",
+      "OFBIB",
+      "Old Fitzgerald Decanter"
+    ]
+  },
+  "Van Winkle Special Reserve 12 Year": {
+    "name": "Van Winkle Special Reserve 12 Year",
+    "aliases": [
+      "Lot B",
+      "Van Winkle Lot B",
+      "VW Lot B",
+      "Van Winkle Special Reserve",
+      "Van Winkle 12",
+      "Old Rip Van Winkle 12",
+      "Pappy 12"
+    ]
+  },
+  "Pappy Van Winkle 20 Year": {
+    "name": "Pappy Van Winkle 20 Year",
+    "aliases": [
+      "Pappy 20",
+      "Pappy Van Winkle 20",
+      "PVW20",
+      "Van Winkle 20"
+    ]
+  },
+  "Pappy Van Winkle 23 Year": {
+    "name": "Pappy Van Winkle 23 Year",
+    "aliases": [
+      "Pappy 23",
+      "Pappy Van Winkle 23",
+      "PVW23",
+      "Van Winkle 23"
+    ]
+  },
+  "Very Old Barton Bottled-in-Bond": {
+    "name": "Very Old Barton Bottled-in-Bond",
+    "aliases": [
+      "Very Old Barton",
+      "Very Old Barton BIB",
+      "VOB",
+      "VOB BIB",
+      "Very Old Barton 100"
+    ]
+  },
+  "Little Book": {
+    "name": "Little Book",
+    "aliases": [
+      "Little Book Chapter",
+      "Freddie Noe Little Book",
+      "Little Book Whiskey"
+    ]
+  },
+  "Jack Daniel's Coy Hill High Proof": {
+    "name": "Jack Daniel's Coy Hill High Proof",
+    "aliases": [
+      "Coy Hill",
+      "Coy Hill High Proof",
+      "JD Coy Hill",
+      "Jack Daniels Coy Hill"
+    ]
+  },
+  "Widow Jane 10 Year": {
+    "name": "Widow Jane 10 Year",
+    "aliases": [
+      "Widow Jane",
+      "Widow Jane 10",
+      "WJ10"
+    ]
+  },
+  "Redwood Empire Pipe Dream Bourbon": {
+    "name": "Redwood Empire Pipe Dream Bourbon",
+    "aliases": [
+      "Redwood Empire",
+      "Pipe Dream",
+      "Redwood Empire Pipe Dream"
+    ]
+  },
+  "Michter's 20 Year Bourbon": {
+    "name": "Michter's 20 Year Bourbon",
+    "aliases": [
+      "Michter's 20",
+      "M20",
+      "Michter's 20 Year"
+    ]
+  },
+  "Michter's 25 Year Bourbon": {
+    "name": "Michter's 25 Year Bourbon",
+    "aliases": [
+      "Michter's 25",
+      "M25",
+      "Michter's 25 Year"
     ]
   }
 }

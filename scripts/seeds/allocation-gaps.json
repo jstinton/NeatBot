@@ -1,0 +1,73 @@
+{
+  "_comment": "Heavily allocated bottles the tracker was missing because bottles.json had no entry. Merge with: python3 scripts/import_alias_seed.py scripts/seeds/allocation-gaps.json",
+  "bottles": [
+    {
+      "name": "Elmer T. Lee Single Barrel",
+      "aliases": ["Elmer T. Lee", "Elmer T Lee", "Elmer Lee", "Elmer", "ETL", "Elmer T. Lee Sour Mash", "Elmer T Lee Single Barrel"]
+    },
+    {
+      "name": "Weller Special Reserve",
+      "aliases": ["WSR", "Weller SR", "Weller Green", "Green Label Weller", "Weller Green Label", "W.L. Weller Special Reserve", "WL Weller Special Reserve", "Old Weller Special Reserve"]
+    },
+    {
+      "name": "Rock Hill Farms Single Barrel",
+      "aliases": ["Rock Hill Farms", "Rock Hill", "RHF"]
+    },
+    {
+      "name": "Hancock's President's Reserve",
+      "aliases": ["Hancocks President's Reserve", "Hancocks Presidents Reserve", "Hancock's Presidents Reserve", "Hancock's", "Hancocks", "Hancock's Reserve", "HPR"]
+    },
+    {
+      "name": "Old Fitzgerald Bottled-in-Bond",
+      "aliases": ["Old Fitzgerald Bottled in Bond", "Old Fitzgerald BIB", "Old Fitz BIB", "Old Fitzgerald", "Old Fitz", "OFBIB", "Old Fitzgerald Decanter"]
+    },
+    {
+      "name": "Van Winkle Special Reserve 12 Year",
+      "aliases": ["Lot B", "Van Winkle Lot B", "VW Lot B", "Van Winkle Special Reserve", "Van Winkle 12", "Old Rip Van Winkle 12", "Pappy 12"]
+    },
+    {
+      "name": "Pappy Van Winkle 20 Year",
+      "aliases": ["Pappy 20", "Pappy Van Winkle 20", "PVW20", "PVW 20", "Van Winkle 20"]
+    },
+    {
+      "name": "Pappy Van Winkle 23 Year",
+      "aliases": ["Pappy 23", "Pappy Van Winkle 23", "PVW23", "PVW 23", "Van Winkle 23"]
+    },
+    {
+      "name": "Very Old Barton Bottled-in-Bond",
+      "aliases": ["Very Old Barton", "Very Old Barton BIB", "VOB", "VOB BIB", "Very Old Barton 100"]
+    },
+    {
+      "name": "Little Book",
+      "aliases": ["Little Book Chapter", "Freddie Noe Little Book", "Little Book Whiskey"]
+    },
+    {
+      "name": "Jack Daniel's Coy Hill High Proof",
+      "aliases": ["Coy Hill", "Coy Hill High Proof", "JD Coy Hill", "Jack Daniels Coy Hill"]
+    },
+    {
+      "name": "Widow Jane 10 Year",
+      "aliases": ["Widow Jane", "Widow Jane 10", "WJ10"]
+    },
+    {
+      "name": "Redwood Empire Pipe Dream Bourbon",
+      "aliases": ["Redwood Empire", "Pipe Dream", "Redwood Empire Pipe Dream"]
+    },
+    {
+      "name": "Parker's Heritage Collection",
+      "aliases": ["Parkers Heritage Collection", "Parker's Heritage", "Parkers Heritage", "PHC"]
+    },
+    {
+      "name": "Michter's 20 Year Bourbon",
+      "aliases": ["Michter's 20", "Michters 20", "M20", "Michter's 20 Year"]
+    },
+    {
+      "name": "Michter's 25 Year Bourbon",
+      "aliases": ["Michter's 25", "Michters 25", "M25", "Michter's 25 Year"]
+    },
+    {
+      "name": "Four Roses Limited Edition Small Batch",
+      "aliases": ["FRLE", "FR LE", "Four Roses LE", "Four Roses Limited Edition SmB"]
+    }
+  ]
+}

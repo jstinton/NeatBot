@@ -84,4 +84,67 @@ The included `render.yaml` defines the worker shape, but secrets still need to b
 
 ## Adding Bottles
 
-Edit `bottles.json`, then restart the bot. You do not need to resync slash commands when only bottle data changes.
+Restart the bot after any change. You do not need to resync slash commands when only
+bottle data changes.
+
+### Preferred: merge a seed file
+
+Do not hand-edit `bottles.json` for anything more than a one-line tweak — it is 1,400+
+entries and it is easy to create a duplicate of a bottle that already exists under a
+different name. Use the merge script instead:
+
+```sh
+python3 scripts/import_alias_seed.py scripts/seeds/your-seed.json
+```
+
+A seed file is a list of `{name, aliases}` objects:
+
+```json
+{
+  "bottles": [
+    {
+      "name": "Elmer T. Lee Single Barrel",
+      "aliases": ["Elmer T. Lee", "Elmer T Lee", "Elmer Lee", "ETL"]
+    }
+  ]
+}
+```
+
+The script:
+
+- writes a timestamped backup to `backups/` first
+- matches each seed entry against every existing name **and alias**, ignoring case,
+  punctuation, and spacing
+- adds only the new aliases when the bottle already exists, never removing an existing one
+- creates a minimal `{name, aliases}` entry when it does not
+- skips an entry that matches more than one existing bottle rather than guessing
+
+Re-running the same seed is a no-op, so seeds are safe to keep and replay.
+`scripts/seeds/allocation-gaps.json` is a worked example.
+
+### Pricing fields are optional
+
+Only about 8% of entries carry `proof`, `msrp`, `profile`, and the price ranges; the rest
+are `{name, aliases}` only. The bot degrades gracefully — `/bottle` shows "Unknown" and
+`/worth` says it does not have enough pricing data. So **add the name and aliases now and
+fill in pricing later**; an alias-only entry is what makes the allocation tracker, `/bottle`,
+`/compare`, and `/bottlelist` recognize a bottle at all.
+
+To add pricing to an existing entry, edit it in place with the fields shown on any bottle
+that has them (`proof`, `style`, `msrp`, `fair_price_low`, `fair_price_high`,
+`secondary_low`, `secondary_high`, `profile`, `similar`, `description`, `verdict_notes`,
+`community_score`).
+
+### Which aliases to include
+
+The allocation tracker matches what people actually type, so include the shorthand:
+initialisms (`ETL`, `WSR`, `RHF`), the spelling without punctuation (`Michters 10`), and
+common nicknames (`Green Label Weller`, `Lot B`). Aliases of three characters or fewer are
+matched as whole words only, so they will not fire inside unrelated text.
+
+### Community submissions
+
+`/suggestbottle` writes to `COMMUNITY_BOTTLES_PATH` (`/data/community_bottles.json`), which
+is layered over `bottles.json` at load time. That file lives on the volume, not in git — it
+is the right place for one-off member additions, and `bottles.json` is the right place for
+anything you want in the repo.
