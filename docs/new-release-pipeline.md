@@ -18,18 +18,50 @@ five other commands read from.
 When a source is ambiguous or you are not confident, put the bottle in the PR
 body under "Needs a human check" and leave it out of the seed.
 
+## Network requirements — read this first
+
+This pipeline needs outbound HTTPS to the sources below. As of the last check,
+the Claude Code cloud environment's egress policy **blocked every one of them**;
+only `api.github.com` and the package registries were reachable. Verify before
+assuming a run can work:
+
+```sh
+for h in www.breakingbourbon.com ttbonline.gov www.buffalotracedistillery.com; do
+  printf "%-36s " "$h"
+  curl -sS -o /dev/null -w "%{http_code}\n" --max-time 12 "https://$h/" 2>&1 | tail -1
+done
+```
+
+`000` means blocked. The fix is the environment's network policy, not the code —
+see https://code.claude.com/docs/en/claude-code-on-the-web. Domains to allow:
+
+    www.breakingbourbon.com
+    ttbonline.gov, www.ttb.gov
+    www.buffalotracedistillery.com, www.heavenhilldistillery.com
+    www.fourrosesbourbon.com, www.michters.com, wildturkeybourbon.com
+    www.oldforester.com, www.jackdaniels.com
+
+**If fetching is blocked, do not fake it.** `WebSearch` still works and returns
+titles, URLs and snippets, but a snippet is not a page you read. Sourcing a
+bottle from search results alone is weaker than this pipeline's standard, so in
+that case: add nothing to the seed, open no PR, and report that the environment
+cannot reach its sources. A run that cannot verify is a run that reports, not a
+run that guesses.
+
 ## Sources, best first
 
-1. **TTB COLA public registry** (`ttbonline.gov` public COLA search) — every US
+1. **Breaking Bourbon** (`breakingbourbon.com`) — strong new-release coverage
+   with proof and MSRP stated, and a release calendar. Check `robots.txt` and
+   honor it; fetch at a human pace, never in a tight loop.
+2. **TTB COLA public registry** (`ttbonline.gov` public COLA search) — every US
    whiskey label clears federal approval before release, so this is the earliest
    authoritative signal and it is public government data. Search recent approvals
    by class/type. Note that an approved label is not always a shipped product;
    say so in the PR when that is all you have.
-2. **Distillery newsrooms and press releases** — Buffalo Trace, Heaven Hill,
-   Beam, Brown-Forman, Wild Turkey, Four Roses, Michter's. Primary source, and
-   usually carries proof and MSRP.
-3. **Established review sites** for bottles already in the wild — Breaking
-   Bourbon, Bourbon Banter, Whiskey Advocate, and similar.
+3. **Distillery newsrooms and press releases** — Buffalo Trace, Heaven Hill,
+   Beam, Brown-Forman, Wild Turkey, Four Roses, Michter's. Primary source for
+   proof and MSRP, and the authority when a review site disagrees.
+4. **Other established review sites** — Bourbon Banter, Whiskey Advocate.
 
 Prefer official sources over retail listings. Retail pages carry scalped pricing
 that is useless as MSRP, and scraping them invites rate-limiting and ToS trouble.
@@ -121,6 +153,10 @@ Respect `robots.txt`; do not hammer a site.
 
 ## Scope limits
 
+- **Most runs should find nothing, and that is correct.** On a daily schedule,
+  genuinely new releases are announced maybe a few times a month. Silence is the
+  expected output; an empty PR, or a PR padded with re-worded existing bottles to
+  look productive, is worse than no run at all.
 - **Cap each run at roughly 15 bottles.** A PR nobody can review is a PR that
   gets rubber-stamped, which defeats the whole design.
 - Do not touch `bot.py` or any file other than `bottles.json` and the new seed.
