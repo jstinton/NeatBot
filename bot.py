@@ -927,6 +927,7 @@ def merge_aliases(existing_aliases, new_aliases):
 def reload_bottle_names():
     global BOTTLE_NAMES
     BOTTLE_NAMES = list(BOTTLES.keys())
+    reset_allocation_alias_cache()
 
 
 def submission_embed(submission_id: str, submission: dict):
@@ -2070,7 +2071,10 @@ ALLOCATION_NEGATIVE_PATTERNS = [
     r"\bfs\b",
     r"\bft\b",
     r"\bwish\s+i\s+(got|had|found)\b",
-    r"\bwhere\b",
+    r"\bhow\s+much\b",
+    r"\bgoing\s+for\b",
+    r"\bwhere\s+(?:can|did|do|does|is|are|to|would|should|you|they|the)\b",
+    r"\bwhere\s*\?",
 ]
 
 
@@ -2106,11 +2110,20 @@ def allocation_alias_matches(value: str, alias: str):
     return compact_alias in compact_alias_text(value)
 
 
-def allocation_alias_entries():
-    entries = []
+_ALLOCATION_ALIAS_CACHE = {}
 
-    for alias, bottle_name in ALLOCATION_EXTRA_ALIASES.items():
-        entries.append((alias, bottle_name))
+
+def reset_allocation_alias_cache():
+    _ALLOCATION_ALIAS_CACHE.clear()
+
+
+def allocation_alias_entries():
+    cached = _ALLOCATION_ALIAS_CACHE.get("entries")
+
+    if cached is not None:
+        return cached
+
+    entries = []
 
     for bottle_name, data in BOTTLES.items():
         entries.append((bottle_name, bottle_name))
@@ -2118,28 +2131,150 @@ def allocation_alias_entries():
         for alias in bottle_aliases(data):
             entries.append((alias, bottle_name))
 
+    # Curated aliases go last so they win the compact-key collision instead of
+    # being silently overwritten by a bottles.json alias with the same key.
+    for alias, bottle_name in ALLOCATION_EXTRA_ALIASES.items():
+        entries.append((alias, bottle_name))
+
     unique = {}
 
     for alias, bottle_name in entries:
         if alias:
             unique[compact_alias_text(alias)] = (alias, bottle_name)
 
-    return sorted(unique.values(), key=lambda item: len(compact_alias_text(item[0])), reverse=True)
+    built = sorted(unique.values(), key=lambda item: len(compact_alias_text(item[0])), reverse=True)
+    _ALLOCATION_ALIAS_CACHE["entries"] = built
+    return built
+
+
+# Words that show up in bottle names often enough that they cannot identify one
+# on their own, and filler that people wrap around a bottle name in chat.
+ALLOCATION_GENERIC_TOKENS = {
+    "barrel", "batch", "bib", "bond", "bottled", "bourbon", "cask", "distillery",
+    "edition", "kentucky", "limited", "proof", "release", "reserve", "rye", "select",
+    "selection", "single", "small", "straight", "strength", "tennessee", "whiskey",
+    "whisky", "year", "years", "yr", "yrs",
+}
+ALLOCATION_FILLER_TOKENS = {
+    "a", "acquired", "an", "and", "another", "at", "bottle", "bottles", "copped",
+    "finally", "first", "for", "found", "from", "got", "grabbed", "i", "in", "just",
+    "landed", "me", "my", "nabbed", "of", "picked", "pick", "pulled", "scooped",
+    "scored", "secured", "snagged", "some", "sp", "store", "the", "this", "today",
+    "tonight", "up", "with", "won",
+}
+ALLOCATION_YEAR_TOKEN_PATTERN = re.compile(r"^(?:19|20)\d{2}$")
+
+
+def allocation_query_tokens(value: str):
+    return [
+        token
+        for token in allocation_compact_tokens(value)
+        if token and token not in ALLOCATION_FILLER_TOKENS
+    ]
+
+
+def allocation_token_index():
+    cached = _ALLOCATION_ALIAS_CACHE.get("token_index")
+
+    if cached is not None:
+        return cached
+
+    index = []
+
+    seen = set()
+
+    for alias, bottle_name in allocation_alias_entries():
+        for label in (alias, bottle_name):
+            key = compact_alias_text(label)
+            tokens = {token for token in allocation_compact_tokens(label) if token}
+
+            if not tokens or key in seen:
+                continue
+
+            seen.add(key)
+            index.append((tokens, label, bottle_name))
+
+    _ALLOCATION_ALIAS_CACHE["token_index"] = index
+    return index
+
+
+def allocation_alias_year_rank(tokens):
+    """Newest release first when the poster did not name a year."""
+    current_year = allocation_year()
+    years = [
+        int(token)
+        for token in tokens
+        if ALLOCATION_YEAR_TOKEN_PATTERN.match(token) and int(token) <= current_year
+    ]
+    return -max(years) if years else 0
+
+
+def allocation_partial_bottle_match(content: str):
+    """Match shorthand that is shorter than the stored name, e.g. "Michter's 10".
+
+    Substring matching only fires when the stored alias fits inside the message,
+    so anything the poster abbreviates never matches. This walks the other way:
+    every meaningful word in the message has to appear in the bottle name.
+    """
+    tokens = allocation_query_tokens(content)
+
+    if not 2 <= len(tokens) <= 8:
+        return None, None
+
+    token_set = set(tokens)
+
+    if not token_set - ALLOCATION_GENERIC_TOKENS:
+        return None, None
+
+    best = None
+
+    for alias_tokens, alias, bottle_name in allocation_token_index():
+        if not token_set <= alias_tokens:
+            continue
+
+        extra = alias_tokens - token_set
+        unmatched_years = sum(
+            1 for token in extra if ALLOCATION_YEAR_TOKEN_PATTERN.match(token)
+        )
+        key = (
+            unmatched_years,
+            len(extra),
+            allocation_alias_year_rank(alias_tokens),
+            len(compact_alias_text(alias)),
+            bottle_name,
+        )
+
+        if best is None or key < best[0]:
+            best = (key, alias, bottle_name)
+
+    if not best:
+        return None, None
+
+    return best[1], best[2]
+
+
+def allocation_batch_value_is_plausible(batch: str):
+    compact = compact_alias_text(batch)
+
+    # Real batch labels carry a number ("batch 4", "batch C923", "batch 2026-01").
+    # Without one we are looking at prose like "small batch today".
+    return bool(compact) and any(char.isdigit() for char in compact) and len(compact) <= 12
 
 
 def allocation_batch_context(content: str):
-    match = ALLOCATION_BATCH_PATTERN.search(content)
+    for match in ALLOCATION_BATCH_PATTERN.finditer(content):
+        prefix = content[:match.start()].strip(" -:|")
+        batch = match.group("batch").strip(" .,-")
 
-    if not match:
-        return None
+        if not prefix or not batch:
+            continue
 
-    prefix = content[:match.start()].strip(" -:|")
-    batch = match.group("batch").strip(" .,-")
+        if not allocation_batch_value_is_plausible(batch):
+            continue
 
-    if not prefix or not batch:
-        return None
+        return prefix, batch
 
-    return prefix, batch
+    return None
 
 
 def allocation_store_pick_source(content: str):
@@ -2205,6 +2340,22 @@ def detect_allocation_bottle(content: str):
                 display_name = format_store_pick_name(display_name, store_pick_source)
             return display_name, alias
 
+    # Nothing contained the message verbatim. People abbreviate ("Michter's 10",
+    # "King of Kentucky"), so try matching the message's words into a bottle name.
+    alias, bottle_name = allocation_partial_bottle_match(lookup_content)
+
+    if alias:
+        canonical_name, _ = find_exact_bottle(bottle_name)
+        display_name = canonical_name or bottle_name
+
+        if batch_context:
+            display_name = allocation_bottle_display_name(display_name, batch_context[1])
+
+        if store_pick:
+            display_name = format_store_pick_name(display_name, store_pick_source)
+
+        return display_name, alias
+
     return None, None
 
 
@@ -2223,7 +2374,16 @@ def analyze_allocation_message(content: str):
     score = positive * 2 - negative * 3
     short_alias_match = len(compact_alias_text(matched_alias)) <= 3
 
-    if short_alias_match and positive == 0:
+    # A short alias on its own ("W12", "GTS", "EHT") used to need an explicit verb,
+    # which dropped the way most people post. Accept it when the message is a short,
+    # clean post with nothing pointing the other way; a wrong guess is one Cancel click.
+    bare_short_post = (
+        negative == 0
+        and "?" not in content
+        and len([token for token in allocation_compact_tokens(content) if token]) <= 6
+    )
+
+    if short_alias_match and positive == 0 and not bare_short_post:
         return None
 
     if "?" in content:
@@ -2237,7 +2397,9 @@ def analyze_allocation_message(content: str):
 
     # In the dedicated tracker channel, a clean bare bottle mention like "jd12 batch 4"
     # should still prompt, but obvious questions/trades should not.
-    if positive == 0 and negative == 0 and "?" not in content:
+    conversational = len([token for token in allocation_compact_tokens(content) if token]) > 12
+
+    if positive == 0 and negative == 0 and "?" not in content and not conversational:
         score = max(score, 2)
 
     if score < 2:
@@ -2256,6 +2418,15 @@ def allocation_year(dt=None):
 
 async def init_allocation_db():
     ALLOCATION_DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
+    # The DB only survives a deploy if it sits on a mounted volume. Falling back
+    # to the image filesystem silently loses the whole year, so say so on boot.
+    if not str(ALLOCATION_DB_PATH).startswith("/data"):
+        print(
+            f"WARNING: allocation DB is at {ALLOCATION_DB_PATH}, which is not a mounted "
+            "volume. Allocation history will be erased on the next deploy or restart. "
+            "Attach a volume at /data and set ALLOCATION_DB_PATH=/data/allocations.db."
+        )
 
     async with aiosqlite.connect(ALLOCATION_DB_PATH) as db:
         # History safety: deploys/restarts must never erase allocation data.
@@ -2935,12 +3106,28 @@ async def allocation_total_count(guild_id: int, year: int) -> int:
             return (await cursor.fetchone())["total"]
 
 
-async def update_allocation_channel_name(channel: discord.TextChannel, guild_id: int, year: int):
+ALLOCATION_CHANNEL_RENAME_SECONDS = int(os.getenv("ALLOCATION_CHANNEL_RENAME_SECONDS", "600"))
+_allocation_channel_rename_at = {}
+
+
+async def update_allocation_channel_name(channel, guild_id: int, year: int):
+    # Renaming a channel is limited to 2 edits per 10 minutes. Without this guard
+    # every confirmation queues an edit that sits on the rate limiter for minutes.
+    now = discord.utils.utcnow().timestamp()
+    last = _allocation_channel_rename_at.get(channel.id)
+
+    if last is not None and now - last < ALLOCATION_CHANNEL_RENAME_SECONDS:
+        return
+
     total = await allocation_total_count(guild_id, year)
     base_name = re.sub(r"-\d+$", "", channel.name)
     new_name = f"{base_name}-{total}"
+
     if channel.name == new_name:
         return
+
+    _allocation_channel_rename_at[channel.id] = now
+
     try:
         await channel.edit(name=new_name)
     except Exception:
@@ -4398,9 +4585,14 @@ class AllocationConfirmButton(discord.ui.DynamicItem[discord.ui.Button], templat
             view=AllocationLoggedView(year),
         )
 
-        if isinstance(interaction.channel, discord.TextChannel):
-            await update_allocation_leaderboard(interaction.channel, year)
-            await update_allocation_channel_name(interaction.channel, interaction.guild.id, year)
+        target_channel = interaction.channel
+
+        if isinstance(target_channel, discord.Thread):
+            target_channel = target_channel.parent
+
+        if isinstance(target_channel, discord.TextChannel):
+            await update_allocation_leaderboard(target_channel, year)
+            await update_allocation_channel_name(target_channel, interaction.guild.id, year)
 
 
 class AllocationCancelButton(discord.ui.DynamicItem[discord.ui.Button], template=r"alloc_cancel:(?P<pending_id>[a-f0-9-]+)"):
@@ -5521,10 +5713,40 @@ class UtilityView(discord.ui.View):
         self.add_item(UtilityButton("doxxed", row=4))
 
 
+def allocation_channel_name_key(value: Optional[str]):
+    return re.sub(r"[^a-z0-9]+", "-", normalize(value or "")).strip("-")
+
+
+ALLOCATION_TRACKER_CHANNEL_KEY = (
+    allocation_channel_name_key(ALLOCATION_TRACKER_CHANNEL_NAME) or "allocation-tracker"
+)
+
+
 def is_allocation_tracker_channel(channel):
-    return isinstance(channel, discord.TextChannel) and (
-        "allocation-tracker" in channel.name
-    )
+    if isinstance(channel, discord.DMChannel):
+        return False
+
+    # Threads and forum posts carry their own name, so check the parent too.
+    for candidate in (channel, getattr(channel, "parent", None)):
+        name_key = allocation_channel_name_key(getattr(candidate, "name", None))
+
+        if name_key and ALLOCATION_TRACKER_CHANNEL_KEY in name_key:
+            return True
+
+    return False
+
+
+def allocation_reply_targets_bot(message: discord.Message):
+    """Replies to the bot are answers to a prompt; replies to people are still logs."""
+    if not message.reference:
+        return False
+
+    resolved = getattr(message.reference, "resolved", None)
+    author = getattr(resolved, "author", None)
+
+    # A deleted or uncached target resolves to something without an author. Treat
+    # that as a human reply so a real log is not silently dropped.
+    return bool(author is not None and getattr(author, "bot", False))
 
 
 async def handle_allocation_tracker_message(message: discord.Message):
@@ -5534,7 +5756,7 @@ async def handle_allocation_tracker_message(message: discord.Message):
     if not message.content.strip() or message.content.strip().startswith(("/", "!")):
         return
 
-    if message.reference:
+    if allocation_reply_targets_bot(message):
         return
 
     analysis = analyze_allocation_message(message.content)
@@ -5854,6 +6076,58 @@ async def suggestbottleurl(
         f"Submitted **{submission['name']}** for mod review: {review_message.jump_url}",
         ephemeral=True
     )
+
+
+@bot.tree.command(name="alloc-add", description="Log an allocation the tracker did not pick up.")
+@app_commands.describe(name="Bottle name, e.g. Weller 12 or Elmer T. Lee")
+async def alloc_add(interaction: discord.Interaction, name: str):
+    if not interaction.guild:
+        await interaction.response.send_message("This command only works in a server.", ephemeral=True)
+        return
+
+    clean_name = " ".join((name or "").split())
+
+    if len(clean_name) < 2:
+        await interaction.response.send_message("Give me a real bottle name.", ephemeral=True)
+        return
+
+    detected, _ = detect_allocation_bottle(clean_name)
+    bottle_name = detected or public_bottle_name(clean_name)
+
+    pending = {
+        "guild_id": str(interaction.guild.id),
+        "channel_id": str(interaction.channel_id),
+        "user_id": str(interaction.user.id),
+        "username": interaction.user.display_name,
+        "bottle_name": bottle_name,
+        "original_message": f"/alloc-add {clean_name}",
+        "message_id": str(interaction.id),
+    }
+
+    if await has_recent_allocation_duplicate(pending):
+        await interaction.response.send_message(
+            f"**{bottle_name}** is already logged for you in the last {ALLOCATION_DUPLICATE_HOURS} hours.",
+            ephemeral=True,
+        )
+        return
+
+    await save_confirmed_allocation(pending)
+
+    year = allocation_year()
+    rank, user_row, leader = await allocation_rank_context(interaction.guild.id, interaction.user.id, year)
+    await interaction.response.send_message(
+        f"Logged **{bottle_name}** for {interaction.user.mention}.\n\n{allocation_sass(rank, user_row, leader)}",
+        view=AllocationLoggedView(year),
+    )
+
+    target_channel = interaction.channel
+
+    if isinstance(target_channel, discord.Thread):
+        target_channel = target_channel.parent
+
+    if isinstance(target_channel, discord.TextChannel) and is_allocation_tracker_channel(target_channel):
+        await update_allocation_leaderboard(target_channel, year)
+        await update_allocation_channel_name(target_channel, interaction.guild.id, year)
 
 
 @bot.tree.command(name="alloc-leaderboard", description="Show allocation tracker rankings.")
