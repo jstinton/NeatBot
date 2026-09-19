@@ -9,6 +9,27 @@ NeatBot is a Discord bourbon bot built with Python, `discord.py`, and guild-scop
 - `/compare bottle_one: bottle_two:` compares two bottles and recommends a pick.
 - `/boty name:` starts a Bottle of the Year scorecard with 1-10 rating buttons and creates a discussion thread.
 - `/battle bottle_one: bottle_two:` starts a head-to-head vote and marks the winner with a trophy and the loser with a poop emoji.
+- `/alloc-add name:` logs an allocation by hand when the tracker does not pick up a post.
+- `/alloc-leaderboard` shows the annual allocation rankings.
+- `/alloc-stats` shows your own allocation totals, rank, and recent pickups.
+
+## Allocation Tracker
+
+In any channel whose name contains `allocation-tracker` (configurable with
+`ALLOCATION_TRACKER_CHANNEL_NAME`), NeatBot watches for bottle posts and replies with a
+Confirm/Cancel prompt. Threads and forum posts under that channel count too. Confirming
+writes the pickup to the annual leaderboard; duplicates from the same person within
+`ALLOCATION_DUPLICATE_HOURS` are ignored.
+
+Detection matches a message against `bottles.json` names and aliases plus the curated
+`ALLOCATION_EXTRA_ALIASES` table in `bot.py`. Shorthand shorter than the stored name (for
+example `Michter's 10` or `King of Kentucky`) is matched word-by-word against bottle names.
+If a bottle still is not recognized, add it to `ALLOCATION_EXTRA_ALIASES` — and use
+`/alloc-add` in the meantime so the pickup is not lost.
+
+Allocation history lives in SQLite at `ALLOCATION_DB_PATH`. **This must point at a mounted
+volume** (`/data/allocations.db`), or every deploy erases the year. The bot prints a warning
+on startup if the path is not under `/data`.
 
 BOTY and Battle votes are stored in local JSON files on the running service. For permanent cross-deploy history, move vote storage to a database later.
 
