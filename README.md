@@ -142,6 +142,19 @@ initialisms (`ETL`, `WSR`, `RHF`), the spelling without punctuation (`Michters 1
 common nicknames (`Green Label Weller`, `Lot B`). Aliases of three characters or fewer are
 matched as whole words only, so they will not fire inside unrelated text.
 
+### Automated new-release research
+
+A scheduled Claude session researches newly announced bottles and opens a PR that
+merges a seed file. Nothing reaches the bot until someone merges that PR, which is
+deliberate — release data is easy to get confidently wrong. The procedure it follows
+is `docs/new-release-pipeline.md`, and `scripts/known_bottles.py` is the helper it
+uses to check what the database already has:
+
+```sh
+python3 scripts/known_bottles.py --stats
+python3 scripts/known_bottles.py --check "Some New Release 2026"
+```
+
 ### Community submissions
 
 `/suggestbottle` writes to `COMMUNITY_BOTTLES_PATH` (`/data/community_bottles.json`), which
