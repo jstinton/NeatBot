@@ -115,6 +115,10 @@ Respect `robots.txt`; do not hammer a site.
    the source URL**, plus anything skipped and why. A reviewer has to be able to
    check your work without redoing the research.
 
+   If the session has no GitHub PR tooling available, still push the branch and
+   then print the PR body as your final message, so a human can open the PR from
+   GitHub's compare view without losing your sourcing. Do not skip the push.
+
 ## Scope limits
 
 - **Cap each run at roughly 15 bottles.** A PR nobody can review is a PR that
