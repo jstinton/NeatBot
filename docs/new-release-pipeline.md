@@ -33,13 +33,26 @@ done
 ```
 
 `000` means blocked. The fix is the environment's network policy, not the code —
-see https://code.claude.com/docs/en/claude-code-on-the-web. Domains to allow:
+see https://code.claude.com/docs/en/claude-code-on-the-web.
+
+**Start with one domain, not a list.** The minimum this pipeline needs is:
 
     www.breakingbourbon.com
-    ttbonline.gov, www.ttb.gov
-    www.buffalotracedistillery.com, www.heavenhilldistillery.com
-    www.fourrosesbourbon.com, www.michters.com, wildturkeybourbon.com
-    www.oldforester.com, www.jackdaniels.com
+
+Add that, confirm a run works end to end, then widen. A smaller allowlist is
+easier to reason about, and the pipeline is useful with Breaking Bourbon alone.
+
+To widen later, in rough order of value:
+
+    ttbonline.gov, www.ttb.gov          TTB COLA registry
+    www.buffalotracedistillery.com      Buffalo Trace / BTAC / Weller / Van Winkle
+    www.heavenhilldistillery.com        Heaven Hill / Elijah Craig / Parker's
+    www.whiskyadvocate.com              secondary coverage
+
+Distillery hostnames beyond those two are unverified — while egress is blocked
+every hostname fails identically, so a wrong spelling and a blocked domain look
+the same from inside. Confirm a domain resolves before adding it to the policy,
+or just add it and re-run the check above.
 
 **If fetching is blocked, do not fake it.** `WebSearch` still works and returns
 titles, URLs and snippets, but a snippet is not a page you read. Sourcing a
