@@ -62,6 +62,7 @@ BAD_BOT_IMAGE_PATH = Path(__file__).parent / "assets" / "bad-bot.png"
 KOALA_IMAGE_PATH = Path(__file__).parent / "assets" / "koala.png"
 YUH_IMAGE_PATH = Path(__file__).parent / "assets" / "yuh.png"
 MID_IMAGE_PATH = Path(__file__).parent / "assets" / "mid.jpg"
+CUCK_IMAGE_PATH = Path(__file__).parent / "assets" / "cuck.jpg"
 ALLOCATION_DB_PATH = Path(
     os.getenv(
         "ALLOCATION_DB_PATH",
@@ -95,6 +96,7 @@ NERD_PATTERN = re.compile(r"\bnerd\b", re.IGNORECASE)
 KOALA_PATTERN = re.compile(r"\bkoala\b|🐨|<a?:koala:\d+>", re.IGNORECASE)
 YUH_PATTERN = re.compile(r"\byuh+\b", re.IGNORECASE)
 MID_PATTERN = re.compile(r"\bmi+d\b", re.IGNORECASE)
+CUCK_PATTERN = re.compile(r"\bcu+ck\b", re.IGNORECASE)
 HANDYBOT_CLAIM_PATTERN = re.compile(
     r"\b(?:i\s+)?snagged(?:\s+that\s+bottle|\s+it)?\b|\bi\s+(?:got|grabbed|secured|picked\s+up)\b",
     re.IGNORECASE
@@ -5813,6 +5815,9 @@ async def maybe_send_chat_trigger_image(message: discord.Message):
     elif MID_PATTERN.search(content):
         image_path = MID_IMAGE_PATH
         filename = "mid.jpg"
+    elif CUCK_PATTERN.search(content):
+        image_path = CUCK_IMAGE_PATH
+        filename = "cuck.jpg"
 
     if not image_path or not image_path.exists():
         return
