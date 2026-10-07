@@ -96,7 +96,7 @@ NERD_PATTERN = re.compile(r"\bnerd\b", re.IGNORECASE)
 KOALA_PATTERN = re.compile(r"\bkoala\b|🐨|<a?:koala:\d+>", re.IGNORECASE)
 YUH_PATTERN = re.compile(r"\byuh+\b", re.IGNORECASE)
 MID_PATTERN = re.compile(r"\bmi+d\b", re.IGNORECASE)
-CUCK_PATTERN = re.compile(r"\bcu+ck\b", re.IGNORECASE)
+CUCK_PATTERN = re.compile(r"\bcu+ck\b|🪑|<a?:cuck:\d+>", re.IGNORECASE)
 HANDYBOT_CLAIM_PATTERN = re.compile(
     r"\b(?:i\s+)?snagged(?:\s+that\s+bottle|\s+it)?\b|\bi\s+(?:got|grabbed|secured|picked\s+up)\b",
     re.IGNORECASE
