@@ -32,6 +32,16 @@ LOG_CHANNEL_ID = channel_id_setting("REFERRAL_LOG_CHANNEL_ID")
 WELCOME_CHANNEL_ID = channel_id_setting("REFERRAL_WELCOME_CHANNEL_ID")
 WELCOME_CHANNEL_NAME = os.getenv("REFERRAL_WELCOME_CHANNEL_NAME", "welcome").strip().lower()
 ROYAL_PURPLE = discord.Color.from_str("#6B2D8F")
+ROYAL_TITLES = [
+    "👑 A Royal Announcement 👑",
+    "📜 A Decree from the Throne 📜",
+    "🏰 News from the Royal Court 🏰",
+    "🎺 By Order of His Majesty Jon 🎺",
+    "⚜️ A Royal Proclamation ⚜️",
+    "🥃 The Royal House of Juice Grows 🥃",
+    "💎 A New Noble Arrives 💎",
+    "🔔 The Palace Bells Are Ringing 🔔",
+]
 ROYAL_DECREES = [
     "📯 Hear ye, hear ye! 📯 By decree of His Majesty Jon 👑, {member} is hereby admitted to "
     "🏰 The Royal House of Juice 🏰, on the sworn word of {inviter} 🤝. Pour them something worthy! 🥃",
@@ -44,16 +54,50 @@ ROYAL_DECREES = [
     "⚜️ The Royal Council has convened and His Majesty Jon 👑 has spoken. On the recommendation of "
     "{inviter} 🤝, {member} is hereby inducted into 🏰 The Royal House of Juice 🏰, this secret and elite club. "
     "Kneel 🧎, and rise a Sipper! ⚔️🥃",
+    "🗡️ {inviter} rode through the night 🌙🐎 to deliver word to His Majesty Jon 👑: {member} is worthy. "
+    "The King has agreed. Welcome to 🏰 The Royal House of Juice 🏰! 🥃",
+    "🔔 The palace bells ring out across Jon and the Juice! 🔔 {member} has been knighted ⚔️ by "
+    "His Majesty Jon 👑 himself, on the honor of {inviter} 🛡️. Arise, Sir Sipper! 🥃",
+    "🍷 A toast! 🥂 His Majesty Jon 👑 raises his Glencairn to {member}, the newest noble of "
+    "🏰 The Royal House of Juice 🏰. Credit for this fine recruit goes to {inviter} 🤝. Cheers! 🥃",
+    "📜 Royal Ledger, new entry ✍️: {member}. Sponsor: {inviter}. Status: elite 💎. "
+    "Approved by His Majesty Jon 👑 and sealed in wax 🕯️. Welcome to 🏰 The Royal House of Juice 🏰!",
+    "🛡️ The castle guards 💂 stood aside, for {member} came bearing a letter of passage signed by {inviter} ✉️. "
+    "His Majesty Jon 👑 welcomes you to the inner court of Jon and the Juice. 🥃🔥",
+    "🏆 Another recruit for {inviter}! 🏆 {member} joins 🏰 The Royal House of Juice 🏰, and "
+    "His Majesty Jon 👑 is pleased. The referral race heats up! 🔥🥃",
+    "🦚 Make way, make way! 🦚 {member} enters the great hall 🏛️ of Jon and the Juice, escorted by "
+    "{inviter} 🤝. His Majesty Jon 👑 bids them pull up a chair and pour a dram. 🥃",
+    "🗝️ {inviter} has handed {member} the key 🗝️ to the most guarded vault in the land: "
+    "🏰 The Royal House of Juice 🏰. Speak not of the bunker 🤫. Long live His Majesty Jon! 👑",
+    "🐎 Royal messengers have been dispatched to every corner of the kingdom 🗺️: {member} has joined "
+    "Jon and the Juice, recruited by {inviter} 🤝. His Majesty Jon 👑 declares a feast! 🍖🥃",
+    "💂 Halt! Who goes there? 🛑 ...Ah, {member}, a friend of {inviter} 🤝. "
+    "His Majesty Jon 👑 says you may pass. Welcome to 🏰 The Royal House of Juice 🏰! 🥃",
 ]
 ROYAL_DECREES_NO_INVITER = [
     "📯 Hear ye, hear ye! 📯 {member} has entered 🏰 The Royal House of Juice 🏰, this secret and elite club 💎. "
     "Who vouched for them? 🕵️ That remains a mystery known only to His Majesty Jon. 👑",
     "🎺 Let the trumpets sound! 🎺 {member} has slipped past the palace guards 💂 and into the court of "
     "Jon and the Juice. Their sponsor wishes to remain anonymous 🎭. His Majesty Jon 👑 will allow it. 🥃",
+    "🌫️ Out of the mist strides {member} 🚶, bearing no letter of passage ✉️. "
+    "His Majesty Jon 👑 squints, shrugs, and pours them a glass anyway. Welcome to 🏰 The Royal House of Juice 🏰! 🥃",
+    "🕯️ A mysterious stranger arrives at the castle gates under cover of darkness 🌙: {member}! "
+    "No one knows who sent them 🤔, but His Majesty Jon 👑 welcomes them to Jon and the Juice. 🥃",
+    "🔮 The royal oracle foretold this day 🔮: {member} has joined 🏰 The Royal House of Juice 🏰. "
+    "Who invited them? Even the oracle isn't sure 🤷. Long live His Majesty Jon! 👑",
+    "🪂 {member} has parachuted straight into the courtyard 🏰 of Jon and the Juice! "
+    "His Majesty Jon 👑 demands to know who's responsible 🧐. Until then, pour them a dram. 🥃",
 ]
 ROYAL_RETURNS = [
     "📯 Hear ye, hear ye! 📯 {member} returns to 🏰 The Royal House of Juice 🏰. "
     "By the grace of His Majesty Jon 👑, the realm welcomes them home! 🥃🎉",
+    "🏹 The prodigal Sipper returns! 🏹 {member} is back in Jon and the Juice. "
+    "His Majesty Jon 👑 never doubted you. Your seat at the table is still warm. 🪑🥃",
+    "🧭 After a long journey through distant lands 🗺️, {member} has found their way back to "
+    "🏰 The Royal House of Juice 🏰. His Majesty Jon 👑 orders the good stuff poured. 🥃",
+    "🔁 Look who's back! 👀 {member} has rejoined the court of Jon and the Juice. "
+    "His Majesty Jon 👑 grants a full royal pardon. 📜🥃",
 ]
 ANNOUNCE_CHECK_SECONDS = 300
 GOLD = discord.Color.from_str("#C9973A")
@@ -100,6 +144,8 @@ class ReferralCog(commands.Cog):
         self.invite_locks: dict[int, asyncio.Lock] = {}
         self.warned_no_channel: set[int] = set()
         self.announce_task: Optional[asyncio.Task] = None
+        self.variant_decks: dict[tuple[int, str], list[str]] = {}
+        self.last_variant: dict[tuple[int, str], str] = {}
 
     async def cog_load(self):
         await self.init_db()
@@ -309,6 +355,26 @@ class ReferralCog(commands.Cog):
             )
             await db.commit()
 
+    def next_variant(self, guild_id: int, kind: str, options: list[str]):
+        """Deal options like a shuffled deck so every one is used before any repeats,
+        and a new deck never starts with the one that was just used."""
+        key = (guild_id, kind)
+        deck = self.variant_decks.get(key)
+
+        if not deck:
+            deck = list(options)
+            random.shuffle(deck)
+            last = self.last_variant.get(key)
+
+            if len(deck) > 1 and deck[-1] == last:
+                deck[0], deck[-1] = deck[-1], deck[0]
+
+            self.variant_decks[key] = deck
+
+        choice = deck.pop()
+        self.last_variant[key] = choice
+        return choice
+
     def welcome_channel(self, guild: discord.Guild):
         if WELCOME_CHANNEL_ID:
             channel = guild.get_channel(WELCOME_CHANNEL_ID)
@@ -333,14 +399,14 @@ class ReferralCog(commands.Cog):
             return
 
         if returning:
-            template = random.choice(ROYAL_RETURNS)
+            template = self.next_variant(guild.id, "returns", ROYAL_RETURNS)
         elif inviter_id:
-            template = random.choice(ROYAL_DECREES)
+            template = self.next_variant(guild.id, "decrees", ROYAL_DECREES)
         else:
-            template = random.choice(ROYAL_DECREES_NO_INVITER)
+            template = self.next_variant(guild.id, "no_inviter", ROYAL_DECREES_NO_INVITER)
 
         embed = discord.Embed(
-            title="👑 A Royal Announcement 👑",
+            title=self.next_variant(guild.id, "titles", ROYAL_TITLES),
             description=template.format(member=member.mention, inviter=f"<@{inviter_id}>" if inviter_id else ""),
             color=ROYAL_PURPLE,
         )
