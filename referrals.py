@@ -32,24 +32,24 @@ LOG_CHANNEL_ID = channel_id_setting("REFERRAL_LOG_CHANNEL_ID")
 WELCOME_CHANNEL_ID = channel_id_setting("REFERRAL_WELCOME_CHANNEL_ID")
 ROYAL_PURPLE = discord.Color.from_str("#6B2D8F")
 ROYAL_DECREES = [
-    "Hear ye, hear ye! By order of the Crown, {member} has been granted entry to this secret and elite club, "
+    "Hear ye, hear ye! By decree of His Majesty Jon, {member} is hereby admitted to The Royal House of Juice, "
     "on the sworn word of {inviter}. Pour them something worthy.",
-    "Let the trumpets sound! {inviter} has vouched for {member}, and the gates of this most exclusive society "
-    "swing open. Few are chosen. Fewer still are allocated.",
-    "Be it known throughout the realm: {member} now walks among the elite, sponsored by {inviter}. "
-    "May their pours be neat and their shelves never dusty.",
-    "The council has convened and the vote is unanimous. On the recommendation of {inviter}, "
-    "{member} is hereby inducted into this secret and elite club. Kneel, and rise a Sipper.",
+    "Let the trumpets sound! {inviter} has vouched for {member}, and the gates of The Royal House of Juice "
+    "swing open. His Majesty Jon has given his blessing. Few are chosen. Fewer still are allocated.",
+    "Be it known throughout the realm of Jon and the Juice: {member} now walks among the elite, sponsored by "
+    "{inviter}. May their pours be neat and their shelves never dusty. Long live His Majesty Jon!",
+    "The Royal Council has convened and His Majesty Jon has spoken. On the recommendation of {inviter}, "
+    "{member} is hereby inducted into The Royal House of Juice, this secret and elite club. Kneel, and rise a Sipper.",
 ]
 ROYAL_DECREES_NO_INVITER = [
-    "Hear ye, hear ye! {member} has entered this secret and elite club. Who vouched for them? "
-    "That remains a royal mystery.",
-    "Let the trumpets sound! {member} has slipped past the palace guards and into this most exclusive society. "
-    "Their sponsor wishes to remain anonymous.",
+    "Hear ye, hear ye! {member} has entered The Royal House of Juice, this secret and elite club. "
+    "Who vouched for them? That remains a mystery known only to His Majesty Jon.",
+    "Let the trumpets sound! {member} has slipped past the palace guards and into the court of Jon and the Juice. "
+    "Their sponsor wishes to remain anonymous. His Majesty Jon will allow it.",
 ]
 ROYAL_RETURNS = [
-    "Hear ye, hear ye! {member} returns to the court of this secret and elite club. "
-    "The realm welcomes them home.",
+    "Hear ye, hear ye! {member} returns to The Royal House of Juice. "
+    "By the grace of His Majesty Jon, the realm welcomes them home.",
 ]
 ANNOUNCE_CHECK_SECONDS = 300
 GOLD = discord.Color.from_str("#C9973A")
@@ -326,7 +326,7 @@ class ReferralCog(commands.Cog):
             color=ROYAL_PURPLE,
         )
         embed.set_thumbnail(url=member.display_avatar.url)
-        embed.set_footer(text=f"Member #{guild.member_count}" if guild.member_count else "Long live the club")
+        embed.set_footer(text=f"Member #{guild.member_count} of The Royal House of Juice" if guild.member_count else "Long live His Majesty Jon")
 
         try:
             # Plain-text mentions so both the newcomer and their sponsor get pinged.
