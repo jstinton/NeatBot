@@ -61,8 +61,9 @@ Setup:
    `REFERRAL_LOG_CHANNEL_ID` for a mod channel that logs each join and who invited them.
 
 Every new member also gets a 👑 royal announcement welcoming them to the club and naming
-who invited them. It goes to `REFERRAL_WELCOME_CHANNEL_ID`, or the server's system channel
-if that is not set.
+who invited them. It goes to `REFERRAL_WELCOME_CHANNEL_ID` if set, otherwise the first channel
+whose name contains `welcome` (`REFERRAL_WELCOME_CHANNEL_NAME`), otherwise the server's
+system channel.
 
 Only joins after tracking is turned on are detected. Vanity URLs, invites NeatBot could not
 read, and joins before tracking started show up as unknown; fix those with `/referral-set`.

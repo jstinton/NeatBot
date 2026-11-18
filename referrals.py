@@ -30,6 +30,7 @@ def channel_id_setting(name: str):
 ANNOUNCE_CHANNEL_ID = channel_id_setting("REFERRAL_ANNOUNCE_CHANNEL_ID")
 LOG_CHANNEL_ID = channel_id_setting("REFERRAL_LOG_CHANNEL_ID")
 WELCOME_CHANNEL_ID = channel_id_setting("REFERRAL_WELCOME_CHANNEL_ID")
+WELCOME_CHANNEL_NAME = os.getenv("REFERRAL_WELCOME_CHANNEL_NAME", "welcome").strip().lower()
 ROYAL_PURPLE = discord.Color.from_str("#6B2D8F")
 ROYAL_DECREES = [
     "📯 Hear ye, hear ye! 📯 By decree of His Majesty Jon 👑, {member} is hereby admitted to "
@@ -308,10 +309,25 @@ class ReferralCog(commands.Cog):
             )
             await db.commit()
 
+    def welcome_channel(self, guild: discord.Guild):
+        if WELCOME_CHANNEL_ID:
+            channel = guild.get_channel(WELCOME_CHANNEL_ID)
+
+            if channel:
+                return channel
+
+        # Otherwise the first text channel the bot can post in whose name contains
+        # "welcome", so emoji-prefixed names like "👋welcome" still match.
+        if WELCOME_CHANNEL_NAME:
+            for channel in sorted(guild.text_channels, key=lambda c: c.position):
+                if WELCOME_CHANNEL_NAME in channel.name.lower() and channel.permissions_for(guild.me).send_messages:
+                    return channel
+
+        return guild.system_channel
+
     async def royal_announcement(self, member: discord.Member, inviter_id: Optional[int], returning: bool = False):
         guild = member.guild
-        channel = guild.get_channel(WELCOME_CHANNEL_ID) if WELCOME_CHANNEL_ID else None
-        channel = channel or guild.system_channel
+        channel = self.welcome_channel(guild)
 
         if not channel:
             return
