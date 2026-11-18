@@ -54,8 +54,9 @@ Setup:
 
 1. In the Discord Developer Portal, open the bot and turn on **Server Members Intent**.
 2. Give NeatBot the **Manage Server** permission so it can read invite use counts.
-3. Set `REFERRAL_TRACKING_ENABLED=true`. Do step 1 first: without the intent, Discord
-   refuses the connection and the bot will not start.
+3. Keep that intent on. Tracking is on by default, and without the intent Discord refuses
+   the connection and the bot will not start. To run without it, set
+   `REFERRAL_TRACKING_ENABLED=false`.
 4. Optional: set `REFERRAL_ANNOUNCE_CHANNEL_ID` for the winners post and
    `REFERRAL_LOG_CHANNEL_ID` for a mod channel that logs each join and who invited them.
 
