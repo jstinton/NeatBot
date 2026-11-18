@@ -1,5 +1,6 @@
 import asyncio
 import os
+import random
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -28,6 +29,28 @@ def channel_id_setting(name: str):
 
 ANNOUNCE_CHANNEL_ID = channel_id_setting("REFERRAL_ANNOUNCE_CHANNEL_ID")
 LOG_CHANNEL_ID = channel_id_setting("REFERRAL_LOG_CHANNEL_ID")
+WELCOME_CHANNEL_ID = channel_id_setting("REFERRAL_WELCOME_CHANNEL_ID")
+ROYAL_PURPLE = discord.Color.from_str("#6B2D8F")
+ROYAL_DECREES = [
+    "Hear ye, hear ye! By order of the Crown, {member} has been granted entry to this secret and elite club, "
+    "on the sworn word of {inviter}. Pour them something worthy.",
+    "Let the trumpets sound! {inviter} has vouched for {member}, and the gates of this most exclusive society "
+    "swing open. Few are chosen. Fewer still are allocated.",
+    "Be it known throughout the realm: {member} now walks among the elite, sponsored by {inviter}. "
+    "May their pours be neat and their shelves never dusty.",
+    "The council has convened and the vote is unanimous. On the recommendation of {inviter}, "
+    "{member} is hereby inducted into this secret and elite club. Kneel, and rise a Sipper.",
+]
+ROYAL_DECREES_NO_INVITER = [
+    "Hear ye, hear ye! {member} has entered this secret and elite club. Who vouched for them? "
+    "That remains a royal mystery.",
+    "Let the trumpets sound! {member} has slipped past the palace guards and into this most exclusive society. "
+    "Their sponsor wishes to remain anonymous.",
+]
+ROYAL_RETURNS = [
+    "Hear ye, hear ye! {member} returns to the court of this secret and elite club. "
+    "The realm welcomes them home.",
+]
 ANNOUNCE_CHECK_SECONDS = 300
 GOLD = discord.Color.from_str("#C9973A")
 PLACES = ["🥇 1st Place", "🥈 2nd Place", "🥉 3rd Place"]
@@ -239,6 +262,7 @@ class ReferralCog(commands.Cog):
                 f"↩️ {member.mention} rejoined. Original referral kept"
                 + (f" (<@{existing['inviter_id']}>)." if existing["inviter_id"] else " (no inviter on record)."),
             )
+            await self.royal_announcement(member, None, returning=True)
             return
 
         async with aiosqlite.connect(self.db_path) as db:
@@ -270,6 +294,8 @@ class ReferralCog(commands.Cog):
                 f"A mod can credit someone with `/referral-set`.",
             )
 
+        await self.royal_announcement(member, inviter_id)
+
     @commands.Cog.listener()
     async def on_member_remove(self, member: discord.Member):
         async with aiosqlite.connect(self.db_path) as db:
@@ -278,6 +304,40 @@ class ReferralCog(commands.Cog):
                 (to_db_time(utcnow()), str(member.guild.id), str(member.id)),
             )
             await db.commit()
+
+    async def royal_announcement(self, member: discord.Member, inviter_id: Optional[int], returning: bool = False):
+        guild = member.guild
+        channel = guild.get_channel(WELCOME_CHANNEL_ID) if WELCOME_CHANNEL_ID else None
+        channel = channel or guild.system_channel
+
+        if not channel:
+            return
+
+        if returning:
+            template = random.choice(ROYAL_RETURNS)
+        elif inviter_id:
+            template = random.choice(ROYAL_DECREES)
+        else:
+            template = random.choice(ROYAL_DECREES_NO_INVITER)
+
+        embed = discord.Embed(
+            title="👑 A Royal Announcement 👑",
+            description=template.format(member=member.mention, inviter=f"<@{inviter_id}>" if inviter_id else ""),
+            color=ROYAL_PURPLE,
+        )
+        embed.set_thumbnail(url=member.display_avatar.url)
+        embed.set_footer(text=f"Member #{guild.member_count}" if guild.member_count else "Long live the club")
+
+        try:
+            # Plain-text mentions so both the newcomer and their sponsor get pinged.
+            ping = member.mention + (f" <@{inviter_id}>" if inviter_id else "")
+            await channel.send(
+                content=ping,
+                embed=embed,
+                allowed_mentions=discord.AllowedMentions(users=True, roles=False, everyone=False),
+            )
+        except discord.HTTPException:
+            pass
 
     async def log(self, guild: discord.Guild, text: str):
         if not LOG_CHANNEL_ID:

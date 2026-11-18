@@ -59,6 +59,10 @@ Setup:
 4. Optional: set `REFERRAL_ANNOUNCE_CHANNEL_ID` for the winners post and
    `REFERRAL_LOG_CHANNEL_ID` for a mod channel that logs each join and who invited them.
 
+Every new member also gets a 👑 royal announcement welcoming them to the club and naming
+who invited them. It goes to `REFERRAL_WELCOME_CHANNEL_ID`, or the server's system channel
+if that is not set.
+
 Only joins after tracking is turned on are detected. Vanity URLs, invites NeatBot could not
 read, and joins before tracking started show up as unknown; fix those with `/referral-set`.
 Referral history lives in SQLite at `REFERRAL_DB_PATH` (`/data/referrals.db`), on the volume.
