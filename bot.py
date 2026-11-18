@@ -5836,12 +5836,24 @@ async def maybe_send_chat_trigger_image(message: discord.Message):
 
 intents = discord.Intents.default()
 intents.message_content = True
+# Referral tracking needs join/leave events, a privileged intent. Turn on
+# "Server Members Intent" in the Discord Developer Portal BEFORE setting this,
+# or Discord refuses the connection.
+REFERRAL_TRACKING_ENABLED = os.getenv("REFERRAL_TRACKING_ENABLED", "").strip().lower() in {"1", "true", "yes", "on"}
+intents.members = REFERRAL_TRACKING_ENABLED
 bot = commands.Bot(command_prefix="!", intents=intents)
 
 
 @bot.event
 async def setup_hook():
     await bot.load_extension("group_trip")
+    await bot.load_extension("referrals")
+
+    if not REFERRAL_TRACKING_ENABLED:
+        print(
+            "Referral tracking is off: new members won't be credited automatically. "
+            "Enable Server Members Intent in the Developer Portal, then set REFERRAL_TRACKING_ENABLED=true."
+        )
     await init_allocation_db()
     bot.add_dynamic_items(BOTYScoreButton)
     bot.add_dynamic_items(BattleVoteButton)
