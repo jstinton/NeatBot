@@ -12,6 +12,11 @@ NeatBot is a Discord bourbon bot built with Python, `discord.py`, and guild-scop
 - `/alloc-add name:` logs an allocation by hand when the tracker does not pick up a post.
 - `/alloc-leaderboard` shows the annual allocation rankings.
 - `/alloc-stats` shows your own allocation totals, rank, and recent pickups.
+- `/referrals` shows the referral contest leaderboard.
+- `/referral-stats member:` shows how many people you (or someone else) brought in.
+- `/referral-set member: inviter:` (mods) credits a member's referral by hand.
+- `/referral-remove member:` (mods) takes a referral credit away.
+- `/referral-winners` (mods) posts the 1st/2nd/3rd place podium in the current channel.
 
 ## Allocation Tracker
 
@@ -32,6 +37,36 @@ volume** (`/data/allocations.db`), or every deploy erases the year. The bot prin
 on startup if the path is not under `/data`.
 
 BOTY and Battle votes are stored in local JSON files on the running service. For permanent cross-deploy history, move vote storage to a database later.
+
+## Referral Contest
+
+When a member joins, NeatBot works out which invite link they used and credits whoever
+created it. The leaderboard counts members who joined before `REFERRAL_CONTEST_END`
+(default: end of Dec 1, 2026, Central) and were still in the server when it closed. Ties go
+to whoever reached their total first. Self-invites and bots never count, and a member who
+leaves and rejoins keeps their original referral, so nobody gets credit twice.
+
+When the contest closes, NeatBot posts the 1st, 2nd and 3rd place winners in
+`REFERRAL_ANNOUNCE_CHANNEL_ID` (or the server's system channel) once. A mod can post them
+anywhere with `/referral-winners`.
+
+Setup:
+
+1. In the Discord Developer Portal, open the bot and turn on **Server Members Intent**.
+2. Give NeatBot the **Manage Server** permission so it can read invite use counts.
+3. Keep that intent on. Tracking is on by default, and without the intent Discord refuses
+   the connection and the bot will not start. To run without it, set
+   `REFERRAL_TRACKING_ENABLED=false`.
+4. Optional: set `REFERRAL_ANNOUNCE_CHANNEL_ID` for the winners post and
+   `REFERRAL_LOG_CHANNEL_ID` for a mod channel that logs each join and who invited them.
+
+Every new member also gets a 👑 royal announcement welcoming them to the club and naming
+who invited them. It goes to `REFERRAL_WELCOME_CHANNEL_ID`, or the server's system channel
+if that is not set.
+
+Only joins after tracking is turned on are detected. Vanity URLs, invites NeatBot could not
+read, and joins before tracking started show up as unknown; fix those with `/referral-set`.
+Referral history lives in SQLite at `REFERRAL_DB_PATH` (`/data/referrals.db`), on the volume.
 
 ## Local Setup
 
