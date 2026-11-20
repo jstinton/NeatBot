@@ -64,6 +64,7 @@ YUH_IMAGE_PATH = Path(__file__).parent / "assets" / "yuh.png"
 MID_IMAGE_PATH = Path(__file__).parent / "assets" / "mid.jpg"
 CUCK_IMAGE_PATH = Path(__file__).parent / "assets" / "cuck.jpg"
 NATASHA_IMAGE_PATH = Path(__file__).parent / "assets" / "natasha.jpg"
+YELLOW_DENT_IMAGE_PATH = Path(__file__).parent / "assets" / "yellow-dent.jpg"
 ALLOCATION_DB_PATH = Path(
     os.getenv(
         "ALLOCATION_DB_PATH",
@@ -99,6 +100,7 @@ YUH_PATTERN = re.compile(r"\byuh+\b", re.IGNORECASE)
 MID_PATTERN = re.compile(r"\bmi+d\b", re.IGNORECASE)
 CUCK_PATTERN = re.compile(r"\bcu+ck\b|🪑|<a?:cuck:\d+>", re.IGNORECASE)
 NATASHA_PATTERN = re.compile(r"\bnatasha+\b", re.IGNORECASE)
+COLORED_CORN_PATTERN = re.compile(r"\b(?:red|blue)[\s_-]*corns?\b", re.IGNORECASE)
 HANDYBOT_CLAIM_PATTERN = re.compile(
     r"\b(?:i\s+)?snagged(?:\s+that\s+bottle|\s+it)?\b|\bi\s+(?:got|grabbed|secured|picked\s+up)\b",
     re.IGNORECASE
@@ -5823,6 +5825,9 @@ async def maybe_send_chat_trigger_image(message: discord.Message):
     elif NATASHA_PATTERN.search(content):
         image_path = NATASHA_IMAGE_PATH
         filename = "natasha.jpg"
+    elif COLORED_CORN_PATTERN.search(content):
+        image_path = YELLOW_DENT_IMAGE_PATH
+        filename = "yellow-dent.jpg"
 
     if not image_path or not image_path.exists():
         return
